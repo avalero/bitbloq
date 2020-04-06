@@ -39,6 +39,7 @@ export interface IJuniorProps {
   children: (props: IJuniorCallbackProps) => JSX.Element;
   uploadOptions: ICodeUploadOptions;
   externalUpload?: boolean;
+  readOnly?: boolean;
 }
 
 const bloqTypes = partialBloqTypes as IBloqType[];
@@ -50,7 +51,8 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
   initialContent,
   onContentChange,
   uploadOptions,
-  externalUpload
+  externalUpload,
+  readOnly
 }) => {
   const t = useTranslate();
 
@@ -187,6 +189,7 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
         onHardwareChange={newHardware =>
           updateContent({ hardware: newHardware, program })
         }
+        readOnly={readOnly}
       />
     ),
     software: (isActive: boolean) =>
@@ -205,6 +208,7 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
             onUpload={onUpload}
             board={board}
             externalUpload={externalUpload}
+            readOnly={readOnly}
           />
           {!externalUpload && uploadContent}
         </>

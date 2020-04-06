@@ -21,14 +21,15 @@ import {
 interface IHorizontalBloqEditorProps {
   lines: IBloqLine[];
   bloqTypes: IBloqType[];
-  availableBloqs: IBloqType[];
-  onLinesChange: (lines: IBloqLine[]) => any;
-  onUpload: () => any;
-  getComponents: (types: string[]) => IComponentInstance[];
-  getBloqPort: (bloq: IBloq) => string | undefined;
+  availableBloqs?: IBloqType[];
+  onLinesChange?: (lines: IBloqLine[]) => any;
+  onUpload?: () => any;
+  getComponents?: (types: string[]) => IComponentInstance[];
+  getBloqPort?: (bloq: IBloq) => string | undefined;
   board: IBoard;
   components: IComponent[];
   externalUpload?: boolean;
+  readOnly?: boolean;
 }
 
 const HorizontalBloqEditor: React.FunctionComponent<
@@ -36,14 +37,15 @@ const HorizontalBloqEditor: React.FunctionComponent<
 > = ({
   lines,
   bloqTypes,
-  availableBloqs,
-  onLinesChange,
-  onUpload,
-  getComponents,
-  getBloqPort,
+  availableBloqs = [],
+  onLinesChange = () => null,
+  onUpload = () => null,
+  getComponents = () => [],
+  getBloqPort = () => "",
   board,
   components,
-  externalUpload
+  externalUpload,
+  readOnly
 }) => {
   const [selectedLineIndex, setSelectedLine] = useState(-1);
   const [selectedBloqIndex, setSelectedBloq] = useState(-1);
@@ -219,38 +221,43 @@ const HorizontalBloqEditor: React.FunctionComponent<
     <Container>
       <Lines onClick={deselectEverything}>
         <LinesWrap selectedLine={selectedLineIndex}>
-          {[...lines, { id: uuid(), bloqs: [] }].map((line, i) => (
-            <EditorLine
-              key={line.id}
-              line={line}
-              bloqTypes={bloqTypes}
-              getBloqPort={getBloqPort}
-              selectedBloq={selectedLineIndex === i ? selectedBloqIndex : -1}
-              isFirst={i === 0}
-              isLast={i === lines.length - 1}
-              selectedPlaceholder={
-                selectedLineIndex === i ? selectedPlaceholder : -1
-              }
-              onBloqClick={(j, e) => {
-                e.stopPropagation();
-                setSelectedLine(i);
-                setSelectedBloq(j);
-                setSelectedPlaceholder(-1);
-              }}
-              onPlaceholderClick={(j, e) => {
-                e.stopPropagation();
-                setSelectedLine(i);
-                setSelectedBloq(-1);
-                setSelectedPlaceholder(j);
-              }}
-              onMoveUp={onMoveLineUp}
-              onMoveDown={onMoveLineDown}
-              onDuplicate={onDuplicateLine}
-              onToggle={onToggleLine}
-              onDelete={onDeleteLine}
-              onSelectedPositionChange={setSelectedLeft}
-            />
-          ))}
+          {[...lines, ...(readOnly ? [] : [{ id: uuid(), bloqs: [] }])].map(
+            (line, i) => (
+              <EditorLine
+                key={line.id}
+                line={line}
+                bloqTypes={bloqTypes}
+                getBloqPort={getBloqPort}
+                selectedBloq={selectedLineIndex === i ? selectedBloqIndex : -1}
+                isFirst={i === 0}
+                isLast={i === lines.length - 1}
+                selectedPlaceholder={
+                  selectedLineIndex === i ? selectedPlaceholder : -1
+                }
+                onBloqClick={(j, e) => {
+                  e.stopPropagation();
+                  if (!readOnly) {
+                    setSelectedLine(i);
+                    setSelectedBloq(j);
+                    setSelectedPlaceholder(-1);
+                  }
+                }}
+                onPlaceholderClick={(j, e) => {
+                  e.stopPropagation();
+                  setSelectedLine(i);
+                  setSelectedBloq(-1);
+                  setSelectedPlaceholder(j);
+                }}
+                onMoveUp={onMoveLineUp}
+                onMoveDown={onMoveLineDown}
+                onDuplicate={onDuplicateLine}
+                onToggle={onToggleLine}
+                onDelete={onDeleteLine}
+                onSelectedPositionChange={setSelectedLeft}
+                readOnly={readOnly}
+              />
+            )
+          )}
         </LinesWrap>
       </Lines>
       {!externalUpload && (

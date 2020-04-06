@@ -32,6 +32,10 @@ module.exports = {
         ]
       }
     });
+    config.module.rules.push({
+      test: /\.(zip)$/,
+      loader: "file-loader"
+    });
 
     config.resolve.extensions.push(".ts", ".tsx");
 
