@@ -22,6 +22,7 @@ const Switch: FC<ISwitchProps> = ({ buttons, value, onChange, className }) => {
           key={button.id}
           selected={button.id === value}
           onClick={() => button.id !== value && onChange(button.id)}
+          type="button"
         >
           {button.content}
         </Button>
