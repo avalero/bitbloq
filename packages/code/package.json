@@ -10,6 +10,7 @@
     "@emotion/core": "^10.0.22",
     "@emotion/styled": "^10.0.23",
     "@types/jszip": "^3.1.7",
+    "avrgirl-arduino": "^4.2.2",
     "immutability-helper": "^3.0.1",
     "jszip": "^3.2.2",
     "monaco-editor": "^0.18.1",

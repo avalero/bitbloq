@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import Borndate from "@bitbloq/borndate";
 import { DialogModal, useTranslate } from "@bitbloq/ui";
+import Avrgirl from "avrgirl-arduino";
 import UploadSpinner from "./UploadSpinner";
+import { knownBoards } from "./config";
 declare var chrome: any;
 
 export enum UploadErrorType {
@@ -62,6 +64,38 @@ class Uploader {
     });
   }
 
+  public openBrowserPort(board: string) {
+    return new Promise((resolve, reject) => {
+      const avrgirl = new Avrgirl({
+        board
+      });
+      const connection = avrgirl.connection;
+      let serialPortError = null;
+      connection._init(() => null);
+      connection._init = cb => cb(null);
+      const boardConfig = knownBoards[board];
+      if (boardConfig) {
+        connection.serialPort.requestOptions = {
+          filters: [
+            {
+              usbVendorId: boardConfig.vendorId,
+              usbProductId: boardConfig.productId
+            }
+          ]
+        };
+      }
+      connection.serialPort.open(error => {
+        if (error) {
+          serialPortError = error;
+          reject(error);
+        } else {
+          resolve(avrgirl);
+        }
+      });
+      connection.serialPort.open = cb => cb(serialPortError);
+    });
+  }
+
   public compile(code: any[], libraries: any[] = []) {
     return new Promise((resolve, reject) => {
       this.borndate
@@ -99,6 +133,27 @@ class Uploader {
     });
   }
 
+  public browserUpload(code: any[], libraries: any[] = [], board: string) {
+    return new Promise((resolve, reject) => {
+      Promise.all([
+        this.openBrowserPort(board),
+        this.borndate
+          .compile(code, libraries)
+          .catch(e => reject(new UploadError("compile-error", e.errors)))
+      ]).then(([avrgirl, hex]) => {
+        const enc = new TextEncoder();
+        (avrgirl as Avrgirl).flash(enc.encode(hex as string), error => {
+          if (error) {
+            reject(error);
+            return;
+          } else {
+            resolve();
+          }
+        });
+      });
+    });
+  }
+
   public destroy() {
     return undefined;
   }
@@ -111,6 +166,7 @@ export interface ICodeUploadOptions {
   onBoardNotFound?: () => void;
   onUploadError?: (error: any) => void;
   onUploadSuccess?: () => void;
+  useBrowserUpload?: boolean;
 }
 
 export const useCodeUpload = (
@@ -127,7 +183,8 @@ export const useCodeUpload = (
     onChromeAppMissing,
     onBoardNotFound,
     onUploadError,
-    onUploadSuccess
+    onUploadSuccess,
+    useBrowserUpload
   } = options;
   const t = useTranslate();
   const [showChromeAppModal, setShowChromeAppModal] = useState(false);
@@ -152,14 +209,16 @@ export const useCodeUpload = (
       return;
     }
 
-    try {
-      await uploaderRef.current.openChromeAppPort();
-    } catch (e) {
-      setShowChromeAppModal(true);
-      if (onChromeAppMissing) {
-        onChromeAppMissing();
+    if (!useBrowserUpload) {
+      try {
+        await uploaderRef.current.openChromeAppPort();
+      } catch (e) {
+        setShowChromeAppModal(true);
+        if (onChromeAppMissing) {
+          onChromeAppMissing();
+        }
+        return;
       }
-      return;
     }
 
     setUploading(true);
@@ -168,7 +227,9 @@ export const useCodeUpload = (
     setUploadText(t("code.uploading-to-board"));
 
     try {
-      const hex = await uploaderRef.current.upload(code, libraries, board);
+      const hex = useBrowserUpload
+        ? await uploaderRef.current.browserUpload(code, libraries, board)
+        : await uploaderRef.current.upload(code, libraries, board);
       setUploading(false);
       setUploadSuccess(true);
       setUploadText(t("code.uploading-success"));
