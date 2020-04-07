@@ -38,18 +38,20 @@ const AddBloqPanel: FC<IAddBloqPanelProps> = ({
       <BloqPlaceholderWrap left={selectedLeft + 10}>
         <BloqPlaceholder category={BloqCategory.Event} selected={true} />
       </BloqPlaceholderWrap>
-      <BloqList>
-        {Object.keys(availableBloqs).map(typeName => {
-          const type = bloqTypes.find(t => t.name === typeName)!;
-          return (
-            <StyledBloq
-              key={type.name}
-              type={type}
-              onClick={() => onSelectBloqType(type)}
-            />
-          );
-        })}
-      </BloqList>
+      <BloqsWrapper>
+        <Bloqs>
+          {Object.keys(availableBloqs).map(typeName => {
+            const type = bloqTypes.find(t => t.name === typeName)!;
+            return (
+              <StyledBloq
+                key={type.name}
+                type={type}
+                onClick={() => onSelectBloqType(type)}
+              />
+            );
+          })}
+        </Bloqs>
+      </BloqsWrapper>
     </Container>
   );
 };
@@ -59,32 +61,33 @@ export default AddBloqPanel;
 /* Styled components */
 
 const Container = styled.div`
-  position: absolute;
-  height: 100%;
-  width: 100%;
+  align-items: center;
   background-color: white;
+  bottom: 0;
+  box-sizing: border-box;
+  display: flex;
   filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.3));
   flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   flex-direction: column;
+  justify-content: center;
+  padding: 20px 100px 10px;
+  position: absolute;
+  width: 100%;
   z-index: 10; // zIndex description: 15
 `;
 
 const CloseButton = styled.div`
+  align-items: center;
   background-color: white;
   cursor: pointer;
   display: flex;
-  align-items: center;
   justify-content: center;
-  width: 40px;
   height: 40px;
   position: absolute;
-  top: 0px;
-  right: 0px;
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
+  right: 0;
+  top: 0;
+  transform: translate(-50%, -100%);
+  width: 40px;
 
   svg {
     height: 20px;
@@ -95,6 +98,7 @@ const CloseButton = styled.div`
 interface IBloqPlaceholderWrapProps {
   left: number;
 }
+
 const BloqPlaceholderWrap = styled.div<IBloqPlaceholderWrapProps>`
   position: absolute;
   bottom: 0px;
@@ -106,13 +110,14 @@ const BloqPlaceholderWrap = styled.div<IBloqPlaceholderWrapProps>`
   border-bottom-right-radius: 6px;
 `;
 
-const BloqList = styled.div`
+const Bloqs = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: center;
+`;
+
+const BloqsWrapper = styled.div`
+  display: flex;
+  overflow: auto;
   width: 100%;
-  max-width: 700px;
-  flex-wrap: wrap;
 `;
 
 const StyledBloq = styled(HorizontalBloq)`
