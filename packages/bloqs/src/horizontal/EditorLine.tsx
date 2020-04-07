@@ -24,6 +24,7 @@ interface IEditorLineProps {
   onToggle: (line: IBloqLine) => void;
   onDelete: (line: IBloqLine) => void;
   onSelectedPositionChange: (scrollLeft: number) => void;
+  readOnly?: boolean;
 }
 
 const EditorLine: React.FunctionComponent<IEditorLineProps> = ({
@@ -41,7 +42,8 @@ const EditorLine: React.FunctionComponent<IEditorLineProps> = ({
   onDuplicate,
   onToggle,
   onDelete,
-  onSelectedPositionChange
+  onSelectedPositionChange,
+  readOnly
 }) => {
   const [showOptions, setShowOptions] = useState(false);
   const optionsRef = useRef<HTMLDivElement>(null);
@@ -100,6 +102,7 @@ const EditorLine: React.FunctionComponent<IEditorLineProps> = ({
           onPlaceholderClick={onPlaceholderClick}
           getBloqPort={getBloqPort}
           onSelectedPositionChange={onSelectedPositionChange}
+          readOnly={readOnly}
         />
         {showOptions && (
           <Options ref={optionsRef}>
@@ -141,7 +144,7 @@ const EditorLine: React.FunctionComponent<IEditorLineProps> = ({
           </Options>
         )}
       </Container>
-      {bloqs.length > 0 && (
+      {bloqs.length > 0 && !readOnly && (
         <ShowOptionsButton
           ref={showOptionsRef}
           secondary

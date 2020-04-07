@@ -25,14 +25,16 @@ interface IHardwareDesignerProps {
   boards: IBoard[];
   components: IComponent[];
   hardware: IHardware;
-  onHardwareChange: (hardware: IHardware) => any;
+  onHardwareChange?: (hardware: IHardware) => any;
+  readOnly?: boolean;
 }
 
 const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
   boards,
   components,
   hardware,
-  onHardwareChange
+  onHardwareChange = () => null,
+  readOnly
 }) => {
   const [selectedPortIndex, setSelectedPortIndex] = useState(-1);
   const [isDesktop, setIsDesktop] = useState(
@@ -93,6 +95,7 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
           key={i}
           top={top}
           left={left}
+          readOnly={readOnly}
         >
           <ComponentImageWrap selected={selectedPortIndex === i}>
             <ComponentImage width={image.width} height={image.height}>
@@ -100,7 +103,9 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
                 src={image.url}
                 onClick={e => {
                   e.stopPropagation();
-                  setSelectedPortIndex(i);
+                  if (!readOnly) {
+                    setSelectedPortIndex(i);
+                  }
                 }}
               />
             </ComponentImage>
@@ -125,20 +130,22 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
           )}
         </Component>
       );
+    } else if (!readOnly) {
+      return (
+        <ComponentPlaceholder
+          key={i}
+          selected={selectedPortIndex === i}
+          top={top}
+          left={left}
+          onClick={e => {
+            e.stopPropagation();
+            setSelectedPortIndex(i);
+          }}
+        />
+      );
+    } else {
+      return null;
     }
-
-    return (
-      <ComponentPlaceholder
-        key={i}
-        selected={selectedPortIndex === i}
-        top={top}
-        left={left}
-        onClick={e => {
-          e.stopPropagation();
-          setSelectedPortIndex(i);
-        }}
-      />
-    );
   };
 
   const connectionPath = (port: IPort) => {
@@ -196,23 +203,33 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
             <Board width={width} height={height} src={board.image.url} />
           </Canvas>
           <ConnectionCanvas>
-            {board.ports.map((port, i) => (
-              <g key={port.name}>
-                <path
-                  key={port.name}
-                  d={connectionPath(port)}
-                  fill="none"
-                  stroke={selectedPortIndex === i ? colors.brandOrange : "#bbb"}
-                  strokeWidth={2}
-                  strokeDasharray={
-                    hardware.components.some(c => c.port === port.name)
-                      ? "0"
-                      : "7 3"
-                  }
-                />
-                {connectionCircle(port, selectedPortIndex === i)}
-              </g>
-            ))}
+            {board.ports.map((port, i) => {
+              const componentInstance = hardware.components.find(
+                c => c.port === port.name
+              );
+              if (readOnly && !componentInstance) {
+                return null;
+              }
+              return (
+                <g key={port.name}>
+                  <path
+                    key={port.name}
+                    d={connectionPath(port)}
+                    fill="none"
+                    stroke={
+                      selectedPortIndex === i ? colors.brandOrange : "#bbb"
+                    }
+                    strokeWidth={2}
+                    strokeDasharray={
+                      hardware.components.some(c => c.port === port.name)
+                        ? "0"
+                        : "7 3"
+                    }
+                  />
+                  {connectionCircle(port, selectedPortIndex === i)}
+                </g>
+              );
+            })}
           </ConnectionCanvas>
           <Canvas>{board.ports.map(renderPort)}</Canvas>
         </CanvasWrap>
@@ -288,9 +305,10 @@ const Component = styled.div<{
   top: number;
   left: number;
   selected: boolean;
+  readOnly?: boolean;
 }>`
   position: absolute;
-  cursor: pointer;
+  cursor: ${props => (props.readOnly ? "default" : "pointer")};
   top: ${props => props.top}px;
   left: ${props => props.left}px;
   transform: translate(-50%, -50%);
