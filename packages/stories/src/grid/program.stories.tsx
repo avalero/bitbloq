@@ -11,8 +11,38 @@ export const Program = () => {
   return (
     <div
       style={{
-        width: 840,
-        height: 530,
+        width: 1200,
+        height: 572,
+        border: "1px solid #ccc",
+        display: "flex",
+        position: "relative"
+      }}
+    >
+      <GridExercise
+        actions={actions}
+        availableBloqs={{
+          forward: -1,
+          back: 2,
+          left: 3,
+          right: 1,
+          pick: 10,
+          use: 20,
+          push: 3,
+          loop: 2
+        }}
+        onChange={setActions}
+      />
+    </div>
+  );
+};
+
+export const ProgramTablet = () => {
+  const [actions, setActions] = useState<IActions>([]);
+  return (
+    <div
+      style={{
+        width: 588,
+        height: 380,
         border: "1px solid #ccc",
         display: "flex",
         position: "relative"
@@ -40,8 +70,8 @@ export const ReadOnlyProgram = () => {
   return (
     <div
       style={{
-        width: 840,
-        height: 530,
+        width: 1200,
+        height: 572,
         border: "1px solid #ccc",
         display: "flex",
         position: "relative"
