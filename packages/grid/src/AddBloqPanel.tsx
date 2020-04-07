@@ -29,39 +29,40 @@ const AddBloqPanel: FC<IAddBloqPanelProps> = ({
   }
 
   return (
-    <Container>
-      {isOpen && (
+    <>
+      <Overlay />
+      <Container>
         <CloseButton onClick={onClose}>
           <Icon name="close" />
         </CloseButton>
-      )}
-      <BloqPlaceholderWrap left={selectedLeft + 10}>
-        <BloqPlaceholder category={BloqCategory.Event} selected={true} />
-      </BloqPlaceholderWrap>
-      <BloqsWrapper>
-        <Bloqs>
-          {Object.keys(availableBloqs).map(typeName => {
-            const type = bloqTypes.find(t => t.name === typeName)!;
-            return (
-              <Bloq>
-                <HorizontalBloq
-                  key={type.name}
-                  type={type}
-                  onClick={() => onSelectBloqType(type)}
-                />
-                <BloqInformation>
-                  {availableBloqs[typeName] > 0 ? (
-                    availableBloqs[typeName]
-                  ) : (
-                    <>&#8734;</>
-                  )}
-                </BloqInformation>
-              </Bloq>
-            );
-          })}
-        </Bloqs>
-      </BloqsWrapper>
-    </Container>
+        <BloqPlaceholderWrap left={selectedLeft + 10}>
+          <BloqPlaceholder category={BloqCategory.Event} selected={true} />
+        </BloqPlaceholderWrap>
+        <BloqsWrapper>
+          <Bloqs>
+            {Object.keys(availableBloqs).map(typeName => {
+              const type = bloqTypes.find(t => t.name === typeName)!;
+              return (
+                <Bloq>
+                  <HorizontalBloq
+                    key={type.name}
+                    type={type}
+                    onClick={() => onSelectBloqType(type)}
+                  />
+                  <BloqInformation>
+                    {availableBloqs[typeName] > 0 ? (
+                      availableBloqs[typeName]
+                    ) : (
+                      <>&#8734;</>
+                    )}
+                  </BloqInformation>
+                </Bloq>
+              );
+            })}
+          </Bloqs>
+        </BloqsWrapper>
+      </Container>
+    </>
   );
 };
 
@@ -118,7 +119,7 @@ const Container = styled.div`
   flex: 1;
   flex-direction: column;
   justify-content: center;
-  padding: 20px 100px 10px;
+  padding: 20px 90px 10px;
   position: absolute;
   width: 100%;
   z-index: 10; // zIndex description: 15
@@ -141,4 +142,13 @@ const CloseButton = styled.div`
     height: 20px;
     width: 20px;
   }
+`;
+
+const Overlay = styled.div`
+  background-color: rgba(55, 59, 68, 0.3);
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
 `;
