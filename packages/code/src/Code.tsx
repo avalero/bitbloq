@@ -115,7 +115,7 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
 
   const [upload, compile, uploadContent] = useCodeUpload({
     filesRoot: borndateFilesRoot,
-    chromeAppID
+    useBrowserUpload: true
   });
 
   const onAddNew = (type: string) => {
