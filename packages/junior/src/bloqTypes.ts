@@ -344,7 +344,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       "value === 'no_obstacle'": noObstacleIcon
     },
     conditionCode:
-      '{{component}}i2cALPS.getDistance() {{"< 20" | safe if(value === "no_obstacle") else " >= 20" | safe}}',
+      '{{component}}i2cALPS.getDistance() {{">= 20" | safe if(value === "no_obstacle") else " < 20" | safe}}',
     components: ["ZumjuniorMultiSensor"],
     configurationComponent: "ObstacleConfiguration",
     parameters: [
