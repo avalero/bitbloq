@@ -26,6 +26,7 @@ const ServoPositionConfiguration: FC<IServoPositionConfigurationProps> = ({
       </ImageWrap>
       <Buttons>
         <LeftButton
+          type="button"
           onClick={() =>
             value >= 10 &&
             onChange(
@@ -36,6 +37,7 @@ const ServoPositionConfiguration: FC<IServoPositionConfigurationProps> = ({
           <Icon name="angle" />
         </LeftButton>
         <RightButton
+          type="button"
           onClick={() =>
             value <= 170 &&
             onChange(

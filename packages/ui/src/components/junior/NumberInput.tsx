@@ -12,18 +12,30 @@ const NumberInput: FC<INumberInputProps> = ({ value, onChange }) => {
   return (
     <Container>
       <Spinner>
-        <UpButton onClick={() => value < 90 && onChange(value + 10)}>
+        <UpButton
+          type="button"
+          onClick={() => value < 90 && onChange(value + 10)}
+        >
           <Icon name="angle" />
         </UpButton>
-        <DownButton onClick={() => value > 9 && onChange(value - 10)}>
+        <DownButton
+          type="button"
+          onClick={() => value > 9 && onChange(value - 10)}
+        >
           <Icon name="angle" />
         </DownButton>
       </Spinner>
       <Spinner>
-        <UpButton onClick={() => value < 99 && onChange(value + 1)}>
+        <UpButton
+          type="button"
+          onClick={() => value < 99 && onChange(value + 1)}
+        >
           <Icon name="angle" />
         </UpButton>
-        <DownButton onClick={() => value > 0 && onChange(value - 1)}>
+        <DownButton
+          type="button"
+          onClick={() => value > 0 && onChange(value - 1)}
+        >
           <Icon name="angle" />
         </DownButton>
       </Spinner>
