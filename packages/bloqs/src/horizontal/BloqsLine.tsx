@@ -331,14 +331,14 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
         </Bloqs>
         {!readOnly && showScrollLeft && (
           <ScrollLeftButton>
-            <JuniorButton secondary onClick={onScrollLeft}>
+            <JuniorButton type="button" secondary onClick={onScrollLeft}>
               <Icon name="angle" />
             </JuniorButton>
           </ScrollLeftButton>
         )}
         {!readOnly && showScrollRight && (
           <ScrollRightButton>
-            <JuniorButton secondary onClick={onScrollRight}>
+            <JuniorButton type="button" secondary onClick={onScrollRight}>
               <Icon name="angle" />
             </JuniorButton>
           </ScrollRightButton>
