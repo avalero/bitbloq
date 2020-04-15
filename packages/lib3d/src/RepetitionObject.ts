@@ -24,7 +24,8 @@ import {
   IScaleOperation,
   ITranslateOperation,
   IViewOptions,
-  OperationsArray
+  OperationsArray,
+  isScaleOperation
 } from "./Interfaces";
 
 /**
@@ -418,11 +419,26 @@ export default class RepetitionObject extends ObjectsCommon {
       Number(operation.y) > 0 &&
       Number(operation.z) > 0
     ) {
-      this.mesh.scale.set(
-        this.mesh.scale.x * Number(operation.x),
-        this.mesh.scale.y * Number(operation.y),
-        this.mesh.scale.z * Number(operation.z)
-      );
+      const reducer = (
+        accumulator: number[],
+        op:
+          | IScaleOperation
+          | ITranslateOperation
+          | IRotateOperation
+          | IMirrorOperation
+      ) => {
+        if (isScaleOperation(op)) {
+          accumulator[0] = accumulator[0] * op.x;
+          accumulator[1] = accumulator[1] * op.y;
+          accumulator[2] = accumulator[2] * op.z;
+        }
+
+        return accumulator;
+      };
+
+      const scale: number[] = this.operations.reduce(reducer, [1, 1, 1]);
+
+      this.mesh.scale.set(scale[0], scale[1], scale[2]);
     }
   }
 
