@@ -135,22 +135,28 @@ class Uploader {
 
   public browserUpload(code: any[], libraries: any[] = [], board: string) {
     return new Promise((resolve, reject) => {
-      Promise.all([
-        this.openBrowserPort(board),
-        this.borndate
-          .compile(code, libraries)
-          .catch(e => reject(new UploadError("compile-error", e.errors)))
-      ]).then(([avrgirl, hex]) => {
-        const enc = new TextEncoder();
-        (avrgirl as Avrgirl).flash(enc.encode(hex as string), error => {
-          if (error) {
-            reject(error);
-            return;
-          } else {
-            resolve();
-          }
+      this.openBrowserPort(board)
+        .then(avrgirl =>
+          this.borndate
+            .compile(board, code, libraries)
+            .then(hex => [avrgirl, hex])
+            .catch(e => reject(new UploadError("compile-error", e.errors)))
+        )
+        .catch(e => {
+          console.log("BROWSER PORT", e);
+          reject(new UploadError("board-not-found"));
+        })
+        .then(([avrgirl, hex]) => {
+          const enc = new TextEncoder();
+          (avrgirl as Avrgirl).flash(enc.encode(hex as string), error => {
+            if (error) {
+              reject(error);
+              return;
+            } else {
+              resolve();
+            }
+          });
         });
-      });
     });
   }
 
