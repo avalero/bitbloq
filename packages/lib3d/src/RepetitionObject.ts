@@ -25,7 +25,8 @@ import {
   ITranslateOperation,
   IViewOptions,
   OperationsArray,
-  isScaleOperation
+  isScaleOperation,
+  isMirrorOperation
 } from "./Interfaces";
 
 /**
@@ -360,13 +361,15 @@ export default class RepetitionObject extends ObjectsCommon {
       } else if (operation.type === Object3D.createRotateOperation().type) {
         this.applyRotateOperation(operation as IRotateOperation);
       } else if (operation.type === Object3D.createScaleOperation().type) {
-        this.applyScaleOperation(operation as IScaleOperation);
+        // nothing to do here
       } else if (operation.type === Object3D.createMirrorOperation().type) {
-        this.applyMirrorOperation(operation as IMirrorOperation);
+        // nothing to do here
       } else {
         throw Error("ERROR: Unknown Operation");
       }
     });
+
+    this.applyAllScaleOperations();
 
     this.pendingOperation = false;
     this.mesh.updateMatrixWorld(true);
@@ -376,13 +379,7 @@ export default class RepetitionObject extends ObjectsCommon {
   }
 
   protected applyMirrorOperation(operation: IMirrorOperation): void {
-    if (operation.plane === "xy") {
-      this.applyScaleOperation(Object3D.createScaleOperation(1, 1, -1));
-    } else if (operation.plane === "yz") {
-      this.applyScaleOperation(Object3D.createScaleOperation(-1, 1, 1));
-    } else if (operation.plane === "zx") {
-      this.applyScaleOperation(Object3D.createScaleOperation(1, -1, 1));
-    }
+    // nothing to do here
   }
 
   protected applyTranslateOperation(operation: ITranslateOperation): void {
@@ -413,33 +410,39 @@ export default class RepetitionObject extends ObjectsCommon {
     }
   }
 
-  protected applyScaleOperation(operation: IScaleOperation): void {
-    if (
-      Number(operation.x) > 0 &&
-      Number(operation.y) > 0 &&
-      Number(operation.z) > 0
-    ) {
-      const reducer = (
-        accumulator: number[],
-        op:
-          | IScaleOperation
-          | ITranslateOperation
-          | IRotateOperation
-          | IMirrorOperation
-      ) => {
-        if (isScaleOperation(op)) {
-          accumulator[0] = accumulator[0] * op.x;
-          accumulator[1] = accumulator[1] * op.y;
-          accumulator[2] = accumulator[2] * op.z;
+  protected applyAllScaleOperations(): void {
+    const reducer = (
+      accumulator: number[],
+      op:
+        | IScaleOperation
+        | ITranslateOperation
+        | IRotateOperation
+        | IMirrorOperation
+    ) => {
+      if (isScaleOperation(op)) {
+        accumulator[0] *= op.x;
+        accumulator[1] *= op.y;
+        accumulator[2] *= op.z;
+      }
+
+      if (isMirrorOperation(op)) {
+        if (op.plane === "xy") {
+          accumulator[2] *= -1;
+        } else if (op.plane === "yz") {
+          accumulator[0] *= -1;
+        } else if (op.plane === "zx") {
+          accumulator[1] *= -1;
         }
+      }
 
-        return accumulator;
-      };
+      return accumulator;
+    };
 
-      const scale: number[] = this.operations.reduce(reducer, [1, 1, 1]);
-
-      this.mesh.scale.set(scale[0], scale[1], scale[2]);
-    }
+    const scale: number[] = this.operations.reduce(reducer, [1, 1, 1]);
+    this.mesh.scale.set(scale[0], scale[1], scale[2]);
+  }
+  protected applyScaleOperation(operation: IScaleOperation): void {
+    // nothing to do here
   }
 
   private setMesh(mesh: THREE.Group): void {
