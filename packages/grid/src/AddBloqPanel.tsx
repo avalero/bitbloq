@@ -141,6 +141,7 @@ const Bloq = styled.div`
 `;
 
 const BloqInformation = styled.div`
+  box-sizing: content-box;
   font-size: 20px;
   font-weight: bold;
   height: 24px;
