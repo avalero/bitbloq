@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
-import { colors, Icon, JuniorButton } from "@bitbloq/ui";
+import { Icon, JuniorButton } from "@bitbloq/ui";
 import HorizontalBloq from "./HorizontalBloq";
 import BloqPlaceholder from "./BloqPlaceholder";
 
@@ -329,14 +329,14 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
               />
             )}
         </Bloqs>
-        {!readOnly && showScrollLeft && (
+        {showScrollLeft && (
           <ScrollLeftButton>
             <JuniorButton type="button" secondary onClick={onScrollLeft}>
               <Icon name="angle" />
             </JuniorButton>
           </ScrollLeftButton>
         )}
-        {!readOnly && showScrollRight && (
+        {showScrollRight && (
           <ScrollRightButton>
             <JuniorButton type="button" secondary onClick={onScrollRight}>
               <Icon name="angle" />
