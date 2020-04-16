@@ -148,6 +148,7 @@ class Uploader {
         })
         .then(([avrgirl, hex]) => {
           const enc = new TextEncoder();
+          avrgirl.protocol.chip.verifyPage = (_a, _b, _c, _d, cb) => cb();
           (avrgirl as Avrgirl).flash(enc.encode(hex as string), error => {
             if (error) {
               reject(error);
