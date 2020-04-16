@@ -317,7 +317,7 @@ const Content = styled.div`
   padding-top: 10px;
 
   > :not(:last-child) {
-    padding-right: 10px;
+    margin-right: 10px;
   }
 `;
 
