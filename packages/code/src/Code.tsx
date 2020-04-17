@@ -66,6 +66,18 @@ const findFile = (files: IFileItem[], fileId: string) => {
   );
 };
 
+const parseErrors = (borndateErrors: any[]) =>
+  borndateErrors.map(e => {
+    const [location] = e.locations;
+    const { file, line, column } = location.caret;
+    return {
+      message: e.message,
+      file: file === "main.ino.cpp" ? "main.ino" : file,
+      line: file === "main.ino" ? line - 4 : line,
+      column
+    };
+  });
+
 const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
   { initialContent, onContentChange, chromeAppID, borndateFilesRoot, codeRef },
   ref
@@ -220,12 +232,7 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
     } catch (e) {
       switch (e.type) {
         case UploadErrorType.COMPILE_ERROR:
-          setErrors(
-            e.data.map(e => ({
-              ...e,
-              line: e.file === "main.ino" ? e.line - 8 : e.line
-            }))
-          );
+          setErrors(parseErrors(e.data));
           break;
 
         default:
@@ -241,12 +248,7 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
     } catch (e) {
       switch (e.type) {
         case UploadErrorType.COMPILE_ERROR:
-          setErrors(
-            e.data.map(e => ({
-              ...e,
-              line: e.file === "main.ino" ? e.line - 8 : e.line
-            }))
-          );
+          setErrors(parseErrors(e.data));
           break;
 
         default:
