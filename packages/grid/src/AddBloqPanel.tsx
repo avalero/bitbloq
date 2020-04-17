@@ -87,7 +87,7 @@ const AddBloqPanel: FC<IAddBloqPanelProps> = ({
           <Icon name="close" />
         </CloseButton>
         <BloqPlaceholderWrap left={selectedLeft + 10}>
-          <BloqPlaceholder category={BloqCategory.Event} selected={true} />
+          <BloqPlaceholder category={BloqCategory.Action} selected={true} />
         </BloqPlaceholderWrap>
         {scroll !== undefined && scroll > 0 && (
           <ScrollLeftButton>
@@ -197,7 +197,7 @@ const Container = styled.div`
   padding: 20px 107px 10px;
   position: absolute;
   width: 100%;
-  z-index: 10; // zIndex description: 15
+  z-index: 10; /* zIndex description: 15 */
 `;
 
 const CloseButton = styled.div`
