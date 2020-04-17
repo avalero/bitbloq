@@ -25,6 +25,7 @@ import {
   ILibrary,
   ICodeContent
 } from "./index";
+import { knownBoards } from "./config";
 
 export interface ICodeRef {
   addLibrary: (library: ILibrary) => void;
@@ -98,6 +99,7 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
 
   useEffect(() => {
     setFiles(content.current!.files);
+    setSelectedFile(content.current!.files[0]);
     setLibrariesWithFiles(content.current!.libraries || []);
   }, []);
 
@@ -234,7 +236,7 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
 
   const onCompile = async () => {
     try {
-      await compile(content.current!.files, libraries);
+      await compile(content.current!.files, libraries, board);
       setErrors([]);
     } catch (e) {
       switch (e.type) {
@@ -256,6 +258,11 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
   if (!content.current) {
     return null;
   }
+
+  const boardOptions = Object.keys(knownBoards).map(id => ({
+    label: t(`code.boards.${id}`),
+    value: id
+  }));
 
   return (
     <Container>
@@ -283,16 +290,7 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
             <BoardSelect
               value={board}
               onChange={setBoard}
-              options={[
-                {
-                  label: "BQ ZUM Core 2",
-                  value: "zumcore2"
-                },
-                {
-                  label: "ZUM Junior",
-                  value: "zumjunior"
-                }
-              ]}
+              options={boardOptions}
               selectConfig={{ isSearchable: false, blurInputOnSelect: false }}
             />
           </BoardSelectWrap>

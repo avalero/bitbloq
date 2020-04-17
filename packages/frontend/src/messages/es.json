@@ -693,6 +693,11 @@
     "add-new-cpp": "Añadir archivo .cpp",
     "add-new-h": "Añadir archivo .h",
     "add-new-folder": "Añadir carpeta",
+    "boards": {
+      "zumjunior": "ZumJunior",
+      "uno": "Arduino Uno",
+      "unor3": "Arduino Uno R3"
+    },
     "code": "Código",
     "compile": "Compilar",
     "compiling": "Compilando",

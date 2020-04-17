@@ -10,7 +10,7 @@ export default class BitbloqDocument extends Document {
       <Html>
         <Global styles={baseStyles} />
         <Head>
-          <meta http-equiv="origin-trial" content={process.env.ORIGIN_TRIALS} />
+          <meta httpEquiv="origin-trial" content={process.env.ORIGIN_TRIALS} />
           <link rel="icon" type="image/png" href={favicon} />
           <link
             href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900&display=swap"
