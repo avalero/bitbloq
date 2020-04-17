@@ -7,6 +7,7 @@ export interface IUploadSpinnerProps {
   uploading: boolean;
   success: boolean;
   noBoard: boolean;
+  closeOnNoBoard?: boolean;
   text: string;
 }
 
@@ -14,6 +15,7 @@ const UploadSpinner: FC<IUploadSpinnerProps> = ({
   uploading,
   success,
   noBoard,
+  closeOnNoBoard,
   text
 }) => {
   const [visible, setVisible] = useState(false);
@@ -30,6 +32,12 @@ const UploadSpinner: FC<IUploadSpinnerProps> = ({
       }, 5000);
     }
   }, [uploading]);
+
+  useEffect(() => {
+    if (closeOnNoBoard && noBoard) {
+      setVisible(false);
+    }
+  }, [closeOnNoBoard, noBoard]);
 
   useEffect(() => {
     if (!visible && hideTimeout.current) {

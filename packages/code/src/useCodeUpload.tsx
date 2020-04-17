@@ -293,6 +293,7 @@ export const useCodeUpload = (
         uploading={uploading}
         success={uploadSuccess}
         noBoard={noBoard}
+        closeOnNoBoard={useBrowserUpload}
         text={uploadText}
       />
       <DialogModal
