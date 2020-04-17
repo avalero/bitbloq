@@ -96,10 +96,11 @@ class Uploader {
     });
   }
 
-  public compile(code: any[], libraries: any[] = []) {
+  public compile(code: any[], libraries: any[] = [], board: string) {
     return new Promise((resolve, reject) => {
+      const boardConfig = knownBoards[board];
       this.borndate
-        .compile(code, libraries)
+        .compile(boardConfig.borndateId, code, libraries)
         .then(resolve)
         .catch(e => reject(new UploadError("compile-error", e.errors)));
     });
@@ -109,8 +110,9 @@ class Uploader {
     return new Promise((resolve, reject) => {
       this.openChromeAppPort()
         .then((port: any) => {
+          const boardConfig = knownBoards[board];
           this.borndate
-            .compile(code, libraries)
+            .compile(boardConfig.borndateId, code, libraries)
             .then(hex => {
               port.onMessage.addListener(msg => {
                 if (msg.type === "upload") {
@@ -135,10 +137,11 @@ class Uploader {
 
   public browserUpload(code: any[], libraries: any[] = [], board: string) {
     return new Promise((resolve, reject) => {
+      const boardConfig = knownBoards[board];
       this.openBrowserPort(board)
         .then(avrgirl =>
           this.borndate
-            .compile(board, code, libraries)
+            .compile(boardConfig.borndateId, code, libraries)
             .then(hex => [avrgirl, hex])
             .catch(e => reject(new UploadError("compile-error", e.errors)))
         )
@@ -148,7 +151,6 @@ class Uploader {
         })
         .then(([avrgirl, hex]) => {
           const enc = new TextEncoder();
-          avrgirl.protocol.chip.verifyPage = (_a, _b, _c, _d, cb) => cb();
           (avrgirl as Avrgirl).flash(enc.encode(hex as string), error => {
             if (error) {
               reject(error);
@@ -181,7 +183,7 @@ export const useCodeUpload = (
 ): [
   (code: any[], libraries: any[], board: string) => void,
 
-  (code: any[], libraries: any[]) => void,
+  (code: any[], libraries: any[], board: string) => void,
   JSX.Element
 ] => {
   const {
@@ -264,14 +266,14 @@ export const useCodeUpload = (
     }
   };
 
-  const compile = async (code: any[], libraries: any[]) => {
+  const compile = async (code: any[], libraries: any[], board: string) => {
     setUploading(true);
     setNoBoard(false);
     setUploadSuccess(false);
     setUploadText(t("code.compiling"));
 
     try {
-      const hex = await uploaderRef.current!.compile(code, libraries);
+      const hex = await uploaderRef.current!.compile(code, libraries, board);
       setUploading(false);
       setUploadSuccess(true);
       setUploadText(t("code.compile-success"));
