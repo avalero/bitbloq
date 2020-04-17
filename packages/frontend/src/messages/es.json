@@ -695,6 +695,10 @@
     "add-new-folder": "Añadir carpeta",
     "boards": {
       "zumjunior": "ZumJunior",
+      "zumcore": "ZumCore",
+      "zumcore2": "ZumCore 2",
+      "mega": "Arduino Mega 2560",
+      "megar3": "Arduino Mega 2560 R3",
       "uno": "Arduino Uno",
       "unor3": "Arduino Uno R3"
     },

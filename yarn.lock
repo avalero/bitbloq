@@ -1909,10 +1909,10 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@bitbloq/borndate@0.0.16":
-  version "0.0.16"
-  resolved "https://registry.yarnpkg.com/@bitbloq/borndate/-/borndate-0.0.16.tgz#61311af550b04423a3ae37c96c33c99b6f37370c"
-  integrity sha512-jiqgIj1maX0WQkaqwQW9JZ66TMZm+g84ekcqFLS4YtyEOd8+qZd1VXnbLVHWiLLM3gBfM3SegESOAaSMep+iIg==
+"@bitbloq/borndate@0.0.17":
+  version "0.0.17"
+  resolved "https://registry.yarnpkg.com/@bitbloq/borndate/-/borndate-0.0.17.tgz#592f2613c04317eaed19a85e6957af400f511327"
+  integrity sha512-rMs5rhh1qoZmcQU0vN/zXwPCVUu64xKLSUHWq6F1PKHrdgvwi1E9TvoCi+GVq/DsqWXrsJhNsbybHufnF5r0Jw==
 
 "@cnakazawa/watch@^1.0.3":
   version "1.0.3"

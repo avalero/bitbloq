@@ -1,7 +1,8 @@
 import fetch from "isomorphic-fetch";
 import { IDocument } from "@bitbloq/api";
 import { Scene, OffscreenRenderer } from "@bitbloq/lib3d";
-import { boards, components } from "@bitbloq/junior";
+import { boards } from "@bitbloq/junior/src/boards";
+import { components } from "@bitbloq/junior/src/components";
 
 const SNAPSHOT_WIDTH = 700;
 const SNAPSHOT_HEIGHT = 430;
