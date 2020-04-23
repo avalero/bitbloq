@@ -288,8 +288,6 @@ export default class Scene {
       return this.objectsGroup;
     }
 
-    this.testPoint();
-
     this.objectsGroup = new THREE.Group();
 
     this.computingMeshesPromise = this.objectsInScene.map(async object => {
@@ -298,24 +296,12 @@ export default class Scene {
       if (this.anySelectedObjects) {
         // if object is selected highlight
         if (object.getViewOptions().selected) {
-          if (mesh instanceof THREE.Mesh) {
-            if (mesh.material instanceof THREE.MeshLambertMaterial) {
-              mesh.material.setValues(this.selectedMaterial);
-            }
-          }
+          this.setMaterialRecursive(mesh, this.selectedMaterial);
         } else {
-          if (mesh instanceof THREE.Mesh) {
-            if (mesh.material instanceof THREE.MeshLambertMaterial) {
-              mesh.material.setValues(this.secondaryMaterial);
-            }
-          }
+          this.setMaterialRecursive(mesh, this.secondaryMaterial);
         }
       } else {
-        if (mesh instanceof THREE.Mesh) {
-          if (mesh.material instanceof THREE.MeshLambertMaterial) {
-            mesh.material.setValues(this.normalMaterial);
-          }
-        }
+        this.setMaterialRecursive(mesh, this.normalMaterial);
       }
 
       mesh.userData = {
@@ -718,8 +704,20 @@ export default class Scene {
     }
   }
 
-  public testPoint(): void {
-    const a = 2;
+  private async setMaterialRecursive(
+    obj: THREE.Object3D,
+    material: THREE.MeshLambertMaterialParameters
+  ) {
+    obj.children.forEach(child => {
+      this.setMaterialRecursive(child, material);
+    });
+
+    if (
+      obj instanceof THREE.Mesh &&
+      obj.material instanceof THREE.MeshLambertMaterial
+    ) {
+      obj.material.setValues(material);
+    }
   }
 
   private addExistingObject(object: ObjectsCommon): ISceneJSON {
