@@ -300,26 +300,8 @@ export default class Scene {
         } else {
           this.setMaterialRecursive(mesh, this.secondaryMaterial);
         }
-        //   if (mesh instanceof THREE.Mesh) {
-        //     if (mesh.material instanceof THREE.MeshLambertMaterial) {
-        //       mesh.material.setValues(this.selectedMaterial);
-        //     }
-        //   } else if (mesh instanceof THREE.Group) {
-        //   }
-        // } else {
-        //   if (mesh instanceof THREE.Mesh) {
-        //     if (mesh.material instanceof THREE.MeshLambertMaterial) {
-        //       mesh.material.setValues(this.secondaryMaterial);
-        //     }
-        //   }
-        // }
       } else {
         this.setMaterialRecursive(mesh, this.normalMaterial);
-        // if (mesh instanceof THREE.Mesh) {
-        //   if (mesh.material instanceof THREE.MeshLambertMaterial) {
-        //     mesh.material.setValues(this.normalMaterial);
-        //   }
-        // }
       }
 
       mesh.userData = {
