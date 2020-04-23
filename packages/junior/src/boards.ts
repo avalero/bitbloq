@@ -1,8 +1,8 @@
 import { IBoard, IPortDirection } from "@bitbloq/bloqs";
 
-import BoardImage from "../../images/hardware/zumjunior-board.svg";
-import MiniBoardImage from "../../images/hardware/zumjunior-mini-board.svg";
-import BoardSnapshotImage from "../../images/hardware/zumjunior-board.png";
+import BoardImage from "./images/hardware/zumjunior-board.svg";
+import MiniBoardImage from "./images/hardware/zumjunior-mini-board.svg";
+import BoardSnapshotImage from "./images/hardware/zumjunior-board.png";
 
 export const boards: IBoard[] = [
   {

@@ -8,7 +8,8 @@
     "tslint": "tslint -c ./tslint.json \"packages/*/src/**/*.{ts,tsx}\"",
     "tsc:front": "cd packages/frontend && tsc --noEmit --p ./tsconfig.json",
     "tsc:back": "cd packages/api && tsc --noEmit --p ./tsconfig.json",
-    "tsc": "yarn run tsc:front && yarn run tsc:back"
+    "tsc": "yarn run tsc:front && yarn run tsc:back",
+    "storybook": "yarn workspace @bitbloq/stories run storybook"
   },
   "devDependencies": {
     "husky": "^3.0.9",

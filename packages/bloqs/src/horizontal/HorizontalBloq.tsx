@@ -15,6 +15,10 @@ interface IHorizontalBloqProps {
   disabled?: boolean;
   bloq?: IBloq;
   port?: string;
+  shadow?: boolean;
+  active?: boolean;
+  activeIndicator?: React.ReactNode;
+  selectable?: boolean;
 }
 
 const COLORS = {
@@ -29,6 +33,14 @@ const COLORS = {
   [BloqCategory.Wait]: {
     dark: "#AD480B",
     light: "#DD5B0C"
+  },
+  [BloqCategory.Loop]: {
+    dark: "#6b4191",
+    light: "#8955b8"
+  },
+  [BloqCategory.EndLoop]: {
+    dark: "#6b4191",
+    light: "#8955b8"
   }
 };
 
@@ -44,7 +56,19 @@ const SHAPES = {
   [BloqCategory.Wait]: {
     main: "#block-wait-shape",
     shadow: "#block-wait-shadow-shape"
+  },
+  [BloqCategory.Loop]: {
+    main: "#block-action-shape",
+    shadow: "#block-action-shadow-shape"
+  },
+  [BloqCategory.EndLoop]: {
+    main: "#block-small-action-shape",
+    shadow: "#block-small-action-shadow-shape"
   }
+};
+
+const IS_SMALL = {
+  [BloqCategory.EndLoop]: true
 };
 
 const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
@@ -54,7 +78,11 @@ const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
   selected,
   disabled,
   bloq,
-  port
+  port,
+  shadow = true,
+  active,
+  activeIndicator,
+  selectable = true
 }) => {
   if (!type) {
     return null;
@@ -72,9 +100,17 @@ const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
   const missingComponent = port === "?";
   const showDisabled = disabled || missingComponent;
 
+  const isSmall: boolean = !!IS_SMALL[type.category];
+
   return (
-    <Container className={className} onClick={onClick}>
-      <SVG>
+    <Container
+      className={className}
+      onClick={onClick}
+      isSmall={isSmall}
+      selectable={selectable}
+      data-active={active}
+    >
+      <SVG isSmall={isSmall}>
         <defs>
           <path
             id="block-event-shape"
@@ -91,6 +127,16 @@ const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
           <path
             id="block-action-shadow-shape"
             d="M0 33.2V6a3 3 0 013-3h74a3 3 0 013 3v26.252c3.45.888 6 4.02 6 7.748v3c0 3.728-2.55 6.86-6 7.748V80a3 3 0 01-3 3H3a3 3 0 01-3-3V52.8A11 11 0 006 43a11 11 0 00-6-9.8z"
+          />
+          <path
+            id="block-small-action-shape"
+            d="M0 30.2V3c0-1.657 1.343-3 3-3h34c1.657 0 3 1.343 3 3v29.252c3.45.888 6 4.02 6 7.748 0 3.728-2.55 6.86-6 7.748V77c0 1.657-1.343 3-3 3H3c-1.657 0-3-1.343-3-3V49.8c3.562-1.82 6-5.525 6-9.8s-2.438-7.98-6-9.8z"
+          />
+          />
+          <path
+            id="block-small-action-shadow-shape"
+            d="M0 33.2V6c0-1.657 1.343-3 3-3h34c1.657 0 3 1.343 3 3v26.252c3.45.888 6 4.02 6 7.748v3c0 3.728-2.55 6.86-6 7.748V80c0 1.657-1.343 3-3 3H3c-1.657 0-3-1.343-3-3V52.8c3.562-1.82 6-5.525 6-9.8s-2.438-7.98-6-9.8z"
+          />
           />
           <path
             id="block-wait-shape"
@@ -114,12 +160,43 @@ const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
               strokeWidth={2}
             />
           </pattern>
+          <filter id="horizontal-bloq-active-outline">
+            <feMorphology
+              in="SourceAlpha"
+              result="DILATED"
+              operator="dilate"
+              radius="3"
+            ></feMorphology>
+
+            <feFlood
+              floodColor="#ff7354"
+              floodOpacity="1"
+              result="ORANGE"
+            ></feFlood>
+            <feComposite
+              in="ORANGE"
+              in2="DILATED"
+              operator="in"
+              result="OUTLINE"
+            ></feComposite>
+
+            <feMerge>
+              <feMergeNode in="OUTLINE" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
         </defs>
-        <g fill="none">
-          <use
-            xlinkHref={SHAPES[type.category].shadow}
-            fill={showDisabled ? "#bbb" : COLORS[type.category].dark}
-          />
+        <g
+          fill="none"
+          filter={active ? "url(#horizontal-bloq-active-outline)" : ""}
+          transform="translate(4,4)"
+        >
+          {shadow && (
+            <use
+              xlinkHref={SHAPES[type.category].shadow}
+              fill={showDisabled ? "#bbb" : COLORS[type.category].dark}
+            />
+          )}
           {showDisabled && (
             <use
               xlinkHref={SHAPES[type.category].main}
@@ -187,6 +264,7 @@ const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
       </SVG>
       {icon && !iconComponent && <BloqIcon src={icon} alt={type.name} />}
       {iconComponent && <IconComponent bloq={bloq} component={iconComponent} />}
+      {active && activeIndicator}
     </Container>
   );
 };
@@ -195,14 +273,14 @@ export default HorizontalBloq;
 
 /* styled components */
 
-const Container = styled.div`
-  cursor: pointer;
+const Container = styled.div<{ isSmall: boolean; selectable: boolean }>`
+  cursor: ${props => (props.selectable ? "pointer" : "inherit")};
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #bbb;
-  width: 86px;
+  width: ${props => (props.isSmall ? 46 : 86)}px;
   height: 83px;
 `;
 
@@ -235,10 +313,10 @@ const PortIndicator = styled.div<IPortIndicatorProps>`
   z-index: 2;
 `;
 
-const SVG = styled.svg`
+const SVG = styled.svg<{ isSmall: boolean }>`
   position: absolute;
-  top: 0px;
-  left: 0px;
-  width: 86px;
-  height: 88px;
+  top: -4px;
+  left: -4px;
+  width: ${props => (props.isSmall ? 54 : 94)}px;
+  height: 96px;
 `;

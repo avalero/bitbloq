@@ -24,7 +24,9 @@ import {
   IScaleOperation,
   ITranslateOperation,
   IViewOptions,
-  OperationsArray
+  OperationsArray,
+  isScaleOperation,
+  isMirrorOperation
 } from "./Interfaces";
 
 /**
@@ -166,7 +168,7 @@ export default class RepetitionObject extends ObjectsCommon {
    */
   public getGroup(): ObjectsGroup {
     const globalOperations = cloneDeep(this.operations);
-    // debugger;
+
     if (this.parameters.type.toLowerCase() === "cartesian") {
       this.group.forEach(obj => {
         const objectOperations = obj
@@ -359,13 +361,15 @@ export default class RepetitionObject extends ObjectsCommon {
       } else if (operation.type === Object3D.createRotateOperation().type) {
         this.applyRotateOperation(operation as IRotateOperation);
       } else if (operation.type === Object3D.createScaleOperation().type) {
-        this.applyScaleOperation(operation as IScaleOperation);
+        // nothing to do here
       } else if (operation.type === Object3D.createMirrorOperation().type) {
-        this.applyMirrorOperation(operation as IMirrorOperation);
+        // nothing to do here
       } else {
         throw Error("ERROR: Unknown Operation");
       }
     });
+
+    this.applyAllScaleOperations();
 
     this.pendingOperation = false;
     this.mesh.updateMatrixWorld(true);
@@ -375,13 +379,7 @@ export default class RepetitionObject extends ObjectsCommon {
   }
 
   protected applyMirrorOperation(operation: IMirrorOperation): void {
-    if (operation.plane === "xy") {
-      this.applyScaleOperation(Object3D.createScaleOperation(1, 1, -1));
-    } else if (operation.plane === "yz") {
-      this.applyScaleOperation(Object3D.createScaleOperation(-1, 1, 1));
-    } else if (operation.plane === "zx") {
-      this.applyScaleOperation(Object3D.createScaleOperation(1, -1, 1));
-    }
+    // nothing to do here
   }
 
   protected applyTranslateOperation(operation: ITranslateOperation): void {
@@ -412,18 +410,39 @@ export default class RepetitionObject extends ObjectsCommon {
     }
   }
 
+  protected applyAllScaleOperations(): void {
+    const reducer = (
+      accumulator: number[],
+      op:
+        | IScaleOperation
+        | ITranslateOperation
+        | IRotateOperation
+        | IMirrorOperation
+    ) => {
+      if (isScaleOperation(op)) {
+        accumulator[0] *= op.x;
+        accumulator[1] *= op.y;
+        accumulator[2] *= op.z;
+      }
+
+      if (isMirrorOperation(op)) {
+        if (op.plane === "xy") {
+          accumulator[2] *= -1;
+        } else if (op.plane === "yz") {
+          accumulator[0] *= -1;
+        } else if (op.plane === "zx") {
+          accumulator[1] *= -1;
+        }
+      }
+
+      return accumulator;
+    };
+
+    const scale: number[] = this.operations.reduce(reducer, [1, 1, 1]);
+    this.mesh.scale.set(scale[0], scale[1], scale[2]);
+  }
   protected applyScaleOperation(operation: IScaleOperation): void {
-    if (
-      Number(operation.x) > 0 &&
-      Number(operation.y) > 0 &&
-      Number(operation.z) > 0
-    ) {
-      this.mesh.scale.set(
-        this.mesh.scale.x * Number(operation.x),
-        this.mesh.scale.y * Number(operation.y),
-        this.mesh.scale.z * Number(operation.z)
-      );
-    }
+    // nothing to do here
   }
 
   private setMesh(mesh: THREE.Group): void {
@@ -491,44 +510,79 @@ export default class RepetitionObject extends ObjectsCommon {
     }
 
     const baseMesh = await this.originalObject.getMeshAsync();
-    const basePosition = baseMesh.position;
-
-    const baseObject = this.originalObject.clone();
-
-    // const positionCalculator = new PositionCalculator(baseObject);
-    // const basePosition = await positionCalculator.getPositionAsync();
-    const baseJSON = baseObject.toJSON();
-    baseJSON.operations.push(
-      ObjectsCommon.createTranslateOperation(
-        -basePosition.x,
-        -basePosition.y,
-        -basePosition.z,
-        false
-      )
-    );
-
-    baseObject.updateFromJSON(baseJSON);
+    const initialMatrix: THREE.Matrix4 = baseMesh.matrix;
 
     for (let i: number = 0; i < num; i += 1) {
-      if (baseObject instanceof ObjectsCommon) {
-        const objectClone: ObjectsCommon = baseObject.clone();
-        const json = objectClone.toJSON();
-        // clone operations (to avoid changing referenced array)
-        json.operations = [...json.operations];
-        const rotation = ObjectsCommon.createRotateOperation(0, 0, 0, false);
-        rotation[axis] = (i * angle) / (num - 1);
-        const translation = ObjectsCommon.createTranslateOperation(
-          basePosition.x,
-          basePosition.y,
-          basePosition.z,
-          true
-        );
-
-        // prepend [rotation, translation]
-        json.operations = [rotation, translation, ...json.operations];
-        objectClone.updateFromJSON(json);
-        this.group.push(objectClone);
+      const newObject = this.originalObject.clone();
+      // rotate newObject around axis.
+      const rotationAxis: THREE.Vector3 = new THREE.Vector3();
+      if (axis === "x") {
+        rotationAxis.set(1, 0, 0);
+      } else if (axis === "y") {
+        rotationAxis.set(0, 1, 0);
+      } else if (axis === "z") {
+        rotationAxis.set(0, 0, 1);
       }
+
+      const rad2deg = (rad: number) => rad * (180 / Math.PI);
+      const deg2rad = (deg: number) => (deg * Math.PI) / 180;
+
+      const degrees: number = (i * angle) / (num - 1);
+      const rotationMatrix: THREE.Matrix4 = new THREE.Matrix4().makeRotationAxis(
+        rotationAxis,
+        deg2rad(degrees)
+      );
+
+      const finalMatrix: THREE.Matrix4 = new THREE.Matrix4().multiplyMatrices(
+        rotationMatrix,
+        initialMatrix
+      );
+
+      const finalPosition: THREE.Vector3 = new THREE.Vector3().setFromMatrixPosition(
+        finalMatrix
+      );
+      const finalScale: THREE.Vector3 = new THREE.Vector3().setFromMatrixScale(
+        finalMatrix
+      );
+      const finalRotation: THREE.Euler = new THREE.Euler().setFromRotationMatrix(
+        finalMatrix,
+        "XYZ"
+      );
+
+      newObject.setOperations([
+        ObjectsCommon.createTranslateOperation(
+          finalPosition.x,
+          finalPosition.y,
+          finalPosition.z,
+          false
+        ),
+        ObjectsCommon.createRotateOperation(
+          rad2deg(finalRotation.x),
+          0,
+          0,
+          false
+        ),
+        ObjectsCommon.createRotateOperation(
+          0,
+          rad2deg(finalRotation.y),
+          0,
+          true
+        ),
+        ObjectsCommon.createRotateOperation(
+          0,
+          0,
+          rad2deg(finalRotation.z),
+          true
+        ),
+        ObjectsCommon.createScaleOperation(
+          finalScale.x,
+          finalScale.y,
+          finalScale.z
+        )
+      ]);
+
+      newObject.computeMeshAsync();
+      this.group.push(newObject);
     }
   }
 

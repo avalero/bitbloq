@@ -33,7 +33,7 @@ const SelectorOption: FC<ISelectorOptionProps> = ({
       ref={selectorRef}
       selectedFolder={!!selectedFolder && selectedFolder.id === folder.id}
     >
-      <MenuIcon name="folder-icon" />
+      <MenuIcon name="folder" />
       <p>{folder.name}</p>
     </FolderSelectorOption>
   );
@@ -100,7 +100,7 @@ const FolderSelectorMenu: FC<IFolderSelectorMenuProps> = ({
               <ArrowIcon>
                 <Icon name="arrow" />
               </ArrowIcon>
-              <MenuIcon title={true} name="folder-icon" />
+              <MenuIcon title={true} name="folder" />
               <p>{folderName}</p>
             </>
           )

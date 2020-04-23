@@ -8,6 +8,9 @@
  */
 
 import HorizontalBloqEditor from "./horizontal/HorizontalBloqEditor";
+import HorizontalBloq from "./horizontal/HorizontalBloq";
+import BloqsLine from "./horizontal/BloqsLine";
+import BloqPlaceholder from "./horizontal/BloqPlaceholder";
 import HardwareDesigner from "./hardware/HardwareDesigner";
 import bloqs2code from "./bloqs2code/bloqs2code";
 import { getBoardDefinition } from "./bloqs2code/board2code";
@@ -17,6 +20,9 @@ import { BloqCategory, BloqParameterType } from "./enums";
 
 export {
   HorizontalBloqEditor,
+  HorizontalBloq,
+  BloqsLine,
+  BloqPlaceholder,
   HardwareDesigner,
   bloqs2code,
   getBoardDefinition,
@@ -79,7 +85,10 @@ export interface IBloqType {
   parameters?: IBloqParameter[];
   components?: string[];
   configurationComponent?: string;
-  actions: IBloqAction[];
+  genCode?: IArduinoCode;
+  conditionCode?: string;
+  extends?: string;
+  fixed?: boolean;
 }
 
 export interface IBloq {
@@ -109,6 +118,7 @@ export interface IShapeProps {
 export type ConnectorType = string;
 
 export interface IArduinoCode {
+  defines?: string[];
   includes?: string[];
   globals?: string[];
   setup?: string[];
@@ -215,11 +225,9 @@ export interface IComponent {
   instanceName: string;
   extends: string;
   code: IArduinoCode;
-  actions: IComponentAction[];
   connectors: IConnector[];
   image: IComponentImage;
   snapshotImage?: IComponentImage;
-  values: { [name: string]: string };
 }
 
 export interface IComponentInstance {
@@ -227,6 +235,7 @@ export interface IComponentInstance {
   name: string;
   port?: string;
   integrated?: boolean;
+  pins?: { [name: string]: string | number };
 }
 
 export interface IHardware {

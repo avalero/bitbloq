@@ -1,84 +1,339 @@
-import React, { FC, useState, useEffect, useRef } from "react";
+import React, {
+  RefForwardingComponent,
+  useState,
+  useEffect,
+  useRef,
+  useImperativeHandle,
+  forwardRef
+} from "react";
+import { v1 as uuid } from "uuid";
 import update from "immutability-helper";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
-import { Button, Icon } from "@bitbloq/ui";
+import { useTranslate, Button, Icon, Select } from "@bitbloq/ui";
 import Editor from "./Editor";
-import FileList from "./FileList";
-import Borndate from "@bitbloq/borndate";
-import UploadSpinner from "./UploadSpinner";
+import FileTree from "./FileTree";
+import NewFileModal from "./NewFileModal";
+import NewFolderModal from "./NewFolderModal";
+import useCodeUpload, { UploadErrorType } from "./useCodeUpload";
+import { unzipLibrary } from "./util";
+import {
+  IError,
+  IFile,
+  IFolder,
+  IFileItem,
+  ILibrary,
+  ICodeContent
+} from "./index";
+import { knownBoards } from "./config";
 
-import { IFile, ICodeContent } from "./index";
+export interface ICodeRef {
+  addLibrary: (library: ILibrary) => void;
+}
 
 export interface ICodeProps {
   initialContent?: ICodeContent;
   onContentChange: (content: ICodeContent) => any;
+  chromeAppID: string;
+  borndateFilesRoot: string;
+  codeRef?: { current: ICodeRef | null };
 }
 
-const borndate = new Borndate("zumjunior");
+const updateFile = (files: IFileItem[], newFile: IFileItem): IFileItem[] =>
+  files.map(file => {
+    if (file.id === newFile.id) {
+      return newFile;
+    }
+    if (file.type === "folder") {
+      return update(file, { files: { $set: updateFile(file.files, newFile) } });
+    }
 
-const Code: FC<ICodeProps> = ({ initialContent, onContentChange }) => {
-  const [content, setContent] = useState(getInitialContent(initialContent));
-  const [uploading, setUploading] = useState(false);
-  const [selectedFileIndex, setSelectedFileIndex] = useState(0);
-  const selectedFile = content.files[selectedFileIndex];
+    return file;
+  });
+
+const findFile = (files: IFileItem[], fileId: string) => {
+  if (!files.length) {
+    return undefined;
+  }
+  const [first, ...rest] = files;
+  if (first.id === fileId) {
+    return first;
+  }
+
+  return (
+    (first.type === "folder" && findFile(first.files, fileId)) ||
+    findFile(rest, fileId)
+  );
+};
+
+const parseErrors = (borndateErrors: any[]) =>
+  borndateErrors.map(e => {
+    const [location] = e.locations;
+    const { file, line, column } = location.caret;
+    return {
+      message: e.message,
+      file: file === "main.ino.cpp" ? "main.ino" : file,
+      line: file === "main.ino" ? line - 4 : line,
+      column
+    };
+  });
+
+const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
+  { initialContent, onContentChange, chromeAppID, borndateFilesRoot, codeRef },
+  ref
+) => {
+  const t = useTranslate();
+  const content = useRef<ICodeContent | null>(
+    getInitialContent(initialContent)
+  );
+  const [files, setFiles] = useState<IFileItem[]>([]);
+  const [libraries, setLibraries] = useState<ILibrary[]>([]);
+  const [librariesFiles, setLibrariesFiles] = useState<IFileItem[][]>([]);
+  const [selectedFile, setSelectedFile] = useState(files[0]);
+  const [errors, setErrors] = useState<IError[]>([]);
+
+  const [newFileOpen, setNewFileOpen] = useState(false);
+  const [newFileExtension, setNewFileExtension] = useState("");
+  const [newFolderOpen, setNewFolderOpen] = useState(false);
+
+  const [board, setBoard] = useState("zumjunior");
+
+  const setLibrariesWithFiles = async (libs: ILibrary[]) => {
+    setLibraries(
+      await Promise.all(
+        libs.map(async lib => ({
+          ...lib,
+          files: await unzipLibrary(lib.zipURL)
+        }))
+      )
+    );
+  };
+
+  useEffect(() => {
+    setFiles(content.current!.files);
+    setSelectedFile(content.current!.files[0]);
+    setLibrariesWithFiles(content.current!.libraries || []);
+  }, []);
+
+  useImperativeHandle(ref, () => ({
+    addLibrary: (library: ILibrary) => {
+      content.current = update(content.current!, {
+        libraries: {
+          $push: [library]
+        }
+      });
+      setLibrariesWithFiles(content.current.libraries);
+      onContentChange(content.current);
+    }
+  }));
+
+  const [upload, compile, uploadContent] = useCodeUpload({
+    filesRoot: borndateFilesRoot,
+    useBrowserUpload: true
+  });
+
+  const onAddNew = (type: string) => {
+    if (type === "folder") {
+      setNewFolderOpen(true);
+    } else {
+      setNewFileOpen(true);
+      setNewFileExtension(type);
+    }
+  };
+
+  const addFileItem = (item: IFileItem) => {
+    if (selectedFile && selectedFile.type === "folder") {
+      const newFolder = update(selectedFile, {
+        files: {
+          $push: [item]
+        }
+      });
+      content.current = update(content.current!, {
+        files: { $set: updateFile(content.current!.files, newFolder) }
+      });
+    } else {
+      content.current = update(content.current!, {
+        files: {
+          $push: [item]
+        }
+      });
+    }
+  };
+
+  const onNewFile = (name: string) => {
+    const newFile: IFile = {
+      id: uuid(),
+      type: "file",
+      name: `${name}.${newFileExtension}`,
+      content: ""
+    };
+
+    addFileItem(newFile);
+
+    setFiles(content.current!.files);
+    setNewFileOpen(false);
+    setSelectedFile(newFile);
+    onContentChange(content.current!);
+  };
+
+  const onNewFolder = (name: string) => {
+    const newFolder: IFolder = {
+      id: uuid(),
+      type: "folder",
+      files: [],
+      name
+    };
+
+    addFileItem(newFolder);
+
+    setFiles(content.current!.files);
+    setNewFolderOpen(false);
+    onContentChange(content.current!);
+  };
 
   const onDeleteFile = (file: IFile) => {
-    console.log("delete File", file);
+    content.current = update(content.current!, {
+      files: { $set: content.current!.files.filter(f => f.id !== file.id) }
+    });
+    setFiles(content.current.files);
+    onContentChange(content.current);
+  };
+
+  const onSelectFile = (file: IFile) => {
+    let contentFile = findFile(content.current!.files, file.id);
+
+    let i = 0;
+    while (!contentFile && i < libraries.length) {
+      const libFiles = libraries[i].files;
+      if (libFiles) {
+        contentFile = findFile(libFiles, file.id);
+      }
+      i++;
+    }
+
+    if (contentFile) {
+      setSelectedFile(contentFile);
+    }
   };
 
   const onCodeChange = (code: string) => {
-    const newContent = update(content, {
-      files: {
-        [selectedFileIndex]: {
-          content: { $set: code }
-        }
-      }
+    const newFile = update(selectedFile, { content: { $set: code } });
+
+    content.current = update(content.current!, {
+      files: { $set: updateFile(content.current!.files, newFile) }
     });
-    setContent(newContent);
-    onContentChange(newContent);
+    onContentChange(content.current);
   };
 
   const onUpload = async () => {
-    setUploading(true);
-    await borndate.compileAndUpload(selectedFile.content);
-    setUploading(false);
+    try {
+      await upload(content.current!.files, libraries, board);
+      setErrors([]);
+    } catch (e) {
+      switch (e.type) {
+        case UploadErrorType.COMPILE_ERROR:
+          setErrors(parseErrors(e.data));
+          break;
+
+        default:
+          console.log(e);
+      }
+    }
   };
+
+  const onCompile = async () => {
+    try {
+      await compile(content.current!.files, libraries, board);
+      setErrors([]);
+    } catch (e) {
+      switch (e.type) {
+        case UploadErrorType.COMPILE_ERROR:
+          setErrors(parseErrors(e.data));
+          break;
+
+        default:
+          console.log(e);
+      }
+    }
+  };
+
+  if (!content.current) {
+    return null;
+  }
+
+  const boardOptions = Object.keys(knownBoards).map(id => ({
+    label: t(`code.boards.${id}`),
+    value: id
+  }));
 
   return (
     <Container>
-      <FileList
-        files={content.files}
+      <FileTree
+        errors={errors}
+        files={files}
+        libraries={libraries}
         selected={selectedFile}
         onDelete={onDeleteFile}
-        onSelect={file => console.log("Select", file)}
+        onSelect={onSelectFile}
+        onNew={onAddNew}
       />
       <Main>
         <Toolbar>
           <ToolbarButtons>
             <ToolbarButton>
-              <Icon name="pencil" />
+              <Icon name="undo" />
             </ToolbarButton>
             <ToolbarButton>
-              <Icon name="trash" />
-            </ToolbarButton>
-            <ToolbarButton>
-              <Icon name="brush" />
+              <Icon name="redo" />
             </ToolbarButton>
           </ToolbarButtons>
+          <BoardSelectWrap>
+            <p>Placa:</p>
+            <BoardSelect
+              value={board}
+              onChange={setBoard}
+              options={boardOptions}
+              selectConfig={{ isSearchable: false, blurInputOnSelect: false }}
+            />
+          </BoardSelectWrap>
+          <UploadButton onClick={() => onCompile()}>
+            <Icon name="programming" />
+            {t("code.compile")}
+          </UploadButton>
           <UploadButton onClick={() => onUpload()}>
             <Icon name="programming" />
-            Upload
+            {t("code.upload")}
           </UploadButton>
         </Toolbar>
-        <Editor code={selectedFile.content} onChange={onCodeChange} />
+        {selectedFile && selectedFile.type === "file" ? (
+          <Editor
+            key={selectedFile.id}
+            code={selectedFile.content}
+            onChange={onCodeChange}
+            errors={errors.filter(e => e.file === selectedFile.name)}
+          />
+        ) : (
+          <EmptyEditor />
+        )}
+        <StatusBar></StatusBar>
       </Main>
-      {uploading && <UploadSpinner />}
+      {uploadContent}
+      <NewFileModal
+        isOpen={newFileOpen}
+        fileExtension={newFileExtension}
+        onNewFile={onNewFile}
+        onCancel={() => setNewFileOpen(false)}
+      />
+      <NewFolderModal
+        isOpen={newFolderOpen}
+        onNewFolder={onNewFolder}
+        onCancel={() => setNewFolderOpen(false)}
+      />
     </Container>
   );
 };
 
-export default Code;
+export default forwardRef(Code);
 
 const defaultCode = `
 void setup() {
@@ -90,17 +345,20 @@ void loop() {
 }
 `;
 
-const getInitialContent = (initialContent?: ICodeContent) => {
+const getInitialContent = (initialContent?: ICodeContent): ICodeContent => {
   if (initialContent && initialContent.files && initialContent.files.length) {
     return initialContent;
   } else {
     return {
       files: [
         {
+          id: uuid(),
+          type: "file",
           name: "main.ino",
           content: defaultCode
         }
-      ]
+      ],
+      libraries: []
     };
   }
 };
@@ -108,12 +366,14 @@ const getInitialContent = (initialContent?: ICodeContent) => {
 /* Styled components */
 
 const Container = styled.div`
-  flex: 1;
+  flex: 1 1 0;
+  overflow: hidden;
   display: flex;
 `;
 
 const Main = styled.div`
-  flex: 1;
+  flex: 1 1 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 `;
@@ -158,49 +418,38 @@ const ToolbarButton = styled.div<{ disabled?: boolean }>`
     `};
 `;
 
+const BoardSelectWrap = styled.div`
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+  p {
+    margin-right: 10px;
+    font-weight: 500;
+  }
+`;
+
+const BoardSelect = styled(Select)`
+  width: 200px;
+`;
+
 const UploadButton = styled(Button)`
+  margin-left: 10px;
   svg {
     margin-right: 10px;
   }
 `;
 
-const sampleCode = `
-String inputString = "";         // a String to hold incoming data
-bool stringComplete = false;  // whether the string is complete
+const StatusBar = styled.div`
+  height: 24px;
+  background-color: #5d6069;
+  padding: 0px 20px;
+  display: flex;
+  align-items: center;
+  z-index: 10;
+  color: white;
+  font-size: 12px;
+`;
 
-void setup() {
-  // initialize serial:
-  Serial.begin(9600);
-  // reserve 200 bytes for the inputString:
-  inputString.reserve(200);
-}
-
-void loop() {
-  // print the string when a newline arrives:
-  if (stringComplete) {
-    Serial.println(inputString);
-    // clear the string:
-    inputString = "";
-    stringComplete = false;
-  }
-}
-
-/*
-  SerialEvent occurs whenever a new data comes in the hardware serial RX. This
-  routine is run between each time loop() runs, so using delay inside loop can
-  delay response. Multiple bytes of data may be available.
-*/
-void serialEvent() {
-  while (Serial.available()) {
-    // get the new byte:
-    char inChar = (char)Serial.read();
-    // add it to the inputString:
-    inputString += inChar;
-    // if the incoming character is a newline, set a flag so the main loop can
-    // do something about it:
-    if (inChar == '\\n') {
-      stringComplete = true;
-    }
-  }
-}
+const EmptyEditor = styled.div`
+  flex: 1;
 `;

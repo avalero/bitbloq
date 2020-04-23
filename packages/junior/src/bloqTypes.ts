@@ -1,64 +1,64 @@
-import startLoopIcon from "../../images/bloqs/start-loop.svg";
-import start1TimeIcon from "../../images/bloqs/start-1-time.svg";
-import start2TimesIcon from "../../images/bloqs/start-2-times.svg";
-import start5TimesIcon from "../../images/bloqs/start-5-times.svg";
-import start10TimesIcon from "../../images/bloqs/start-10-times.svg";
-import switch1OnIcon from "../../images/bloqs/switch-1on.svg";
-import switch1OffIcon from "../../images/bloqs/switch-1off.svg";
-import switch2OnIcon from "../../images/bloqs/switch-2on.svg";
-import switch2OffIcon from "../../images/bloqs/switch-2off.svg";
-import viewColorBlack from "../../images/bloqs/view-color-black.svg";
-import viewColorWhite from "../../images/bloqs/view-color-white.svg";
-import viewColorBlue from "../../images/bloqs/view-color-blue.svg";
-import viewColorGreen from "../../images/bloqs/view-color-green.svg";
-import viewColorRed from "../../images/bloqs/view-color-red.svg";
-import notViewColorBlack from "../../images/bloqs/not-view-color-black.svg";
-import notViewColorWhite from "../../images/bloqs/not-view-color-white.svg";
-import notViewColorBlue from "../../images/bloqs/not-view-color-blue.svg";
-import notViewColorGreen from "../../images/bloqs/not-view-color-green.svg";
-import notViewColorRed from "../../images/bloqs/not-view-color-red.svg";
-import buttonPressedIcon from "../../images/bloqs/button-pressed.svg";
-import buttonReleasedIcon from "../../images/bloqs/button-released.svg";
-import obstacleIcon from "../../images/bloqs/obstacle.svg";
-import noObstacleIcon from "../../images/bloqs/no-obstacle.svg";
-import musicIcon from "../../images/bloqs/music.svg";
-import music1Icon from "../../images/bloqs/music1.svg";
-import music2Icon from "../../images/bloqs/music2.svg";
-import music3Icon from "../../images/bloqs/music3.svg";
-import music4Icon from "../../images/bloqs/music4.svg";
-import musicStopIcon from "../../images/bloqs/music-stop.svg";
-import sendAIcon from "../../images/bloqs/send-message-a.svg";
-import sendBIcon from "../../images/bloqs/send-message-b.svg";
-import sendCIcon from "../../images/bloqs/send-message-c.svg";
-import sendDIcon from "../../images/bloqs/send-message-d.svg";
-import sendEIcon from "../../images/bloqs/send-message-e.svg";
-import onAIcon from "../../images/bloqs/on-message-a.svg";
-import onBIcon from "../../images/bloqs/on-message-b.svg";
-import onCIcon from "../../images/bloqs/on-message-c.svg";
-import onDIcon from "../../images/bloqs/on-message-d.svg";
-import onEIcon from "../../images/bloqs/on-message-e.svg";
-import lightIcon from "../../images/bloqs/light.svg";
-import sunsetIcon from "../../images/bloqs/sunset.svg";
-import darkIcon from "../../images/bloqs/dark.svg";
-import temperatureHotIcon from "../../images/bloqs/temperature-hot.svg";
-import temperatureColdIcon from "../../images/bloqs/temperature-cold.svg";
-import led1OnIcon from "../../images/bloqs/led1-on.svg";
-import led1OffIcon from "../../images/bloqs/led1-off.svg";
-import led2OnIcon from "../../images/bloqs/led2-on.svg";
-import led2OffIcon from "../../images/bloqs/led2-off.svg";
-import boardLedOnIcon from "../../images/bloqs/board-led-on.svg";
-import boardLedOffIcon from "../../images/bloqs/board-led-off.svg";
-import boardLedRedIcon from "../../images/bloqs/board-led-red.svg";
-import boardLedGreenIcon from "../../images/bloqs/board-led-green.svg";
-import boardLedBlueIcon from "../../images/bloqs/board-led-blue.svg";
-import boardLedWhiteIcon from "../../images/bloqs/board-led-white.svg";
-import servoClockwiseSlowIcon from "../../images/bloqs/servo-clockwise-slow.svg";
-import servoClockwiseMediumIcon from "../../images/bloqs/servo-clockwise-medium.svg";
-import servoClockwiseFastIcon from "../../images/bloqs/servo-clockwise-fast.svg";
-import servoCounterClockwiseSlowIcon from "../../images/bloqs/servo-counterclockwise-slow.svg";
-import servoCounterClockwiseMediumIcon from "../../images/bloqs/servo-counterclockwise-medium.svg";
-import servoCounterClockwiseFastIcon from "../../images/bloqs/servo-counterclockwise-fast.svg";
-import servoStopIcon from "../../images/bloqs/servo-stop.svg";
+import startLoopIcon from "./images/bloqs/start-loop.svg";
+import start1TimeIcon from "./images/bloqs/start-1-time.svg";
+import start2TimesIcon from "./images/bloqs/start-2-times.svg";
+import start5TimesIcon from "./images/bloqs/start-5-times.svg";
+import start10TimesIcon from "./images/bloqs/start-10-times.svg";
+import switch1OnIcon from "./images/bloqs/switch-1on.svg";
+import switch1OffIcon from "./images/bloqs/switch-1off.svg";
+import switch2OnIcon from "./images/bloqs/switch-2on.svg";
+import switch2OffIcon from "./images/bloqs/switch-2off.svg";
+import viewColorBlack from "./images/bloqs/view-color-black.svg";
+import viewColorWhite from "./images/bloqs/view-color-white.svg";
+import viewColorBlue from "./images/bloqs/view-color-blue.svg";
+import viewColorGreen from "./images/bloqs/view-color-green.svg";
+import viewColorRed from "./images/bloqs/view-color-red.svg";
+import notViewColorBlack from "./images/bloqs/not-view-color-black.svg";
+import notViewColorWhite from "./images/bloqs/not-view-color-white.svg";
+import notViewColorBlue from "./images/bloqs/not-view-color-blue.svg";
+import notViewColorGreen from "./images/bloqs/not-view-color-green.svg";
+import notViewColorRed from "./images/bloqs/not-view-color-red.svg";
+import buttonPressedIcon from "./images/bloqs/button-pressed.svg";
+import buttonReleasedIcon from "./images/bloqs/button-released.svg";
+import obstacleIcon from "./images/bloqs/obstacle.svg";
+import noObstacleIcon from "./images/bloqs/no-obstacle.svg";
+import musicIcon from "./images/bloqs/music.svg";
+import music1Icon from "./images/bloqs/music1.svg";
+import music2Icon from "./images/bloqs/music2.svg";
+import music3Icon from "./images/bloqs/music3.svg";
+import music4Icon from "./images/bloqs/music4.svg";
+import musicStopIcon from "./images/bloqs/music-stop.svg";
+import sendAIcon from "./images/bloqs/send-message-a.svg";
+import sendBIcon from "./images/bloqs/send-message-b.svg";
+import sendCIcon from "./images/bloqs/send-message-c.svg";
+import sendDIcon from "./images/bloqs/send-message-d.svg";
+import sendEIcon from "./images/bloqs/send-message-e.svg";
+import onAIcon from "./images/bloqs/on-message-a.svg";
+import onBIcon from "./images/bloqs/on-message-b.svg";
+import onCIcon from "./images/bloqs/on-message-c.svg";
+import onDIcon from "./images/bloqs/on-message-d.svg";
+import onEIcon from "./images/bloqs/on-message-e.svg";
+import lightIcon from "./images/bloqs/light.svg";
+import sunsetIcon from "./images/bloqs/sunset.svg";
+import darkIcon from "./images/bloqs/dark.svg";
+import temperatureHotIcon from "./images/bloqs/temperature-hot.svg";
+import temperatureColdIcon from "./images/bloqs/temperature-cold.svg";
+import led1OnIcon from "./images/bloqs/led1-on.svg";
+import led1OffIcon from "./images/bloqs/led1-off.svg";
+import led2OnIcon from "./images/bloqs/led2-on.svg";
+import led2OffIcon from "./images/bloqs/led2-off.svg";
+import boardLedOnIcon from "./images/bloqs/board-led-on.svg";
+import boardLedOffIcon from "./images/bloqs/board-led-off.svg";
+import boardLedRedIcon from "./images/bloqs/board-led-red.svg";
+import boardLedGreenIcon from "./images/bloqs/board-led-green.svg";
+import boardLedBlueIcon from "./images/bloqs/board-led-blue.svg";
+import boardLedWhiteIcon from "./images/bloqs/board-led-white.svg";
+import servoClockwiseSlowIcon from "./images/bloqs/servo-clockwise-slow.svg";
+import servoClockwiseMediumIcon from "./images/bloqs/servo-clockwise-medium.svg";
+import servoClockwiseFastIcon from "./images/bloqs/servo-clockwise-fast.svg";
+import servoCounterClockwiseSlowIcon from "./images/bloqs/servo-counterclockwise-slow.svg";
+import servoCounterClockwiseMediumIcon from "./images/bloqs/servo-counterclockwise-medium.svg";
+import servoCounterClockwiseFastIcon from "./images/bloqs/servo-counterclockwise-fast.svg";
+import servoStopIcon from "./images/bloqs/servo-stop.svg";
 
 import { IBloqType, BloqCategory, BloqParameterType } from "@bitbloq/bloqs";
 
@@ -98,11 +98,22 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         type: BloqParameterType.Number,
         defaultValue: 1
       }
-    ]
+    ],
+    genCode: {
+      setup: [`heap.insert({{functionName}});\n {{timelineFlagName}} = true;`],
+      globals: [
+        "bool {{timelineFlagName}} = false;",
+        "void {{functionName}}();",
+        'bool onStartForEver{{timelineFlagName}} = {{ "true" if(type === "loop") else "false" }}; //onStart loop forever',
+        "unsigned short onStartLoopTimes{{timelineFlagName}} = {{times}}; //onStart loops n times"
+      ],
+      definitions: [`void {{functionName}}(){\n`]
+    }
   },
   {
     category: BloqCategory.Event,
     name: "OnDoubleSwitchOnOff",
+    extends: "EventsParent",
     label: "bloq-on-switch",
     components: ["ZumjuniorDoubleSwitch"],
     iconSwitch: {
@@ -111,14 +122,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       "value === 'pos2' and switch === '1'": switch2OffIcon,
       "value === 'pos1' and switch === '1'": switch2OnIcon
     },
-    actions: [
-      {
-        name: "read",
-        parameters: {
-          pinVarName: "{{component}}Pin{{switch}}"
-        }
-      }
-    ],
+    conditionCode: `digitalRead({{component}}Pin{{switch}}) == {{ "HIGH" if (value === "pos2") else "LOW"}}`,
     configurationComponent: "DoubleSwitchConfiguration",
     parameters: [
       {
@@ -162,6 +166,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Event,
     name: "OnMessage",
+    extends: "EventsParent",
     label: "bloq-on-message",
     iconSwitch: {
       "value === 'messageA'": onAIcon,
@@ -186,14 +191,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         "___messageE = false;"
       ]
     },
-    actions: [
-      {
-        name: "onMessage",
-        parameters: {
-          variable: "___{{value}}"
-        }
-      }
-    ],
+    conditionCode: "___{{value}}",
     configurationComponent: "ReceiveMessageConfiguration",
     parameters: [
       {
@@ -226,22 +224,63 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     ]
   },
   {
+    category: BloqCategory.Wait,
+    name: "WaitParent",
+    components: [],
+    genCode: {
+      globals: ["void {{functionName}}Wait();", "void {{functionName}}();"],
+      definitions: [
+        `
+          heap.insert({{functionName}}Wait);
+        }
+    
+        void {{functionName}}Wait(){
+          if(!({{conditionCode | safe}})){
+            heap.insert({{functionName}}Wait);
+          }else{
+            heap.insert({{functionName}});
+          }
+        }
+
+        void {{functionName}}(){
+      `
+      ]
+    }
+  },
+  {
+    category: BloqCategory.Event,
+    name: "EventsParent",
+    components: [],
+    genCode: {
+      globals: [
+        "bool {{timelineFlagName}} = false;",
+        "void {{functionName}}();"
+      ],
+      definitions: ["void {{functionName}}(){\n"],
+      loop: [
+        `
+      if ({{conditionCode | safe}}){
+        if(!{{timelineFlagName}}){ 
+          heap.insert({{functionName}});
+          {{timelineFlagName}} = true;
+        }
+      }
+      `
+      ]
+    }
+  },
+  {
     category: BloqCategory.Event,
     name: "OnButtonPress",
+    extends: "EventsParent",
     label: "bloq-on-button-pressed",
     components: ["Button"],
     iconSwitch: {
       "value === 'pressed'": buttonPressedIcon,
       "value === 'released'": buttonReleasedIcon
     },
-    actions: [
-      {
-        name: "read",
-        parameters: {
-          pinVarName: "{{component}}Pin"
-        }
-      }
-    ],
+    conditionCode:
+      'digitalRead({{component}}Pin) == {{"HIGH" if(value === "pressed") else "LOW"}}',
     configurationComponent: "ButtonConfiguration",
     parameters: [
       {
@@ -270,17 +309,11 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Event,
     name: "OnSevenSegmentValue",
+    extends: "EventsParent",
     label: "bloq-on-seven-segment",
     iconComponent: "SevenSegmentIcon",
     components: ["ZumjuniorSevenSegment"],
-    actions: [
-      {
-        name: "readNumber",
-        parameters: {
-          pinVarName: "{{component}}i2c"
-        }
-      }
-    ],
+    conditionCode: "{{component}}i2cObj.readInt() == {{value}}",
     configurationComponent: "GetNumberConfiguration",
     parameters: [
       {
@@ -304,19 +337,14 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Event,
     name: "OnObstacle",
+    extends: "EventsParent",
     label: "bloq-on-obstacle",
     iconSwitch: {
       "value === 'obstacle'": obstacleIcon,
       "value === 'no_obstacle'": noObstacleIcon
     },
-    actions: [
-      {
-        name: "readDistance",
-        parameters: {
-          pinVarName: "{{component}}i2c"
-        }
-      }
-    ],
+    conditionCode:
+      '{{component}}i2cALPS.getDistance() {{">= 20" | safe if(value === "no_obstacle") else " < 20" | safe}}',
     components: ["ZumjuniorMultiSensor"],
     configurationComponent: "ObstacleConfiguration",
     parameters: [
@@ -345,29 +373,23 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Event,
     name: "OnDetectColor",
+    extends: "EventsParent",
     label: "bloq-on-detect-color",
     iconSwitch: {
-      "detect === 'true' and color === 'red'": viewColorRed,
-      "detect === 'true' and color === 'black'": viewColorBlack,
-      "detect === 'true' and color === 'white'": viewColorWhite,
-      "detect === 'true' and color === 'blue'": viewColorBlue,
-      "detect === 'true' and color === 'green'": viewColorGreen,
-      "detect === 'false' and color === 'black'": notViewColorBlack,
-      "detect === 'false' and color === 'white'": notViewColorWhite,
-      "detect === 'false' and color === 'blue'": notViewColorBlue,
-      "detect === 'false' and color === 'green'": notViewColorGreen,
-      "detect === 'false' and color === 'red'": notViewColorRed
+      "detect === '==' and color === 'red'": viewColorRed,
+      "detect === '==' and color === 'black'": viewColorBlack,
+      "detect === '==' and color === 'white'": viewColorWhite,
+      "detect === '==' and color === 'blue'": viewColorBlue,
+      "detect === '==' and color === 'green'": viewColorGreen,
+      "detect === '!=' and color === 'black'": notViewColorBlack,
+      "detect === '!=' and color === 'white'": notViewColorWhite,
+      "detect === '!=' and color === 'blue'": notViewColorBlue,
+      "detect === '!=' and color === 'green'": notViewColorGreen,
+      "detect === '!=' and color === 'red'": notViewColorRed
     },
+    conditionCode: "{{component}}i2cColor.whichColor() {{detect}} {{color}}",
     configurationComponent: "ViewColorConfiguration",
     components: ["ZumjuniorMultiSensor"],
-    actions: [
-      {
-        name: "readColor",
-        parameters: {
-          pinVarName: "{{component}}i2c"
-        }
-      }
-    ],
     parameters: [
       {
         name: "component",
@@ -381,11 +403,11 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         options: [
           {
             label: "bloq-parameter-detect",
-            value: "true"
+            value: "=="
           },
           {
             label: "bloq-parameter-not-detect",
-            value: "false"
+            value: "!="
           }
         ]
       },
@@ -427,20 +449,22 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Event,
     name: "OnDetectLight",
+    extends: "EventsParent",
     label: "bloq-on-detect-light",
     iconSwitch: {
       "value === 'light'": lightIcon,
       "value === 'sunset'": sunsetIcon,
       "value === 'dark'": darkIcon
     },
-    actions: [
-      {
-        name: "readLight",
-        parameters: {
-          pinVarName: "{{component}}i2c"
-        }
-      }
-    ],
+    conditionCode: `
+      {% if value === "light" %} 
+        {{component}}i2cALPS.getAL() >= 60
+      {% elif value === "dark" %} 
+        {{component}}i2cALPS.getAL() <= 40
+      {% elif value === "sunset" %} 
+        ({{component}}i2cALPS.getAL() < 60) && ({{component}}i2cALPS.getAL() > 40)
+      {% endif %} 
+    `,
     configurationComponent: "DetectLightConfiguration",
     components: ["ZumjuniorMultiSensor"],
     parameters: [
@@ -473,19 +497,14 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Event,
     name: "OnDetectTemperature",
+    extends: "EventsParent",
     label: "bloq-on-detect-temperature",
     iconSwitch: {
       "value === 'hot'": temperatureHotIcon,
       "value === 'cold'": temperatureColdIcon
     },
-    actions: [
-      {
-        name: "readTemperature",
-        parameters: {
-          pinVarName: "{{component}}i2c"
-        }
-      }
-    ],
+    conditionCode:
+      '{{component}}i2cTemp.getTemp() {{ ">=25" | safe if (value === "hot") else "<25" | safe}}',
     configurationComponent: "TemperatureConfiguration",
     components: ["ZumjuniorMultiSensor"],
     parameters: [
@@ -561,15 +580,11 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       }
     ],
     code: {},
-    actions: [
-      {
-        name: "write",
-        parameters: {
-          pinVarName: "{{component}}{{led}}Pin",
-          value: "{{value}}"
-        }
-      }
-    ]
+    genCode: {
+      definitions: [
+        'digitalWrite({{component}}{{led}}Pin, {{"LOW" if(value === "on") else "HIGH"}});'
+      ]
+    }
   },
   {
     category: BloqCategory.Action,
@@ -632,15 +647,14 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       }
     ],
     code: {},
-    actions: [
-      {
-        name: "write",
-        parameters: {
-          pinVarName: "{{component}}",
-          value: "{{rotation}}{{speed}}"
-        }
-      }
-    ]
+    genCode: {
+      definitions: [
+        `{{component}}PinObj.write(90 {{"+" if(rotation === "clockwise") else "-"}} 
+            {{"10" if(speed === "slow")}} 
+            {{"20" if(speed === "medium")}} 
+            {{"30" if(speed === "fast")}});`
+      ]
+    }
   },
   {
     category: BloqCategory.Action,
@@ -663,15 +677,9 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       }
     ],
     code: {},
-    actions: [
-      {
-        name: "write",
-        parameters: {
-          pinVarName: "{{component}}",
-          value: "{{value}}"
-        }
-      }
-    ]
+    genCode: {
+      definitions: ["{{component}}PinObj.write({{value}});"]
+    }
   },
   {
     category: BloqCategory.Action,
@@ -722,15 +730,15 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       }
     ],
     code: {},
-    actions: [
-      {
-        name: "write",
-        parameters: {
-          pinVarName: "{{component}}",
-          value: "{{value}}"
-        }
-      }
-    ]
+    genCode: {
+      definitions: [
+        `  
+                analogWrite({{PinRed}},{{"0" if(value==="red" or value==="white") else "255"}});
+                analogWrite({{PinGreen}},{{"0" if(value==="green" or value === "white") else "255"}});
+                analogWrite({{PinBlue}},{{"0" if(value==="blue" or value === "white") else "255"}});
+              `
+      ]
+    }
   },
   {
     category: BloqCategory.Action,
@@ -780,17 +788,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         ]
       }
     ],
-    code: {},
-    actions: [
-      {
-        name: "write",
-        parameters: {
-          pinVarName: "{{component}}",
-          value: "{{value}}",
-          duration: "{{duration}}"
-        }
-      }
-    ]
+    code: {}
   },
   {
     category: BloqCategory.Action,
@@ -830,30 +828,19 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         ]
       }
     ],
-    code: {},
-    actions: [
-      {
-        name: "writeNumber",
-        parameters: {
-          pinVarName: "{{component}}i2c",
-          value: "{{value}}"
-        }
-      },
-      {
-        name: "incrementNumber",
-        parameters: {
-          pinVarName: "{{component}}i2c",
-          value: "{{value}}"
-        }
-      },
-      {
-        name: "decrementNumber",
-        parameters: {
-          pinVarName: "{{component}}i2c",
-          value: "{{value}}"
-        }
-      }
-    ]
+    genCode: {
+      definitions: [
+        `
+      {% if action === "writeNumber" %}
+        {{component}}i2cObj.displayInt({{value}});
+      {% elif action === "incrementNumber" %}
+        {{component}}i2cObj.displayInt({{component}}i2cObj.readInt() + {{value}});
+      {% elif action === "decrementNumber" %}
+        {{component}}i2cObj.displayInt({{component}}i2cObj.readInt() - {{value}});
+      {% endif %}
+    `
+      ]
+    }
   },
   {
     category: BloqCategory.Action,
@@ -875,14 +862,9 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         "bool ___messageE = false;"
       ]
     },
-    actions: [
-      {
-        name: "send",
-        parameters: {
-          code: "___{{value}} = true;"
-        }
-      }
-    ],
+    genCode: {
+      definitions: ["___{{value}} = true;"]
+    },
     configurationComponent: "SendMessageConfiguration",
     parameters: [
       {
@@ -928,33 +910,27 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         defaultValue: 1
       }
     ],
-    code: {},
-    actions: [
-      {
-        name: "wait",
-        parameters: {
-          code: "heap.insert({{functionName}},{{value}}*1000);"
-        }
-      }
-    ]
+    genCode: {
+      definitions: [
+        "heap.insert({{functionName}},{{value}}*1000);}",
+        "void {{functionName}}(){"
+      ],
+      globals: [`void {{functionName}}();`]
+    },
+    code: {}
   },
   {
     category: BloqCategory.Wait,
     name: "WaitObstacle",
+    extends: "WaitParent",
     label: "bloq-wait-obstacle",
     iconSwitch: {
       "value === 'obstacle'": obstacleIcon,
       "value === 'no_obstacle'": noObstacleIcon
     },
     components: ["ZumjuniorMultiSensor"],
-    actions: [
-      {
-        name: "readDistance",
-        parameters: {
-          pinVarName: "{{component}}i2c"
-        }
-      }
-    ],
+    conditionCode:
+      '{{component}}i2cALPS.getDistance() {{"<20" | safe if (value === "obstacle") else ">=20" | safe }}',
     configurationComponent: "ObstacleConfiguration",
     parameters: [
       {
@@ -982,29 +958,23 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Wait,
     name: "WaitDetectColor",
+    extends: "WaitParent",
     label: "bloq-wait-detect-color",
     iconSwitch: {
-      "detect === 'true' and color === 'red'": viewColorRed,
-      "detect === 'true' and color === 'black'": viewColorBlack,
-      "detect === 'true' and color === 'white'": viewColorWhite,
-      "detect === 'true' and color === 'blue'": viewColorBlue,
-      "detect === 'true' and color === 'green'": viewColorGreen,
-      "detect === 'false' and color === 'black'": notViewColorBlack,
-      "detect === 'false' and color === 'white'": notViewColorWhite,
-      "detect === 'false' and color === 'blue'": notViewColorBlue,
-      "detect === 'false' and color === 'green'": notViewColorGreen,
-      "detect === 'false' and color === 'red'": notViewColorRed
+      "detect === '==' and color === 'red'": viewColorRed,
+      "detect === '==' and color === 'black'": viewColorBlack,
+      "detect === '==' and color === 'white'": viewColorWhite,
+      "detect === '==' and color === 'blue'": viewColorBlue,
+      "detect === '==' and color === 'green'": viewColorGreen,
+      "detect === '!=' and color === 'black'": notViewColorBlack,
+      "detect === '!=' and color === 'white'": notViewColorWhite,
+      "detect === '!=' and color === 'blue'": notViewColorBlue,
+      "detect === '!=' and color === 'green'": notViewColorGreen,
+      "detect === '!=' and color === 'red'": notViewColorRed
     },
     configurationComponent: "ViewColorConfiguration",
     components: ["ZumjuniorMultiSensor"],
-    actions: [
-      {
-        name: "readColor",
-        parameters: {
-          pinVarName: "{{component}}i2c"
-        }
-      }
-    ],
+    conditionCode: "{{component}}i2cColor.whichColor() {{detect}} {{color}}",
     parameters: [
       {
         name: "component",
@@ -1018,11 +988,11 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         options: [
           {
             label: "bloq-parameter-detect",
-            value: "true"
+            value: "=="
           },
           {
             label: "bloq-parameter-not-detect",
-            value: "false"
+            value: "!="
           }
         ]
       },
@@ -1064,20 +1034,22 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Wait,
     name: "WaitDetectLight",
+    extends: "WaitParent",
     label: "bloq-wait-detect-light",
     iconSwitch: {
       "value === 'light'": lightIcon,
       "value === 'sunset'": sunsetIcon,
       "value === 'dark'": darkIcon
     },
-    actions: [
-      {
-        name: "readLight",
-        parameters: {
-          pinVarName: "{{component}}i2c"
-        }
-      }
-    ],
+    conditionCode: `
+      {% if value === "light" %} 
+        {{component}}i2cALPS.getAL() >= 60
+      {% elif value === "dark" %} 
+        {{component}}i2cALPS.getAL() <= 40
+      {% elif value === "sunset" %} 
+        ({{component}}i2cALPS.getAL() < 60) && ({{component}}i2cALPS.getAL() > 40)
+      {% endif %} 
+    `,
     configurationComponent: "DetectLightConfiguration",
     components: ["ZumjuniorMultiSensor"],
     parameters: [
@@ -1110,19 +1082,14 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Wait,
     name: "WaitDetectTemperature",
+    extends: "WaitParent",
     label: "bloq-wait-detect-temperature",
     iconSwitch: {
       "value === 'cold'": temperatureColdIcon,
       "value === 'hot'": temperatureHotIcon
     },
-    actions: [
-      {
-        name: "readTemperature",
-        parameters: {
-          pinVarName: "{{component}}i2c"
-        }
-      }
-    ],
+    conditionCode:
+      '{{component}}i2cTemp.getTemp() {{ ">=25" | safe if (value === "hot") else "<25" | safe}}',
     configurationComponent: "TemperatureConfiguration",
     components: ["ZumjuniorMultiSensor"],
     parameters: [
@@ -1151,20 +1118,15 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Wait,
     name: "WaitButtonPressed",
+    extends: "WaitParent",
     label: "bloq-wait-button-pressed",
     components: ["Button"],
     iconSwitch: {
       "value === 'pressed'": buttonPressedIcon,
       "value === 'released'": buttonReleasedIcon
     },
-    actions: [
-      {
-        name: "read",
-        parameters: {
-          pinVarName: "{{component}}Pin"
-        }
-      }
-    ],
+    conditionCode:
+      'digitalRead({{component}}Pin) == {{"HIGH" if(value === "pressed") else "LOW"}}',
     configurationComponent: "ButtonConfiguration",
     parameters: [
       {
@@ -1192,17 +1154,11 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Wait,
     name: "WaitForSevenSegmentValue",
+    extends: "WaitParent",
     label: "bloq-wait-seven-segment",
     iconComponent: "SevenSegmentIcon",
     components: ["ZumjuniorSevenSegment"],
-    actions: [
-      {
-        name: "readNumber",
-        parameters: {
-          pinVarName: "{{component}}i2c"
-        }
-      }
-    ],
+    conditionCode: "{{component}}i2cObj.readInt() == {{value}}",
     configurationComponent: "GetNumberConfiguration",
     parameters: [
       {
@@ -1226,6 +1182,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Wait,
     name: "WaitDoubleSwitchOnOff",
+    extends: "WaitParent",
     label: "bloq-wait-switch",
     components: ["ZumjuniorDoubleSwitch"],
     iconSwitch: {
@@ -1234,14 +1191,8 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       "value === 'pos2' and switch === '1'": switch2OffIcon,
       "value === 'pos1' and switch === '1'": switch2OnIcon
     },
-    actions: [
-      {
-        name: "read",
-        parameters: {
-          pinVarName: "{{component}}Pin{{switch}}"
-        }
-      }
-    ],
+    conditionCode:
+      'digitalRead({{component}}Pin{{switch}}) == {{ "HIGH" if(value === "pos2") else "LOW"}}',
     configurationComponent: "DoubleSwitchConfiguration",
     parameters: [
       {
@@ -1285,6 +1236,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Wait,
     name: "WaitMessage",
+    extends: "WaitParent",
     label: "bloq-wait-message",
     iconSwitch: {
       "value === 'messageA'": onAIcon,
@@ -1309,14 +1261,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         "___messageE = false;"
       ]
     },
-    actions: [
-      {
-        name: "onMessage",
-        parameters: {
-          variable: "___{{value}}"
-        }
-      }
-    ],
+    conditionCode: "___{{value}}",
     configurationComponent: "ReceiveMessageConfiguration",
     parameters: [
       {

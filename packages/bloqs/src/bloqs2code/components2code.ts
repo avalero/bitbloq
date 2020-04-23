@@ -14,8 +14,11 @@ import {
   IBoard,
   IIntegratedComponent
 } from "../index";
+
+import initializeArduinoCode from "./initializearduinocode";
 import { getFullComponentDefinition } from "./componentBuilder";
 import nunjucks from "nunjucks";
+import cloneDeep from "clone-deep";
 
 /**
  * Retrieves the code that a component requires for a precise section
@@ -121,9 +124,9 @@ export const pinsForComponent = (
 const components2code = (
   componentsDefinition: Array<Partial<IComponent>>,
   components: IComponentInstance[],
-  board: IBoard,
-  arduinoCode: IArduinoCode
+  board: IBoard
 ): IArduinoCode => {
+  const arduinoCode: IArduinoCode = initializeArduinoCode();
   // loop over every component connected to the board
   components.forEach(componentInstance => {
     const componentDefinition = getFullComponentDefinition(

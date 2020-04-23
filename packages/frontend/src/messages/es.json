@@ -689,6 +689,35 @@
     "500": "¡Uy! Ha ocurrido un error inesperado, vuelve a intentarlo más tarde."
   },
   "code": {
-    "add-new": "Añadir nuevo"
+    "add-new": "Añadir nuevo",
+    "add-new-cpp": "Añadir archivo .cpp",
+    "add-new-h": "Añadir archivo .h",
+    "add-new-folder": "Añadir carpeta",
+    "boards": {
+      "zumjunior": "ZumJunior",
+      "zumcore": "ZumCore",
+      "zumcore2": "ZumCore 2",
+      "mega": "Arduino Mega 2560",
+      "megar3": "Arduino Mega 2560 R3",
+      "uno": "Arduino Uno",
+      "unor3": "Arduino Uno R3"
+    },
+    "code": "Código",
+    "compile": "Compilar",
+    "compiling": "Compilando",
+    "compile-success": "Compilado correctamente",
+    "create-file": "Crear archivo",
+    "create-folder": "Crear carpeta",
+    "file-name": "Nombre del archivo",
+    "folder-name": "Nombre de la carpeta",
+    "upload": "Cargar",
+    "uploading-to-board": "Cargando en la placa...",
+    "uploading-success": "Cargada correctamente",
+    "uploading-error": "Error",
+    "board-not-found": "No hay placa conectada",
+    "install-chrome-app-text": "Para poder cargar el programa en la placa, debes instalar la aplicación de Chrome de Bitbloq",
+    "open-chrome-webstore": "Instalar aplicación de Chrome",
+    "install-chrome-app-title": "Aplicación de Chrome no encontrada",
+    "libraries": "Bibliotecas"
   }
 }

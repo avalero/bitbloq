@@ -37,9 +37,15 @@ const MicrosoftRedirectPage: NextPage = () => {
 
   useEffect(() => {
     try {
-      const token = window.location.hash.split("#access_token=")[1].toString();
+      const url: string =
+        window.location && window.location.href && window.location.href;
+      const code = url
+        .split("?code=")[1]
+        .toString()
+        .split("&")[0]
+        .toString();
       (async () => {
-        const { data } = await callLogin(token);
+        const { data } = await callLogin(code);
         data!.loginWithMicrosoft.finishedSignUp
           ? onLogin(data!.loginWithMicrosoft.token!)
           : onSignup(data!.loginWithMicrosoft.id!);

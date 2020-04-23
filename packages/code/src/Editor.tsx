@@ -1,10 +1,7 @@
 import React, { FC, useEffect, useRef } from "react";
 import { colors } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import "monaco-editor/esm/vs/editor/browser/controller/coreCommands.js";
-import "monaco-editor/esm/vs/editor/contrib/find/findController.js";
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
-import "monaco-editor/esm/vs/basic-languages/cpp/cpp.contribution.js";
+import * as monaco from "monaco-editor";
 import {
   editorBackground,
   editorForeground
@@ -32,14 +29,35 @@ monaco.editor.defineTheme("bitbloqTheme", {
   }
 });
 
+interface IError {
+  line: number;
+  column: number;
+  message: string;
+}
+
 interface IEditorProps {
   code: string;
   onChange: (newCode: string) => void;
+  errors: IError[];
 }
 
-const Editor: FC<IEditorProps> = ({ code, onChange }) => {
+const Editor: FC<IEditorProps> = ({ code, onChange, errors }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<monaco.editor.ICodeEditor | null>(null);
+
+  useEffect(() => {
+    const onWindowResize = () => {
+      if (editorRef.current) {
+        editorRef.current.layout();
+      }
+    };
+
+    window.addEventListener("resize", onWindowResize);
+
+    return () => {
+      window.removeEventListener("resize", onWindowResize);
+    };
+  }, []);
 
   useEffect(() => {
     if (containerRef.current) {
@@ -71,16 +89,25 @@ const Editor: FC<IEditorProps> = ({ code, onChange }) => {
 
   useEffect(() => {
     const editor = editorRef.current;
-    if (!editor) {
-      return;
-    }
-    const model = editor.getModel();
-    if (model && code !== model.getValue()) {
-      editor.setValue(code);
-    }
-  }, [code]);
+    const model = editor && editor.getModel();
 
-  return <Container ref={containerRef} />;
+    if (model) {
+      monaco.editor.setModelMarkers(
+        model,
+        "compile",
+        errors.map(error => ({
+          ...error,
+          startLineNumber: error.line,
+          endLineNumber: error.line,
+          startColumn: error.column,
+          endColumn: error.column + 1,
+          severity: monaco.MarkerSeverity.Error
+        }))
+      );
+    }
+  }, [errors, editorRef.current]);
+
+  return <Container ref={containerRef} key="editor" />;
 };
 
 export default Editor;

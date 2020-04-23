@@ -1,8 +1,8 @@
 import React from "react";
 import { Junior } from "@bitbloq/junior";
 import { Icon, useTranslate } from "@bitbloq/ui";
-import { bloqTypes, boards, components } from "../config";
 import { IEditorProps } from "../types";
+import env from "../lib/env";
 import useDocumentContent from "../lib/useDocumentContent";
 
 const JuniorEditor: React.FunctionComponent<IEditorProps> = ({
@@ -25,13 +25,14 @@ const JuniorEditor: React.FunctionComponent<IEditorProps> = ({
 
   return (
     <Junior
-      bloqTypes={bloqTypes}
       initialContent={initialContent || {}}
       onContentChange={onContentChange}
-      boards={boards}
-      components={components}
+      uploadOptions={{
+        filesRoot: `${window.location.origin}/_next/static/borndate`,
+        useBrowserUpload: true
+      }}
     >
-      {(hardware, software) =>
+      {({ hardware, software }) =>
         children({
           tabs: [
             {

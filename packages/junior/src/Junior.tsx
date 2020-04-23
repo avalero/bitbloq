@@ -2,45 +2,61 @@ import React, { useState, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
 import { useTranslate } from "@bitbloq/ui";
 import {
+  useCodeUpload,
+  ICodeUploadOptions
+} from "@bitbloq/code/src/useCodeUpload";
+import { bloqTypes as partialBloqTypes } from "./bloqTypes";
+import { boards as partialBoards } from "./boards";
+import { components as partialComponents } from "./components";
+import { juniorLibraries } from "./config";
+import {
   HorizontalBloqEditor,
   HardwareDesigner,
   bloqs2code,
   getBoardDefinition,
-  Web2Board,
   IBloq,
   IBloqLine,
   IBloqType,
-  IBloqTypeGroup,
   IBoard,
-  getComponentDefinition,
   IComponent,
   IHardware,
-  BloqCategory,
   isBloqSelectComponentParameter
 } from "@bitbloq/bloqs";
-import UploadSpinner from "./UploadSpinner";
+
+export interface IJuniorCallbackProps {
+  hardware: JSX.Element;
+  software: (isActive: boolean) => JSX.Element | null;
+  upload: () => void;
+  undo: () => void;
+  redo: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
+}
 
 export interface IJuniorProps {
-  bloqTypes: IBloqType[];
   initialContent?: any;
   onContentChange: (content: any) => any;
-  boards: IBoard[];
-  components: IComponent[];
-  children: (
-    hardware: JSX.Element,
-    software: (isActive: boolean) => JSX.Element | null
-  ) => JSX.Element;
+  children: (props: IJuniorCallbackProps) => JSX.Element;
+  uploadOptions: ICodeUploadOptions;
+  externalUpload?: boolean;
+  readOnly?: boolean;
 }
+
+const bloqTypes = partialBloqTypes as IBloqType[];
+const boards = partialBoards as IBoard[];
+const components = partialComponents as IComponent[];
 
 const Junior: React.FunctionComponent<IJuniorProps> = ({
   children,
-  bloqTypes,
   initialContent,
   onContentChange,
-  boards,
-  components
+  uploadOptions,
+  externalUpload,
+  readOnly
 }) => {
   const t = useTranslate();
+
+  const [upload, _, uploadContent] = useCodeUpload(uploadOptions);
 
   const [content, setContent] = useState(initialContent);
   const program: IBloqLine[] = content.program || [];
@@ -49,35 +65,32 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
     components: []
   };
 
+  const [undoPast, setUndoPast] = useState<any[]>([]);
+  const [undoFuture, setUndoFuture] = useState<any[]>([]);
+
+  const updateContent = (newContent: any) => {
+    setUndoPast([content, ...undoPast]);
+    setUndoFuture([]);
+    setContent(newContent);
+  };
+
+  const undo = () => {
+    setUndoPast(undoPast.slice(1));
+    setUndoFuture([content, ...undoFuture]);
+    setContent(undoPast[0]);
+  };
+
+  const redo = () => {
+    setUndoPast([content, ...undoPast]);
+    setUndoFuture(undoFuture.slice(1));
+    setContent(undoFuture[0]);
+  };
+
   useEffect(() => {
     if (content !== initialContent) {
       onContentChange(content);
     }
   }, [content]);
-
-  const [uploadSpinnerVisible, setUploadSpinnerVisible] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [uploadingSuccess, setUploadingSuccess] = useState(false);
-
-  const hideTimeout = useRef(0);
-  useEffect(() => {
-    if (uploading) {
-      setUploadSpinnerVisible(true);
-    }
-
-    if (!uploading) {
-      hideTimeout.current = window.setTimeout(() => {
-        setUploadSpinnerVisible(false);
-      }, 5000);
-    }
-  }, [uploading]);
-
-  useEffect(() => {
-    if (!uploadSpinnerVisible && hideTimeout.current) {
-      clearTimeout(hideTimeout.current);
-      hideTimeout.current = 0;
-    }
-  }, [uploadSpinnerVisible]);
 
   const board: IBoard = getBoardDefinition(boards, hardware);
   if (hardware.components.length === 0) {
@@ -88,11 +101,6 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
       );
     }
   }
-
-  const web2BoardRef = useRef<Web2Board>();
-  useEffect(() => {
-    web2BoardRef.current = new Web2Board("wss://web2board.es:9867/bitbloq");
-  }, []);
 
   if (!board.integrated) {
     board.integrated = [];
@@ -149,12 +157,11 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
       )
   );
 
-  const upload = async (timeout: number): Promise<void> => {
-    setUploading(true);
-    const web2Board = web2BoardRef.current;
+  const onUpload = () => {
     const programBloqs = program
       .filter(line => !line.disabled)
       .map(line => line.bloqs);
+
     const code = bloqs2code(
       boards,
       components,
@@ -162,64 +169,30 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
       hardware,
       programBloqs
     );
-
-    if (!web2Board) {
-      return;
-    }
-
-    if (!web2Board.isConnected()) {
-      try {
-        await web2Board.waitUntilOpened();
-      } catch (e) {
-        console.warn(e);
-        setUploading(false);
-        setUploadingSuccess(false);
-      }
-    }
-
-    if (web2Board.isConnected()) {
-      // if not loaded in tiemout ms exit
-      setTimeout(() => {
-        if (uploading) {
-          setUploading(false);
-          setUploadingSuccess(false);
-          console.error("Uploading Timeout");
-        }
-      }, timeout);
-
-      try {
-        const uploadGen = web2Board.upload(code, "zumjunior");
-
-        while (true) {
-          const { value: reply, done } = await uploadGen.next();
-          const fn = reply.function;
-
-          if (done) {
-            setUploading(false);
-            setUploadingSuccess(true);
-            return;
-          }
-        }
-      } catch (e) {
-        setUploading(false);
-        setUploadingSuccess(false);
-        return;
-      }
-    } else {
-      console.warn("Web2Board not connected");
+    try {
+      upload(
+        [{ name: "main.ino", content: code }],
+        juniorLibraries,
+        "zumjunior"
+      );
+    } catch (e) {
+      console.error(e.data);
     }
   };
 
-  return children(
-    <HardwareDesigner
-      boards={boards}
-      components={components}
-      hardware={hardware}
-      onHardwareChange={newHardware =>
-        setContent({ hardware: newHardware, program })
-      }
-    />,
-    (isActive: boolean) =>
+  return children({
+    hardware: (
+      <HardwareDesigner
+        boards={boards}
+        components={components}
+        hardware={hardware}
+        onHardwareChange={newHardware =>
+          updateContent({ hardware: newHardware, program })
+        }
+        readOnly={readOnly}
+      />
+    ),
+    software: (isActive: boolean) =>
       isActive ? (
         <>
           <HorizontalBloqEditor
@@ -230,21 +203,22 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
             bloqTypes={bloqTypes}
             availableBloqs={availableBloqs}
             onLinesChange={(newProgram: IBloqLine[]) =>
-              setContent({ program: newProgram, hardware })
+              updateContent({ program: newProgram, hardware })
             }
-            onUpload={() => upload(10000)}
+            onUpload={onUpload}
             board={board}
+            externalUpload={externalUpload}
+            readOnly={readOnly}
           />
-          {uploadSpinnerVisible && (
-            <UploadSpinner
-              uploading={uploading}
-              success={uploadingSuccess}
-              onClick={() => !uploading && setUploadSpinnerVisible(false)}
-            />
-          )}
+          {!externalUpload && uploadContent}
         </>
-      ) : null
-  );
+      ) : null,
+    upload: onUpload,
+    undo,
+    redo,
+    canUndo: undoPast.length > 0,
+    canRedo: undoFuture.length > 0
+  });
 };
 
 export const isInstanceOf = (

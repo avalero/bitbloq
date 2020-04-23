@@ -3,16 +3,13 @@ import { v1 as uuid } from "uuid";
 import update from "immutability-helper";
 import { Icon, JuniorButton, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import BloqsLine from "./BloqsLine";
+import EditorLine from "./EditorLine";
 import BloqConfigPanel from "./BloqConfigPanel";
-import AddBloqPanel from "./AddBloqPanel";
 
-import { BloqCategory } from "../enums";
 import {
   IBloq,
   IBloqLine,
   IBloqType,
-  IBloqTypeGroup,
   IBoard,
   IComponent,
   IComponentInstance,
@@ -24,13 +21,15 @@ import {
 interface IHorizontalBloqEditorProps {
   lines: IBloqLine[];
   bloqTypes: IBloqType[];
-  availableBloqs: IBloqType[];
-  onLinesChange: (lines: IBloqLine[]) => any;
-  onUpload: () => any;
-  getComponents: (types: string[]) => IComponentInstance[];
-  getBloqPort: (bloq: IBloq) => string | undefined;
+  availableBloqs?: IBloqType[];
+  onLinesChange?: (lines: IBloqLine[]) => any;
+  onUpload?: () => any;
+  getComponents?: (types: string[]) => IComponentInstance[];
+  getBloqPort?: (bloq: IBloq) => string | undefined;
   board: IBoard;
   components: IComponent[];
+  externalUpload?: boolean;
+  readOnly?: boolean;
 }
 
 const HorizontalBloqEditor: React.FunctionComponent<
@@ -38,19 +37,21 @@ const HorizontalBloqEditor: React.FunctionComponent<
 > = ({
   lines,
   bloqTypes,
-  availableBloqs,
-  onLinesChange,
-  onUpload,
-  getComponents,
-  getBloqPort,
+  availableBloqs = [],
+  onLinesChange = () => null,
+  onUpload = () => null,
+  getComponents = () => [],
+  getBloqPort = () => "",
   board,
-  components
+  components,
+  externalUpload,
+  readOnly
 }) => {
   const [selectedLineIndex, setSelectedLine] = useState(-1);
   const [selectedBloqIndex, setSelectedBloq] = useState(-1);
   const [selectedPlaceholder, setSelectedPlaceholder] = useState(-1);
 
-  const [linesScrollLeft, setLinesScrollLeft] = useState(0);
+  const [selectedLeft, setSelectedLeft] = useState(10);
 
   const [undoPast, setUndoPast] = useState<IBloqLine[][]>([]);
   const [undoFuture, setUndoFuture] = useState<IBloqLine[][]>([]);
@@ -216,69 +217,72 @@ const HorizontalBloqEditor: React.FunctionComponent<
     onLinesChange(update(lines, { $splice: [[index, 1]] }));
   };
 
-  const onLinesScroll = (scrollLeft: number) => {
-    setLinesScrollLeft(scrollLeft);
-  };
-
   return (
     <Container>
       <Lines onClick={deselectEverything}>
         <LinesWrap selectedLine={selectedLineIndex}>
-          {[...lines, { id: uuid(), bloqs: [] }].map((line, i) => (
-            <BloqsLine
-              key={line.id}
-              line={line}
-              bloqTypes={bloqTypes}
-              getBloqPort={getBloqPort}
-              selectedBloq={selectedLineIndex === i ? selectedBloqIndex : -1}
-              isFirst={i === 0}
-              isLast={i === lines.length - 1}
-              selectedPlaceholder={
-                selectedLineIndex === i ? selectedPlaceholder : -1
-              }
-              onBloqClick={(j, e) => {
-                e.stopPropagation();
-                setSelectedLine(i);
-                setSelectedBloq(j);
-                setSelectedPlaceholder(-1);
-              }}
-              onPlaceholderClick={(j, e) => {
-                e.stopPropagation();
-                setSelectedLine(i);
-                setSelectedBloq(-1);
-                setSelectedPlaceholder(j);
-              }}
-              onMoveUp={onMoveLineUp}
-              onMoveDown={onMoveLineDown}
-              onDuplicate={onDuplicateLine}
-              onToggle={onToggleLine}
-              onDelete={onDeleteLine}
-              onScrollChange={onLinesScroll}
-            />
-          ))}
+          {[...lines, ...(readOnly ? [] : [{ id: uuid(), bloqs: [] }])].map(
+            (line, i) => (
+              <EditorLine
+                key={line.id}
+                line={line}
+                bloqTypes={bloqTypes}
+                getBloqPort={getBloqPort}
+                selectedBloq={selectedLineIndex === i ? selectedBloqIndex : -1}
+                isFirst={i === 0}
+                isLast={i === lines.length - 1}
+                selectedPlaceholder={
+                  selectedLineIndex === i ? selectedPlaceholder : -1
+                }
+                onBloqClick={(j, e) => {
+                  e.stopPropagation();
+                  if (!readOnly) {
+                    setSelectedLine(i);
+                    setSelectedBloq(j);
+                    setSelectedPlaceholder(-1);
+                  }
+                }}
+                onPlaceholderClick={(j, e) => {
+                  e.stopPropagation();
+                  setSelectedLine(i);
+                  setSelectedBloq(-1);
+                  setSelectedPlaceholder(j);
+                }}
+                onMoveUp={onMoveLineUp}
+                onMoveDown={onMoveLineDown}
+                onDuplicate={onDuplicateLine}
+                onToggle={onToggleLine}
+                onDelete={onDeleteLine}
+                onSelectedPositionChange={setSelectedLeft}
+                readOnly={readOnly}
+              />
+            )
+          )}
         </LinesWrap>
       </Lines>
-      <Toolbar>
-        <ToolbarLeft>
-          <JuniorButton
-            secondary
-            disabled={undoPast.length === 0}
-            onClick={onUndo}
-          >
-            <Icon name="undo" />
-          </JuniorButton>
-          <JuniorButton
-            secondary
-            disabled={undoFuture.length === 0}
-            onClick={onRedo}
-          >
-            <Icon name="redo" />
-          </JuniorButton>
-        </ToolbarLeft>
-        <UploadButton onClick={onUpload}>
-          <Icon name="programming-upload" />
-        </UploadButton>
-      </Toolbar>
+      {!externalUpload && (
+        <Toolbar>
+          <ToolbarLeft>
+            <JuniorButton
+              secondary
+              disabled={undoPast.length === 0}
+              onClick={onUndo}
+            >
+              <Icon name="undo" />
+            </JuniorButton>
+            <JuniorButton
+              secondary
+              disabled={undoFuture.length === 0}
+              onClick={onRedo}
+            >
+              <Icon name="redo" />
+            </JuniorButton>
+          </ToolbarLeft>
+          <UploadButton onClick={onUpload}>
+            <Icon name="programming-upload" />
+          </UploadButton>
+        </Toolbar>
+      )}
       <BloqConfigPanel
         isOpen={selectedPlaceholder >= 0 || selectedBloqIndex >= 0}
         bloqTypes={bloqTypes}
@@ -286,7 +290,6 @@ const HorizontalBloqEditor: React.FunctionComponent<
         onSelectBloqType={onAddBloq}
         selectedPlaceholder={selectedPlaceholder}
         selectedBloq={selectedBloq}
-        selectedBloqIndex={selectedBloqIndex}
         getBloqPort={getBloqPort}
         onUpdateBloq={onUpdateBloq}
         onDeleteBloq={onDeleteBloq}
@@ -294,7 +297,7 @@ const HorizontalBloqEditor: React.FunctionComponent<
         getComponents={getComponents}
         board={board}
         components={components}
-        linesScrollLeft={linesScrollLeft}
+        selectedLeft={selectedLeft}
       />
     </Container>
   );
