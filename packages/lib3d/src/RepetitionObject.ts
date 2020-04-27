@@ -485,6 +485,7 @@ export default class RepetitionObject extends ObjectsCommon {
           ObjectsCommon.createTranslateOperation(i * x, i * y, i * z, false)
         );
         objectClone.updateFromJSON(json);
+        objectClone.setParent(this);
         this.group.push(objectClone);
       }
     }
@@ -582,6 +583,7 @@ export default class RepetitionObject extends ObjectsCommon {
       ]);
 
       newObject.computeMeshAsync();
+      newObject.setParent(this);
       this.group.push(newObject);
     }
   }
