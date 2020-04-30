@@ -15,6 +15,7 @@ import HorizontalRule from "./components/HorizontalRule";
 import TextArea from "./components/TextArea";
 import Option from "./components/Option";
 import * as MenuBar from "./components/MenuBar";
+import MelodyEditor, * as MelodyEditorModule from "./components/MelodyEditor";
 import Modal from "./components/Modal";
 import Spinner from "./components/Spinner";
 import ScrollableTabs from "./components/ScrollableTabs";
@@ -29,6 +30,7 @@ import Layout from "./components/Layout";
 import JuniorButton from "./components/junior/Button";
 import JuniorSwitch from "./components/junior/Switch";
 import JuniorNumberInput from "./components/junior/NumberInput";
+import JuniorUpDownButton from "./components/junior/UpDownButton";
 import useKeyPressed from "./hooks/useKeyPressed";
 import baseStyles from "./base-styles";
 import colors from "./colors";
@@ -55,6 +57,7 @@ export {
   FileSelectButton,
   LoadingBarOverlay,
   Translate,
+  MelodyEditor,
   Modal,
   Spinner,
   ScrollableTabs,
@@ -74,3 +77,4 @@ export type IDialogModalProps = DialogModalModule.IDialogModalProps;
 export type IMainMenuOption = MenuBar.IMainMenuOption;
 export type IDocumentProps = DocumentModule.IDocumentProps;
 export type IDocumentTab = DocumentModule.IDocumentTab;
+export type IMelodyNote = MelodyEditorModule.IMelodyNote;

@@ -91,7 +91,7 @@ const AddBloqPanel: FC<IAddBloqPanelProps> = ({
         </BloqPlaceholderWrap>
         {scroll !== undefined && scroll > 0 && (
           <ScrollLeftButton>
-            <JuniorButton secondary onClick={() => scrollBy(-bloqWidth)}>
+            <JuniorButton tertiary onClick={() => scrollBy(-bloqWidth)}>
               <Icon name="angle" />
             </JuniorButton>
           </ScrollLeftButton>
@@ -120,7 +120,7 @@ const AddBloqPanel: FC<IAddBloqPanelProps> = ({
         </BloqsWrapper>
         {scroll !== undefined && scroll < 1 && (
           <ScrollRightButton>
-            <JuniorButton secondary onClick={() => scrollBy(bloqWidth)}>
+            <JuniorButton tertiary onClick={() => scrollBy(bloqWidth)}>
               <Icon name="angle" />
             </JuniorButton>
           </ScrollRightButton>
