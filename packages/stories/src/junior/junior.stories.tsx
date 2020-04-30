@@ -4,7 +4,8 @@ import {
   HardwareDesigner,
   HorizontalBloqEditor,
   IHardware,
-  IBloqLine
+  IBloqLine,
+  IExtraData
 } from "@bitbloq/bloqs";
 
 export default {
@@ -66,6 +67,8 @@ export const HardwareDesignerReadOnly = () => {
 export const HorizontalBloqEditorNormal = () => {
   const board = boards.find(b => b.name === "zumjunior");
   const [program, setProgram] = useState<IBloqLine[]>([]);
+  const [extraData, setExtraData] = useState<IExtraData>({});
+
   return (
     <div style={{ height: 500, display: "flex" }}>
       <HorizontalBloqEditor
@@ -75,6 +78,8 @@ export const HorizontalBloqEditorNormal = () => {
         availableBloqs={bloqTypes}
         onLinesChange={setProgram}
         board={board}
+        extraData={extraData}
+        onExtraDataChange={setExtraData}
         externalUpload
       />
     </div>

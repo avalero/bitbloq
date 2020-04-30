@@ -13,7 +13,8 @@ import {
   IBloqType,
   IHardware,
   IBloq,
-  IArduinoCode
+  IArduinoCode,
+  IExtraData
 } from "../index";
 import nunjucks from "nunjucks";
 import cloneDeep from "clone-deep";
@@ -101,7 +102,8 @@ const bloqs2code = (
   components: IComponent[],
   bloqTypes: IBloqType[],
   hardware: IHardware,
-  program: IBloq[][]
+  program: IBloq[][],
+  extraData: IExtraData = {}
 ) => {
   try {
     // adjust program

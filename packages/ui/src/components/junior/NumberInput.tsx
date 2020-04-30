@@ -2,6 +2,7 @@ import React, { FC } from "react";
 import styled from "@emotion/styled";
 import Icon from "../Icon";
 import colors from "../../colors";
+import UpDownButton from "./UpDownButton";
 
 export interface INumberInputProps {
   value: number;
@@ -11,34 +12,14 @@ export interface INumberInputProps {
 const NumberInput: FC<INumberInputProps> = ({ value, onChange }) => {
   return (
     <Container>
-      <Spinner>
-        <UpButton
-          type="button"
-          onClick={() => value < 90 && onChange(value + 10)}
-        >
-          <Icon name="angle" />
-        </UpButton>
-        <DownButton
-          type="button"
-          onClick={() => value > 9 && onChange(value - 10)}
-        >
-          <Icon name="angle" />
-        </DownButton>
-      </Spinner>
-      <Spinner>
-        <UpButton
-          type="button"
-          onClick={() => value < 99 && onChange(value + 1)}
-        >
-          <Icon name="angle" />
-        </UpButton>
-        <DownButton
-          type="button"
-          onClick={() => value > 0 && onChange(value - 1)}
-        >
-          <Icon name="angle" />
-        </DownButton>
-      </Spinner>
+      <FirstUpDownButton
+        onUpClick={() => value < 90 && onChange(value + 10)}
+        onDownClick={() => value > 9 && onChange(value - 10)}
+      />
+      <UpDownButton
+        onUpClick={() => value < 99 && onChange(value + 1)}
+        onDownClick={() => value > 0 && onChange(value - 1)}
+      />
     </Container>
   );
 };
@@ -53,11 +34,8 @@ const Container = styled.div`
   display: flex;
 `;
 
-const Spinner = styled.div`
+const FirstUpDownButton = styled(UpDownButton)`
   margin-right: 6px;
-  &:last-of-type {
-    margin-right: 0px;
-  }
 `;
 
 const Button = styled.button`

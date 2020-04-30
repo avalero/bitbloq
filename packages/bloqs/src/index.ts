@@ -7,6 +7,7 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
+import { IMelodyNote } from "@bitbloq/ui";
 import HorizontalBloqEditor from "./horizontal/HorizontalBloqEditor";
 import HorizontalBloq from "./horizontal/HorizontalBloq";
 import BloqsLine from "./horizontal/BloqsLine";
@@ -241,4 +242,10 @@ export interface IComponentInstance {
 export interface IHardware {
   board: string;
   components: IComponentInstance[];
+}
+
+export type IMelody = IMelodyNote[];
+
+export interface IExtraData {
+  melodies?: IMelody[];
 }

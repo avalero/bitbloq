@@ -19,7 +19,7 @@ import WaitConfiguration from "./configuration/WaitConfiguration";
 import MusicConfiguration from "./configuration/MusicConfiguration";
 import ServoPositionConfiguration from "./configuration/ServoPositionConfiguration";
 
-import { IBloq, IBloqType } from "../index";
+import { IBloq, IBloqType, IExtraData } from "../index";
 
 const configurationComponents = {
   StartConfiguration,
@@ -45,11 +45,15 @@ interface IConfigurationProps {
   bloq: IBloq;
   bloqType: IBloqType;
   onChange: (newBloq: IBloq) => any;
+  extraData?: IExtraData;
+  onExtraDataChange?: (extraData: IExtraData) => void;
 }
 const Configuration: FC<IConfigurationProps> = ({
   bloq,
   bloqType,
-  onChange
+  onChange,
+  extraData,
+  onExtraDataChange
 }) => {
   if (!bloqType.configurationComponent) {
     return null;
@@ -62,7 +66,14 @@ const Configuration: FC<IConfigurationProps> = ({
     return null;
   }
 
-  return <ConfigurationComponent bloq={bloq} onChange={onChange} />;
+  return (
+    <ConfigurationComponent
+      bloq={bloq}
+      onChange={onChange}
+      extraData={extraData}
+      onExtraDataChange={onExtraDataChange}
+    />
+  );
 };
 
 export default Configuration;
