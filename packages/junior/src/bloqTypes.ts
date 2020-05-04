@@ -650,6 +650,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     genCode: {
       definitions: [
         `{{component}}PinObj.write(90 {{"+" if(rotation === "clockwise") else "-"}} 
+            {{"0" if(rotation === "stop")}}
             {{"10" if(speed === "slow")}} 
             {{"20" if(speed === "medium")}} 
             {{"30" if(speed === "fast")}});`
