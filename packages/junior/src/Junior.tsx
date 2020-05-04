@@ -30,6 +30,7 @@ export interface IJuniorCallbackProps {
   upload: () => void;
   undo: () => void;
   redo: () => void;
+  reset: () => void;
   canUndo: boolean;
   canRedo: boolean;
 }
@@ -86,6 +87,12 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
     setUndoPast([content, ...undoPast]);
     setUndoFuture(undoFuture.slice(1));
     setContent(undoFuture[0]);
+  };
+
+  const reset = () => {
+    if (content !== initialContent) {
+      updateContent(initialContent);
+    }
   };
 
   useEffect(() => {
@@ -223,6 +230,7 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
     upload: onUpload,
     undo,
     redo,
+    reset,
     canUndo: undoPast.length > 0,
     canRedo: undoFuture.length > 0
   });
