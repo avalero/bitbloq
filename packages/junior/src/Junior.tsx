@@ -27,7 +27,8 @@ import {
 export interface IJuniorCallbackProps {
   hardware: JSX.Element;
   software: (isActive: boolean) => JSX.Element | null;
-  upload: () => void;
+  upload: (onPortOpen?: () => void) => void;
+  cancel: () => void;
   undo: () => void;
   redo: () => void;
   reset: () => void;
@@ -58,7 +59,7 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
 }) => {
   const t = useTranslate();
 
-  const [upload, _, uploadContent] = useCodeUpload(uploadOptions);
+  const { upload, cancel, uploadContent } = useCodeUpload(uploadOptions);
 
   const [content, setContent] = useState(initialContent);
   const program: IBloqLine[] = content.program || [];
@@ -166,7 +167,7 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
       )
   );
 
-  const onUpload = () => {
+  const onUpload = (onPortOpen?: () => void) => {
     const programBloqs = program
       .filter(line => !line.disabled)
       .map(line => line.bloqs);
@@ -183,7 +184,8 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
       upload(
         [{ name: "main.ino", content: code }],
         juniorLibraries,
-        "zumjunior"
+        "zumjunior",
+        onPortOpen
       );
     } catch (e) {
       console.error(e.data);
@@ -215,7 +217,7 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
             onLinesChange={(newProgram: IBloqLine[]) =>
               updateContent({ program: newProgram, hardware, extraData })
             }
-            onUpload={onUpload}
+            onUpload={() => onUpload()}
             board={board}
             externalUpload={externalUpload}
             readOnly={readOnly}
@@ -228,6 +230,7 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
         </>
       ) : null,
     upload: onUpload,
+    cancel,
     undo,
     redo,
     reset,

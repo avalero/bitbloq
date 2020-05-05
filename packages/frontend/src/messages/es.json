@@ -715,9 +715,6 @@
     "uploading-success": "Cargada correctamente",
     "uploading-error": "Error",
     "board-not-found": "No hay placa conectada",
-    "install-chrome-app-text": "Para poder cargar el programa en la placa, debes instalar la aplicación de Chrome de Bitbloq",
-    "open-chrome-webstore": "Instalar aplicación de Chrome",
-    "install-chrome-app-title": "Aplicación de Chrome no encontrada",
     "libraries": "Bibliotecas"
   },
   "music": {

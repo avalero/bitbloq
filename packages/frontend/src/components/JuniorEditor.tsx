@@ -28,8 +28,7 @@ const JuniorEditor: React.FunctionComponent<IEditorProps> = ({
       initialContent={initialContent || {}}
       onContentChange={onContentChange}
       uploadOptions={{
-        filesRoot: `${window.location.origin}/_next/static/borndate`,
-        useBrowserUpload: true
+        filesRoot: `${window.location.origin}/_next/static/borndate`
       }}
     >
       {({ hardware, software }) =>
