@@ -38,7 +38,6 @@ const CodeEditor: FC<IEditorProps> = ({
           ref={codeRef}
           initialContent={initialContent || {}}
           onContentChange={onContentChange}
-          chromeAppID={env.CHROME_APP_ID}
           borndateFilesRoot={`${window.location.origin}/_next/static/borndate`}
         />
       )

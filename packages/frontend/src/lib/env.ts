@@ -2,8 +2,7 @@ const BROWSER_ENV_VARS = [
   "ENABLED_TOOLS",
   "API_URL",
   "MICROSOFT_APP_ID",
-  "GOOGLE_CLIENT_ID",
-  "CHROME_APP_ID"
+  "GOOGLE_CLIENT_ID"
 ];
 
 export const getBrowserEnv = () =>

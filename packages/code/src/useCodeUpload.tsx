@@ -9,7 +9,8 @@ declare var chrome: any;
 export enum UploadErrorType {
   CHROME_APP_MISSING = "chrome-app-missing",
   COMPILE_ERROR = "compile-error",
-  BOARD_NOT_FOUND = "board-not-found"
+  BOARD_NOT_FOUND = "board-not-found",
+  CANCELED = "canceled"
 }
 
 const errorMessages = {
@@ -34,37 +35,13 @@ class UploadError extends Error {
 
 class Uploader {
   private borndate: Borndate;
-  private chromeAppID: string;
   private lastSendPromise: Promise<unknown> = Promise.resolve();
 
-  constructor(filesRoot: string, chromeAppID: string) {
+  constructor(filesRoot: string) {
     this.borndate = new Borndate({ filesRoot });
-    this.chromeAppID = chromeAppID;
   }
 
-  public openChromeAppPort() {
-    return new Promise((resolve, reject) => {
-      try {
-        const port = chrome.runtime.connect(this.chromeAppID);
-        const pingListener = msg => {
-          if (msg === "ping") {
-            port.onMessage.removeListener(pingListener);
-            resolve(port);
-          }
-        };
-        port.onMessage.addListener(pingListener);
-        port.postMessage({ type: "ping" });
-        setTimeout(() => {
-          port.onMessage.removeListener(pingListener);
-          reject();
-        }, CHROME_APP_TIMEOUT);
-      } catch (e) {
-        reject();
-      }
-    });
-  }
-
-  public openBrowserPort(board: string) {
+  public openPort(board: string) {
     return new Promise((resolve, reject) => {
       const avrgirl = new Avrgirl({
         board
@@ -106,50 +83,50 @@ class Uploader {
     });
   }
 
-  public upload(code: any[], libraries: any[] = [], board: string) {
-    return new Promise((resolve, reject) => {
-      this.openChromeAppPort()
-        .then((port: any) => {
-          const boardConfig = knownBoards[board];
-          this.borndate
-            .compile(boardConfig.borndateId, code, libraries)
-            .then(hex => {
-              port.onMessage.addListener(msg => {
-                if (msg.type === "upload") {
-                  if (msg.success) {
-                    resolve();
-                  } else {
-                    reject(new UploadError("board-not-found"));
-                  }
-                }
-              });
-              port.postMessage({
-                type: "upload",
-                board,
-                file: hex
-              });
-            })
-            .catch(e => reject(new UploadError("compile-error", e.errors)));
-        })
-        .catch(() => reject(new UploadError("chrome-app-missing")));
-    });
-  }
+  public upload(
+    code: any[],
+    libraries: any[] = [],
+    board: string,
+    onPortOpen?: () => void
+  ) {
+    let isCanceled = false;
 
-  public browserUpload(code: any[], libraries: any[] = [], board: string) {
-    return new Promise((resolve, reject) => {
+    const cancel = () => {
+      isCanceled = true;
+    };
+
+    const promise = new Promise((resolve, reject) => {
       const boardConfig = knownBoards[board];
-      this.openBrowserPort(board)
-        .then(avrgirl =>
-          this.borndate
+      this.openPort(board)
+        .then((avrgirl: Avrgirl) => {
+          if (onPortOpen) {
+            onPortOpen();
+          }
+
+          return this.borndate
             .compile(boardConfig.borndateId, code, libraries)
             .then(hex => [avrgirl, hex])
-            .catch(e => reject(new UploadError("compile-error", e.errors)))
-        )
+            .catch(e => {
+              avrgirl.connection.serialPort.reader.cancel();
+              avrgirl.connection.serialPort.close();
+              reject(new UploadError("compile-error", e.errors));
+            });
+        })
         .catch(e => {
-          console.log("BROWSER PORT", e);
+          if (isCanceled) {
+            reject(new UploadError("canceled"));
+            return;
+          }
           reject(new UploadError("board-not-found"));
         })
         .then(([avrgirl, hex]) => {
+          if (isCanceled) {
+            avrgirl.connection.serialPort.reader.cancel();
+            avrgirl.connection.serialPort.close();
+            reject(new UploadError("canceled"));
+            return;
+          }
+
           const enc = new TextEncoder();
           avrgirl.protocol.chip.verifyPage = (_a, _b, _c, _d, cb) => cb();
           (avrgirl as Avrgirl).flash(enc.encode(hex as string), error => {
@@ -162,6 +139,8 @@ class Uploader {
           });
         });
     });
+
+    return [promise, cancel];
   }
 
   public destroy() {
@@ -171,41 +150,40 @@ class Uploader {
 
 export interface ICodeUploadOptions {
   filesRoot: string;
-  chromeAppID: string;
-  onChromeAppMissing?: () => void;
   onBoardNotFound?: () => void;
   onUploadError?: (error: any) => void;
   onUploadSuccess?: () => void;
-  useBrowserUpload?: boolean;
 }
 
-export const useCodeUpload = (
-  options
-): [
-  (code: any[], libraries: any[], board: string) => void,
+export interface ICodeUploadResult {
+  upload: (
+    code: any[],
+    libraries: any[],
+    board: string,
+    onPortOpen?: () => void
+  ) => void;
+  compile: (code: any[], libraries: any[], board: string) => void;
+  uploadContent: React.ReactElement;
+  cancel: () => void;
+}
 
-  (code: any[], libraries: any[], board: string) => void,
-  JSX.Element
-] => {
+export const useCodeUpload = (options): ICodeUploadResult => {
   const {
     filesRoot,
-    chromeAppID,
-    onChromeAppMissing,
     onBoardNotFound,
     onUploadError,
-    onUploadSuccess,
-    useBrowserUpload
+    onUploadSuccess
   } = options;
   const t = useTranslate();
-  const [showChromeAppModal, setShowChromeAppModal] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const cancelRef = useRef<any | null>(null);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [noBoard, setNoBoard] = useState(false);
   const [uploadText, setUploadText] = useState("");
   const uploaderRef = useRef<Uploader | null>(null);
 
   useEffect(() => {
-    uploaderRef.current = new Uploader(filesRoot, chromeAppID);
+    uploaderRef.current = new Uploader(filesRoot);
 
     return () => {
       if (uploaderRef.current) {
@@ -214,21 +192,14 @@ export const useCodeUpload = (
     };
   }, []);
 
-  const upload = async (code: any[], libraries: any[], board: string) => {
+  const upload = async (
+    code: any[],
+    libraries: any[],
+    board: string,
+    onPortOpen?: () => void
+  ) => {
     if (!uploaderRef.current) {
       return;
-    }
-
-    if (!useBrowserUpload) {
-      try {
-        await uploaderRef.current.openChromeAppPort();
-      } catch (e) {
-        setShowChromeAppModal(true);
-        if (onChromeAppMissing) {
-          onChromeAppMissing();
-        }
-        return;
-      }
     }
 
     setUploading(true);
@@ -237,9 +208,14 @@ export const useCodeUpload = (
     setUploadText(t("code.uploading-to-board"));
 
     try {
-      const hex = useBrowserUpload
-        ? await uploaderRef.current.browserUpload(code, libraries, board)
-        : await uploaderRef.current.upload(code, libraries, board);
+      const [uploadPromise, uploadCancel] = uploaderRef.current.upload(
+        code,
+        libraries,
+        board,
+        onPortOpen
+      );
+      cancelRef.current = uploadCancel;
+      const hex = await uploadPromise;
       setUploading(false);
       setUploadSuccess(true);
       setUploadText(t("code.uploading-success"));
@@ -264,7 +240,16 @@ export const useCodeUpload = (
       }
 
       throw e;
+    } finally {
+      cancelRef.current = null;
     }
+  };
+
+  const cancel = () => {
+    if (cancelRef.current) {
+      cancelRef.current();
+    }
+    setUploading(false);
   };
 
   const compile = async (code: any[], libraries: any[], board: string) => {
@@ -290,33 +275,17 @@ export const useCodeUpload = (
     }
   };
 
-  const content = (
-    <>
-      <UploadSpinner
-        uploading={uploading}
-        success={uploadSuccess}
-        noBoard={noBoard}
-        closeOnNoBoard={useBrowserUpload}
-        text={uploadText}
-      />
-      <DialogModal
-        isOpen={showChromeAppModal}
-        onCancel={() => setShowChromeAppModal(false)}
-        onOk={() => {
-          window.open(
-            `https://chrome.google.com/webstore/detail/bitbloq/${chromeAppID}`
-          );
-          setShowChromeAppModal(false);
-        }}
-        text={t("code.install-chrome-app-text")}
-        okText={t("code.open-chrome-webstore")}
-        cancelText={t("general-cancel-button")}
-        title={t("code.install-chrome-app-title")}
-      />
-    </>
+  const uploadContent = (
+    <UploadSpinner
+      uploading={uploading}
+      success={uploadSuccess}
+      noBoard={noBoard}
+      closeOnNoBoard={true}
+      text={uploadText}
+    />
   );
 
-  return [upload, compile, content];
+  return { upload, compile, uploadContent, cancel };
 };
 
 export default useCodeUpload;
