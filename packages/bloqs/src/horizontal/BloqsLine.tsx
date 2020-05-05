@@ -97,6 +97,12 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
   };
 
   useEffect(() => {
+    if (bloqs.length < 2) {
+      updateScrollLeft(0);
+    }
+  }, [bloqs]);
+
+  useEffect(() => {
     checkScroll();
   }, [bloqs, selectedPlaceholder, selectedBloq]);
 
