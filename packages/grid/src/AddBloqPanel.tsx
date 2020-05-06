@@ -174,6 +174,7 @@ interface IBloqsWrapperProps {
 
 const BloqsWrapper = styled.div<IBloqsWrapperProps>`
   display: flex;
+  min-height: 112px;
   overflow: auto;
   width: 100%;
 

@@ -51,12 +51,12 @@ export const ProgramTablet = () => {
       <GridExercise
         actions={actions}
         availableBloqs={{
-          forward: -1,
+          forward: 1,
           back: 2,
           left: 3,
           right: 1,
-          pick: 10,
-          use: 20,
+          pick: 1,
+          use: 1,
           push: 3,
           loop: 2
         }}
