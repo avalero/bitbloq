@@ -148,7 +148,7 @@ const GridExercise: FC<IGridExerciseProps> = ({
     }
     if (newBloq.type === "loop") {
       const updatedAction: ILoop = {
-        ...(actions[index - 1] as ILoop),
+        ...(actions[selectedActionIndex] as ILoop),
         repeat: newBloq.parameters.repeat as number
       };
       onChange(
