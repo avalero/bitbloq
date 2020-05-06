@@ -431,7 +431,7 @@ const ScrollButton = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 60;
+  z-index: 15;
 
   button {
     width: 40px;
