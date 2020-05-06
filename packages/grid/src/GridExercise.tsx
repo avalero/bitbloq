@@ -248,7 +248,7 @@ const GridExercise: FC<IGridExerciseProps> = ({
       ? getBloqIndex(actions, activeAction, activeSubAction)
       : -1;
 
-  const bloqsInUse: IAction[] = Object.assign([], ...actions);
+  const bloqsInUse: IAction[] = [...actions];
   actions
     .filter(action => action.type === "loop")
     .forEach((action: ILoop) => {
