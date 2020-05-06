@@ -272,9 +272,10 @@ const GridExercise: FC<IGridExerciseProps> = ({
       <ContentWrap>
         <Content>
           {children}
-          {filteredAvailableBloqs && (
-            <BloqsList bloqs={filteredAvailableBloqs} />
-          )}
+          {filteredAvailableBloqs &&
+            Object.keys(filteredAvailableBloqs).length > 0 && (
+              <BloqsList bloqs={filteredAvailableBloqs} />
+            )}
         </Content>
         {onChange && filteredAvailableBloqs && (
           <AddBloqPanel
