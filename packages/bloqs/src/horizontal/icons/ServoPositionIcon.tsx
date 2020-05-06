@@ -6,8 +6,9 @@ interface IServoPositionIconProps {
 }
 
 const ServoPositionIcon: FC<IServoPositionIconProps> = ({ bloq }) => {
+  const { parameters = {} } = bloq || {};
   const value: number =
-    (bloq && bloq.parameters && (bloq.parameters.value as number)) || 90;
+    parameters.value !== undefined ? (parameters.value as number) : 90;
 
   return (
     <svg width={54} height={54} viewBox="0 0 24 24">
