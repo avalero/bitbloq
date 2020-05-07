@@ -131,6 +131,8 @@ class Uploader {
           avrgirl.protocol.chip.verifyPage = (_a, _b, _c, _d, cb) => cb();
           (avrgirl as Avrgirl).flash(enc.encode(hex as string), error => {
             if (error) {
+              avrgirl.connection.serialPort.reader.cancel();
+              avrgirl.connection.serialPort.close();
               reject(error);
               return;
             } else {

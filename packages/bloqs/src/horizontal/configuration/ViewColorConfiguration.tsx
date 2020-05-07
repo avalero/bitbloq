@@ -30,13 +30,13 @@ const ViewColorConfiguration: FC<IViewColorConfigurationProps> = ({
   return (
     <Container>
       <ImageWrap>
-        <ViewColorImage color={color} closed={detect !== "true"} />
+        <ViewColorImage color={color} closed={detect !== "=="} />
       </ImageWrap>
       <SwitchWrap>
         <JuniorSwitch
           buttons={[
-            { content: <ButtonIcon src={ViewIcon} />, id: "true" },
-            { content: <ButtonIcon src={NotViewIcon} />, id: "false" }
+            { content: <ButtonIcon src={ViewIcon} />, id: "==" },
+            { content: <ButtonIcon src={NotViewIcon} />, id: "!=" }
           ]}
           value={detect}
           onChange={(value: string) =>
