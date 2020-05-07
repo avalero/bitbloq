@@ -92,13 +92,17 @@ const GridExercise: FC<IGridExerciseProps> = ({
         })
       );
     } else {
-      if (loopPlaceholder >= 0) {
+      if (loopPlaceholder > 0) {
         onChange(
           update(actions, {
             [selectedActionIndex]: {
               children: {
                 $splice: [
-                  [loopPlaceholder, 0, { type: bloqType.name as ActionType }]
+                  [
+                    loopPlaceholder - 1,
+                    0,
+                    { type: bloqType.name as ActionType }
+                  ]
                 ]
               }
             }
