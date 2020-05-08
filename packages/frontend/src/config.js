@@ -29,15 +29,19 @@ export const documentTypes = {
       colors.brandOrange
     )
   },
-  bloqs: {
+  robotics: {
     label: "Robótica",
     shortLabel: "Robótica",
     color: colors.green,
-    supported: ENABLED_TOOLS.includes("bloqs"),
-    icon: "logo-bloqs",
+    supported: ENABLED_TOOLS.includes("robotics"),
+    icon: "logo-robotics",
     level: "Medio",
     landingText:
-      "Programa tus inventos por bloques y aprende los conceptos básicos de la programación."
+      "Programa tus inventos por bloques y aprende los conceptos básicos de la programación.",
+    editorComponent: CreateDynamicComponent(
+      () => import("./components/RoboticsEditor"),
+      colors.green
+    )
   },
   code: {
     label: "Código Arduino®",
