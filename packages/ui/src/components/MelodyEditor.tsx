@@ -1,5 +1,4 @@
 import React, { FC, useState, useEffect, useRef } from "react";
-import { Time, Synth, start as toneStart } from "tone";
 import Icon from "./Icon";
 import JuniorButton from "./junior/Button";
 import UpDownButton from "./junior/UpDownButton";
@@ -44,13 +43,18 @@ const durationIcons = [
 const MelodyEditor: FC<IMelodyEditor> = ({ notes, onChange, noteLabels }) => {
   const [playing, setPlaying] = useState(false);
   const [noteIndex, setNoteIndex] = useState(-1);
-  const synthRef = useRef<Synth | null>(null);
+  const toneRef = useRef<any | null>(null);
+  const synthRef = useRef<any | null>(null);
   const playTimeout = useRef<number | null>(null);
   const notesRef = useRef<HTMLDivElement>(null);
   const notesWrapRef = useRef<HTMLDivElement>(null);
   const [notesWidth, setNotesWidth] = useState(0);
   const [wrapWidth, setWrapWidth] = useState(0);
   const [scrollPosition, setScrollPosition] = useState(0);
+
+  useEffect(() => {
+    import("tone").then(module => toneRef.current = module);
+  }, []);
 
   const updateWidth = () => {
     if (!notesRef.current || !notesWrapRef.current) {
@@ -80,8 +84,12 @@ const MelodyEditor: FC<IMelodyEditor> = ({ notes, onChange, noteLabels }) => {
   }, [notes]);
 
   const play = async () => {
-    await toneStart();
-    synthRef.current = new Synth().toDestination();
+    const tone = toneRef.current;
+    if (!tone) {
+      return;
+    }
+    await tone.start();
+    synthRef.current = new tone.Synth().toDestination();
     setNoteIndex(0);
     setPlaying(true);
   };
@@ -133,7 +141,7 @@ const MelodyEditor: FC<IMelodyEditor> = ({ notes, onChange, noteLabels }) => {
 
       playTimeout.current = window.setTimeout(() => {
         setNoteIndex(noteIndex + 1);
-      }, Time(duration).toSeconds() * 1000);
+      }, toneRef.current.Time(duration).toSeconds() * 1000);
 
       if (noteIndex * 42 + 104 > wrapWidth + scrollPosition) {
         setScrollPosition(

@@ -180,6 +180,7 @@ export interface IIntegratedComponent {
 
 export interface IBoard {
   name: string;
+  label?: string;
   integrated: IIntegratedComponent[];
   code: IArduinoCode;
   image: IComponentImage;

@@ -727,5 +727,14 @@
     "B4": "Si",
     "C5": "Do'",
     "D5": "Re'"
+  },
+  "robotics": {
+    "bloqs": "Bloques",
+    "boards": "Placas",
+    "components": "Componentes",
+    "diagram": "Diagrama",
+    "drag-board-here": "Arrastra una placa o un robot aquí",
+    "hardware": "Hardware",
+    "robots": "Robots"
   }
 }

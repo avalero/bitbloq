@@ -14,6 +14,7 @@ module.exports = withTM(
       "@bitbloq/lib3d",
       "@bitbloq/bloqs",
       "@bitbloq/junior",
+      "@bitbloq/robotics",
       "@bitbloq/code",
       "react-dnd",
       "dnd-core",

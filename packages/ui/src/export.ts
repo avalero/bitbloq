@@ -4,6 +4,9 @@ import Input from "./components/Input";
 import Select from "./components/Select";
 import ColorPicker from "./components/ColorPicker";
 import DialogModal, * as DialogModalModule from "./components/DialogModal";
+import Draggable from "./components/Draggable";
+import Droppable from "./components/Droppable";
+import DragAndDropProvider from "./components/DragAndDropProvider";
 import DropDown from "./components/DropDown";
 import Checkbox from "./components/Checkbox";
 import Tooltip from "./components/Tooltip";
@@ -21,6 +24,7 @@ import Spinner from "./components/Spinner";
 import ScrollableTabs from "./components/ScrollableTabs";
 import FileSelectButton from "./components/FileSelectButton";
 import LoadingBarOverlay from "./components/LoadingBarOverlay";
+import Tabs from "./components/Tabs";
 import TranslateProvider, {
   Translate,
   withTranslate,
@@ -43,6 +47,9 @@ export {
   Select,
   ColorPicker,
   DialogModal,
+  Draggable,
+  Droppable,
+  DragAndDropProvider,
   DropDown,
   Checkbox,
   Tooltip,
@@ -56,6 +63,7 @@ export {
   TranslateProvider,
   FileSelectButton,
   LoadingBarOverlay,
+  Tabs,
   Translate,
   MelodyEditor,
   Modal,

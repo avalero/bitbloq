@@ -1,10 +1,10 @@
 import React from "react";
-import { Junior } from "@bitbloq/junior";
+import { Robotics } from "@bitbloq/robotics";
 import { Icon, useTranslate } from "@bitbloq/ui";
 import { IEditorProps } from "../types";
 import useDocumentContent from "../lib/useDocumentContent";
 
-const JuniorEditor: React.FunctionComponent<IEditorProps> = ({
+const RoboticsEditor: React.FunctionComponent<IEditorProps> = ({
   document,
   onDocumentChange,
   baseTabs,
@@ -23,33 +23,35 @@ const JuniorEditor: React.FunctionComponent<IEditorProps> = ({
   }
 
   return (
-    <Junior
+    <Robotics
       initialContent={initialContent || {}}
       onContentChange={onContentChange}
-      uploadOptions={{
-        filesRoot: `${window.location.origin}/_next/static/borndate`
-      }}
     >
-      {({ hardware, software }) =>
+      {({ hardware, bloqs, diagram }) =>
         children({
           tabs: [
             {
               icon: <Icon name="hardware" />,
-              label: t("junior.hardware"),
+              label: t("robotics.hardware"),
               content: hardware
             },
             {
-              icon: <Icon name="programming" />,
-              label: t("junior.software"),
-              content: software
+              icon: <Icon name="programming-bloqs" />,
+              label: t("robotics.bloqs"),
+              content: bloqs
+            },
+            {
+              icon: <Icon name="programming-diagram" />,
+              label: t("robotics.diagram"),
+              content: diagram
             },
             ...baseTabs
           ],
           menuOptions: baseMenuOptions
         })
       }
-    </Junior>
+    </Robotics>
   );
 };
 
-export default JuniorEditor;
+export default RoboticsEditor;
