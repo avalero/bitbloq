@@ -1,13 +1,15 @@
-import React, { FC, useRef, useEffect, useContext } from "react";
+import React, { FC, useRef, useEffect, useContext, useState } from "react";
 import { DragAndDropContext } from "./DragAndDropProvider";
 
 export interface IDroppableProps {
   data?: any;
+  className?: string;
 }
 
-const Droppable: FC<IDroppableProps> = ({ data = {}, children }) => {
+const Droppable: FC<IDroppableProps> = ({ data = {}, children, className }) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const dragAndDropController = useContext(DragAndDropContext);
+  const [draggableData, setDraggableData] = useState(false);
 
   useEffect(() => {
     if (!wrapRef.current) {
@@ -20,12 +22,20 @@ const Droppable: FC<IDroppableProps> = ({ data = {}, children }) => {
       y,
       width,
       height,
-      onDragOver: () => console.log("Drag over"),
+      onDragOver: () => setDraggableData(true),
+      onDragOut: () => setDraggableData(false),
       data
     });
   });
 
-  return <div ref={wrapRef}>{children}</div>;
+  const content =
+    typeof children === "function" ? children(draggableData) : children;
+
+  return (
+    <div ref={wrapRef} className={className}>
+      {content}
+    </div>
+  );
 };
 
 export default Droppable;

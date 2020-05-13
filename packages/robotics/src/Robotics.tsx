@@ -4,6 +4,7 @@ import { useTranslate } from "@bitbloq/ui";
 import Hardware from "./Hardware";
 import Bloqs from "./Bloqs";
 import Diagram from "./Diagram";
+import { IRoboticsContent } from "./index";
 
 export interface IRoboticsCallbackProps {
   hardware: React.ReactElement;
@@ -12,7 +13,7 @@ export interface IRoboticsCallbackProps {
 }
 
 export interface IRoboticsProps {
-  initialContent?: any;
+  initialContent?: Partial<IRoboticsContent>;
   onContentChange: (content: any) => any;
   children: (props: IRoboticsCallbackProps) => React.ReactElement;
 }
@@ -28,7 +29,7 @@ const Robotics: React.FunctionComponent<IRoboticsProps> = ({
   const [undoPast, setUndoPast] = useState<any[]>([]);
   const [undoFuture, setUndoFuture] = useState<any[]>([]);
 
-  const updateContent = (newContent: any) => {
+  const updateContent = (newContent: IRoboticsContent) => {
     setUndoPast([content, ...undoPast]);
     setUndoFuture([]);
     setContent(newContent);
@@ -54,14 +55,13 @@ const Robotics: React.FunctionComponent<IRoboticsProps> = ({
 
   return children({
     hardware: (
-      <Hardware />
+      <Hardware
+        hardware={content && content.hardware ? content.hardware : {}}
+        onChange={hardware => updateContent({ ...content, hardware })}
+      />
     ),
-    bloqs: (
-      <Bloqs />
-    ),
-    diagram: (
-      <Diagram />
-    )
+    bloqs: <Bloqs />,
+    diagram: <Diagram />
   });
 };
 

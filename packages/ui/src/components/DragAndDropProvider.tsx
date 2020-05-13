@@ -1,4 +1,13 @@
-import React, { FC, createContext, useRef } from "react";
+import React, { FC, createContext, useRef, useEffect } from "react";
+
+export interface IDropParams {
+  draggableData: any;
+  droppableData: any;
+  x: number;
+  y: number;
+  draggableWidth: number;
+  draggableHeight: number;
+}
 
 export interface IDroppableHandler {
   x: number;
@@ -7,21 +16,26 @@ export interface IDroppableHandler {
   height: number;
   data: any;
   onDragOver: (draggableData: any) => void;
+  onDragOut: () => void;
 }
 
 export interface IDragAndDropController {
   registerDroppableHandler: (handler: IDroppableHandler) => () => void;
-  startDrag: (data: any) => void;
+  startDrag: (data: any, width: number, height: number) => void;
   drag: (x: number, y: number) => void;
   endDrag: () => void;
 }
 
 const createController = (
-  onDrop?: (draggableData: any, droppableData: any) => any
+  onDrop?: (params: IDropParams) => any
 ): IDragAndDropController => {
   let dragging = false;
   let draggingData: any = null;
+  let draggableWidth: number = 0;
+  let draggableHeight: number = 0;
   let activeHandler: IDroppableHandler | undefined;
+  let lastX = 0;
+  let lastY = 0;
   const droppableHandlers: IDroppableHandler[] = [];
 
   return {
@@ -32,31 +46,48 @@ const createController = (
         droppableHandlers.splice(droppableHandlers.indexOf(handler), 1);
       };
     },
-    startDrag: (data: any) => {
+    startDrag: (data: any, width: number, height: number) => {
       dragging = true;
       draggingData = data;
+      draggableWidth = width;
+      draggableHeight = height;
     },
-    drag: (x: number, y: number) => {
-        activeHandler = droppableHandlers.find(
-          handler =>
-            x >= handler.x &&
-            x <= handler.x + handler.width &&
-            y >= handler.y &&
-            y <= handler.y + handler.height
-        );
+    drag: (dragX: number, dragY: number) => {
+      const handler = droppableHandlers.find(
+        ({ x, y, width, height }) =>
+          dragX >= x &&
+          dragX + draggableWidth <= x + width &&
+          dragY >= y &&
+          dragY + draggableHeight <= y + height
+      );
 
-      if (activeHandler) {
-          activeHandler.onDragOver(draggingData);
+      if (activeHandler && handler !== activeHandler) {
+        activeHandler.onDragOut();
       }
+
+      if (handler) {
+        handler.onDragOver(draggingData);
+      }
+
+      activeHandler = handler;
+      lastX = dragX;
+      lastY = dragY;
     },
     endDrag: () => {
-      dragging = false;
-      draggingData = null;
-
       if (onDrop && activeHandler) {
-        onDrop(draggingData, activeHandler.data);
+        const { data, x, y } = activeHandler;
+        onDrop({
+          draggableData: draggingData,
+          droppableData: data,
+          x: lastX - x,
+          y: lastY - y,
+          draggableWidth,
+          draggableHeight
+        });
       }
       activeHandler = undefined;
+      draggingData = null;
+      dragging = false;
     }
   };
 };
@@ -66,14 +97,23 @@ export const DragAndDropContext = createContext<IDragAndDropController>(
 );
 
 export interface IDragAndDropContextProps {
-  onDrop: (draggableData: any, droppableData: any) => void;
+  onDrop: (params: IDropParams) => void;
 }
 
 const DragAndDropProvider: FC<IDragAndDropContextProps> = ({
   onDrop,
   children
 }) => {
-  const controller = useRef(createController(onDrop));
+  const onDropRef = useRef(onDrop);
+  const controller = useRef(
+    createController(params => {
+      onDropRef.current(params);
+    })
+  );
+
+  useEffect(() => {
+    onDropRef.current = onDrop;
+  }, [onDrop]);
 
   return (
     <DragAndDropContext.Provider value={controller.current}>
