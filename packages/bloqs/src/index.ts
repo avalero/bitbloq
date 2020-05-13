@@ -133,7 +133,7 @@ export interface IPortPin {
   value: string;
 }
 
-interface IPosition {
+export interface IPosition {
   x: number;
   y: number;
 }
@@ -207,6 +207,7 @@ export interface IConnector {
   type: string;
   position: IConnectorPosition;
   pins: IConnectorPin[];
+  direction?: IPortDirection;
 }
 
 export interface IComponentAction {
@@ -238,6 +239,7 @@ export interface IComponentInstance {
   port?: string;
   integrated?: boolean;
   pins?: { [name: string]: string | number };
+  position?: IPosition;
 }
 
 export interface IHardware {

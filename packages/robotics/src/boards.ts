@@ -4,7 +4,12 @@ const boards = [
     label: "Zum Junior",
     image: {
       url: "https://bitbloq.bq.com/images/boards/1586799725817.zumjunior.png"
-    }
+    },
+    ports: [
+      {
+        connectorTypes: []
+      }
+    ]
   },
   {
     name: "zumcore2",
@@ -14,7 +19,7 @@ const boards = [
     },
     ports: [
       {
-        connectorTypes: ["3pindigital"]
+        connectorTypes: ["digital"]
       }
     ]
   }
