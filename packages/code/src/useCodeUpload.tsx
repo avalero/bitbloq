@@ -107,8 +107,12 @@ class Uploader {
             .compile(boardConfig.borndateId, code, libraries)
             .then(hex => [avrgirl, hex])
             .catch(e => {
-              avrgirl.connection.serialPort.reader.cancel();
-              avrgirl.connection.serialPort.close();
+              try {
+                avrgirl.connection.serialPort.reader.cancel();
+                avrgirl.connection.serialPort.close();
+              } catch (e) {
+                console.log(e);
+              }
               reject(new UploadError("compile-error", e.errors));
             });
         })
