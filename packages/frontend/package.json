@@ -46,6 +46,7 @@
     "cookie": "^0.4.0",
     "copy-webpack-plugin": "^5.1.1",
     "dayjs": "^1.8.0",
+    "file-loader": "^6.0.0",
     "file-saver": "^2.0.1",
     "graphql-tag": "^2.10.1",
     "isomorphic-fetch": "^2.2.1",
