@@ -3,16 +3,22 @@ import { DragAndDropContext } from "./DragAndDropProvider";
 
 export interface IDroppableProps {
   data?: any;
+  active?: boolean;
   className?: string;
 }
 
-const Droppable: FC<IDroppableProps> = ({ data = {}, children, className }) => {
+const Droppable: FC<IDroppableProps> = ({
+  data = {},
+  active = true,
+  children,
+  className
+}) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const dragAndDropController = useContext(DragAndDropContext);
   const [draggableData, setDraggableData] = useState(false);
 
   useEffect(() => {
-    if (!wrapRef.current) {
+    if (!active || !wrapRef.current) {
       return;
     }
     const { x, y, width, height } = wrapRef.current.getBoundingClientRect();
@@ -26,7 +32,7 @@ const Droppable: FC<IDroppableProps> = ({ data = {}, children, className }) => {
       onDragOut: () => setDraggableData(false),
       data
     });
-  });
+  }, [active]);
 
   const content =
     typeof children === "function" ? children(draggableData) : children;

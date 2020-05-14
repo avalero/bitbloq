@@ -19,7 +19,34 @@ const boards = [
     },
     ports: [
       {
-        connectorTypes: ["digital"]
+        name: "23",
+        connectorTypes: ["digital"],
+        position: {
+          x: -48,
+          y: -96
+        },
+        width: 10,
+        height: 30
+      },
+      {
+        name: "22",
+        connectorTypes: ["digital"],
+        position: {
+          x: -36,
+          y: -96
+        },
+        width: 10,
+        height: 30
+      },
+      {
+        name: "13",
+        connectorTypes: ["digital"],
+        position: {
+          x: -24,
+          y: -96
+        },
+        width: 10,
+        height: 30
       }
     ]
   }
