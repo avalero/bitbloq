@@ -1,7 +1,14 @@
 import React, { FC, useState, useRef, useEffect, useMemo } from "react";
 import styled from "@emotion/styled";
 import update from "immutability-helper";
-import { IBoard, IComponent, IHardware, IPosition } from "@bitbloq/bloqs";
+import { v1 as uuid } from "uuid";
+import {
+  IBoard,
+  IComponent,
+  IHardware,
+  IPosition,
+  IConnector
+} from "@bitbloq/bloqs";
 import {
   breakpoints,
   colors,
@@ -38,6 +45,10 @@ const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
 
   const boardRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
+
+  const [draggingConnector, setDraggingConnector] = useState<IConnector | null>(
+    null
+  );
 
   const [boardSelected, setBoardSelected] = useState(false);
 
@@ -105,6 +116,17 @@ const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
     [compatibleComponents]
   );
 
+  const onDragStart = ({ draggableData }) => {
+    const { type, connector } = draggableData;
+    if (type === "connector") {
+      setDraggingConnector(connector);
+    }
+  };
+
+  const onDragEnd = () => {
+    setDraggingConnector(null);
+  };
+
   const onDrop = ({
     draggableData: { board, component },
     droppableData: { id },
@@ -128,6 +150,7 @@ const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
         components: [
           ...(hardware.components || []),
           {
+            id: uuid(),
             component: component.name,
             name: component.name + Math.random(),
             position: {
@@ -141,16 +164,35 @@ const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
   };
 
   return (
-    <DragAndDropProvider onDrop={onDrop}>
+    <DragAndDropProvider
+      onDragStart={onDragStart}
+      onDrop={onDrop}
+      onDragEnd={onDragEnd}
+    >
       <Container>
-        <CanvasWrap data={{ id: "canvas" }}>
+        <CanvasWrap data={{ id: "canvas" }} active={!draggingConnector}>
+          <Connections></Connections>
           <Canvas ref={canvasRef}>
             {boardObject ? (
               <Board
                 ref={boardRef}
                 image={boardObject.image.url}
                 selected={boardSelected}
-                onClick={() => setBoardSelected(true)}
+                dragging={!!draggingConnector}
+                onClick={e => {
+                  setBoardSelected(true);
+                  if (!canvasRef.current) {
+                    return;
+                  }
+                  const {
+                    width,
+                    height
+                  } = canvasRef.current.getBoundingClientRect();
+                  console.log(
+                    e.clientX - width / 2 - 70,
+                    e.clientY - height / 2 - 111
+                  );
+                }}
               />
             ) : (
               <BoardPlaceholderWrap data={{ id: "board-placeholder" }}>
@@ -173,7 +215,7 @@ const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
               }
               return (
                 <CanvasComponent
-                  key={instance.name}
+                  key={instance.id}
                   top={instance.position.y}
                   left={instance.position.x}
                   dragCopy={false}
@@ -196,10 +238,41 @@ const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
                     );
                   }}
                 >
-                  <Component component={component} />
+                  <Component
+                    component={component}
+                    instance={instance}
+                    onChange={newInstance =>
+                      onChange(
+                        update(hardware, {
+                          components: { [i]: { $set: newInstance } }
+                        })
+                      )
+                    }
+                  />
                 </CanvasComponent>
               );
             })}
+            {boardObject && (
+              <Connectors visible={!!draggingConnector}>
+                {boardObject.ports.map(port => (
+                  <PortDroppable
+                    active={!!draggingConnector}
+                    key={port.name}
+                    data={{ type: "port", port }}
+                    top={port.position.y}
+                    left={port.position.x}
+                  >
+                    {connector => (
+                      <Port
+                        dragging={!!connector}
+                        width={port.width || 0}
+                        height={port.height || 0}
+                      />
+                    )}
+                  </PortDroppable>
+                ))}
+              </Connectors>
+            )}
           </Canvas>
         </CanvasWrap>
         <Tabs
@@ -236,6 +309,7 @@ const Container = styled.div`
 const CanvasWrap = styled(Droppable)`
   flex: 1;
   display: flex;
+  position: relative;
 `;
 
 const Canvas = styled.div`
@@ -251,7 +325,11 @@ const CanvasItem = styled.div`
   transform: translate(-50%, -50%);
 `;
 
-const Board = styled(CanvasItem)<{ image: string; selected: boolean }>`
+const Board = styled(CanvasItem)<{
+  image: string;
+  selected: boolean;
+  dragging: boolean;
+}>`
   cursor: pointer;
   background-image: url(${props => props.image});
   background-position: center;
@@ -261,6 +339,7 @@ const Board = styled(CanvasItem)<{ image: string; selected: boolean }>`
   height: 224px;
   border-radius: 10px;
   border: ${props => (props.selected ? "solid 2px" : "none")};
+  opacity: ${props => (props.dragging ? 0.3 : 1)};
 
   @media screen and (min-width: ${breakpoints.desktop}px) {
     width: 355px;
@@ -293,6 +372,15 @@ const BoardPlaceholder = styled.div<{ active: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
+`;
+
+const Connections = styled.svg`
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 `;
 
 const TabContent = styled.div`
@@ -360,4 +448,30 @@ const CanvasComponent = styled(Draggable)<{ top: number; left: number }>`
   top: ${props => props.top}px;
   left: ${props => props.left}px;
   transform: translate(-50%, -50%);
+`;
+
+const Connectors = styled.div<{ visible: boolean }>`
+  visibility: ${props => (props.visible ? "visible" : "hidden")};
+`;
+
+const PortDroppable = styled(Droppable)<{
+  top: number;
+  left: number;
+}>`
+  position: absolute;
+  top: ${props => props.top}px;
+  left: ${props => props.left}px;
+`;
+
+const Port = styled.div<{
+  width: number;
+  height: number;
+  dragging?: boolean;
+}>`
+  width: ${props => props.width}px;
+  height: ${props => props.height}px;
+  border-radius: 2px;
+  border: solid 1px #373b44;
+  background-color: ${props =>
+    props.dragging ? "#373b44" : "rgba(55, 59, 68, 0.3)"};
 `;

@@ -1,5 +1,9 @@
 import React, { FC, createContext, useRef, useEffect } from "react";
 
+export interface IDragStartParams {
+  draggableData: any;
+}
+
 export interface IDropParams {
   draggableData: any;
   droppableData: any;
@@ -26,9 +30,17 @@ export interface IDragAndDropController {
   endDrag: () => void;
 }
 
-const createController = (
-  onDrop?: (params: IDropParams) => any
-): IDragAndDropController => {
+export interface IControllerParms {
+  onDragStart?: (params: IDragStartParams) => void;
+  onDragEnd?: () => void;
+  onDrop?: (params: IDropParams) => any;
+}
+
+const createController = ({
+  onDragStart,
+  onDragEnd,
+  onDrop
+}: IControllerParms): IDragAndDropController => {
   let dragging = false;
   let draggingData: any = null;
   let draggableWidth: number = 0;
@@ -51,14 +63,15 @@ const createController = (
       draggingData = data;
       draggableWidth = width;
       draggableHeight = height;
+
+      if (onDragStart) {
+        onDragStart({ draggableData: data });
+      }
     },
     drag: (dragX: number, dragY: number) => {
       const handler = droppableHandlers.find(
         ({ x, y, width, height }) =>
-          dragX >= x &&
-          dragX + draggableWidth <= x + width &&
-          dragY >= y &&
-          dragY + draggableHeight <= y + height
+          dragX >= x && dragX <= x + width && dragY >= y && dragY <= y + height
       );
 
       if (activeHandler && handler !== activeHandler) {
@@ -76,6 +89,7 @@ const createController = (
     endDrag: () => {
       if (onDrop && activeHandler) {
         const { data, x, y } = activeHandler;
+        activeHandler.onDragOut();
         onDrop({
           draggableData: draggingData,
           droppableData: data,
@@ -85,6 +99,9 @@ const createController = (
           draggableHeight
         });
       }
+      if (onDragEnd) {
+        onDragEnd();
+      }
       activeHandler = undefined;
       draggingData = null;
       dragging = false;
@@ -93,23 +110,52 @@ const createController = (
 };
 
 export const DragAndDropContext = createContext<IDragAndDropController>(
-  createController()
+  createController({})
 );
 
 export interface IDragAndDropContextProps {
-  onDrop: (params: IDropParams) => void;
+  onDragStart?: (params: IDragStartParams) => void;
+  onDragEnd?: () => void;
+  onDrop?: (params: IDropParams) => void;
 }
 
 const DragAndDropProvider: FC<IDragAndDropContextProps> = ({
+  onDragStart,
+  onDragEnd,
   onDrop,
   children
 }) => {
+  const onDragStartRef = useRef(onDragStart);
+  const onDragEndRef = useRef(onDragEnd);
   const onDropRef = useRef(onDrop);
+
   const controller = useRef(
-    createController(params => {
-      onDropRef.current(params);
+    createController({
+      onDragStart: params => {
+        if (onDragStartRef.current) {
+          onDragStartRef.current(params);
+        }
+      },
+      onDrop: params => {
+        if (onDropRef.current) {
+          onDropRef.current(params);
+        }
+      },
+      onDragEnd: () => {
+        if (onDragEndRef.current) {
+          onDragEndRef.current();
+        }
+      }
     })
   );
+
+  useEffect(() => {
+    onDragStartRef.current = onDragStart;
+  }, [onDragStart]);
+
+  useEffect(() => {
+    onDragEndRef.current = onDragEnd;
+  }, [onDragEnd]);
 
   useEffect(() => {
     onDropRef.current = onDrop;

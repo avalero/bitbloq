@@ -67,7 +67,13 @@ const Draggable: FC<IDraggableProps> = ({
         case "drag": {
           const x = action.x + state.diffX;
           const y = action.y + state.diffY;
-          dragAndDropController.drag(x, y);
+          dragAndDropController.drag(action.x, action.y);
+
+          if (draggedRef.current) {
+            draggedRef.current.style.left = `${x}px`;
+            draggedRef.current.style.top = `${y}px`;
+          }
+
           return {
             ...state,
             draggedX: x,
@@ -152,6 +158,9 @@ const Draggable: FC<IDraggableProps> = ({
     dispatch({ type: "end" });
   };
 
+  const content =
+    typeof children === "function" ? children(dragging) : children;
+
   const draggedElement = dragging
     ? createPortal(
         <div
@@ -164,7 +173,7 @@ const Draggable: FC<IDraggableProps> = ({
             pointerEvents: "none"
           }}
         >
-          {children}
+          {content}
         </div>,
         document.body
       )
@@ -181,7 +190,7 @@ const Draggable: FC<IDraggableProps> = ({
       onTouchEnd={onTouchEnd}
       style={{ cursor: dragging ? "grabbing" : "grab" }}
     >
-      {(!dragging || dragCopy) && children}
+      {(!dragging || dragCopy) && content}
       {draggedElement}
     </div>
   );

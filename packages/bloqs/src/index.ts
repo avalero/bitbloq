@@ -160,6 +160,8 @@ export interface IPort {
   direction: IPortDirection;
   schematicPosition: IConnectorPosition;
   schematicPlaceholderPosition: IConnectorPosition;
+  width?: number;
+  height?: number;
 }
 
 interface ISize {
@@ -234,6 +236,7 @@ export interface IComponent {
 }
 
 export interface IComponentInstance {
+  id?: string;
   component: string;
   name: string;
   port?: string;
