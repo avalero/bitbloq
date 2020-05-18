@@ -240,9 +240,10 @@ export const useCodeUpload = (options): ICodeUploadResult => {
         }
       } else if (e.type === "compile-error") {
         setUploadText(t("code.uploading-error"));
-        if (onUploadError) {
-          onUploadError();
-        }
+      }
+
+      if (e.type !== "board-not-found" && onUploadError) {
+        onUploadError();
       }
 
       throw e;
