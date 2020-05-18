@@ -239,7 +239,7 @@ export interface IComponentInstance {
   id?: string;
   component: string;
   name: string;
-  port?: string;
+  ports?: { [connectorName: string]: string };
   integrated?: boolean;
   pins?: { [name: string]: string | number };
   position?: IPosition;

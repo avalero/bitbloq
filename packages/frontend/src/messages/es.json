@@ -463,9 +463,14 @@
       "cont-rot-servo": "Servo rotación continua",
       "double-led": "LED doble",
       "double-switch": "Interruptor doble",
+      "joystick": "Joystick",
       "miniservo": "Miniservo",
       "multisensor": "Multisensor",
       "seven-segment": "Display 7 segmentos"
+    },
+    "instanceName": {
+      "button": "boton",
+      "joystick": "joystick"
     }
   },
   "units": {

@@ -5,6 +5,7 @@ const components = [
   {
     name: "button",
     label: "hardware.component.button",
+    instanceName: "hardware.instanceName.button",
     connectors: [
       {
         name: "main",
@@ -25,6 +26,7 @@ const components = [
   {
     name: "joystick",
     label: "hardware.component.joystick",
+    instanceName: "hardware.instanceName.joystick",
     connectors: [
       {
         name: "kvg",
