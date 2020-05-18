@@ -54,6 +54,13 @@ const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
 
   const boardObject = boards.find(b => b.name === hardware.board);
 
+  const getInstanceName = (baseName: string, count: number = 0): string => {
+    const name = `${baseName}${count || ""}`;
+    const exist =
+      hardware.components && hardware.components.some(c => c.name === name);
+    return exist ? getInstanceName(baseName, count ? count + 1 : 2) : name;
+  };
+
   useEffect(() => {
     const onBodyClick = (e: MouseEvent) => {
       if (
@@ -152,7 +159,7 @@ const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
           {
             id: uuid(),
             component: component.name,
-            name: component.name + Math.random(),
+            name: getInstanceName(t(component.instanceName)),
             position: {
               x: x - width / 2 + draggableWidth / 2,
               y: y - height / 2 + draggableHeight / 2

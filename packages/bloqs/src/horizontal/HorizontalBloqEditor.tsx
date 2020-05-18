@@ -91,8 +91,8 @@ const HorizontalBloqEditor: React.FunctionComponent<
               getComponents(bloqType.components || []) || [];
             const { name = "" } =
               compatibleComponents.sort((a, b) => {
-                const aPort = a.port || "";
-                const bPort = b.port || "";
+                const aPort = Object.values(a.ports || {})[0] || "";
+                const bPort = Object.values(b.ports || {})[0] || "";
                 const aIsNumber = !isNaN(parseInt(aPort, 10));
                 const bIsNumber = !isNaN(parseInt(bPort, 10));
 

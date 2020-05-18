@@ -55,9 +55,14 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
   const board = boards.find(b => b.name === hardware.board)!;
   const { width, height } = (!isDesktop && board.image.tablet) || board.image;
 
+  const getInstanceInPort = (port: IPort) =>
+    port &&
+    hardware.components.find(c =>
+      Object.values(c.ports || {}).includes(port.name)
+    );
+
   const selectedPort = board.ports[selectedPortIndex];
-  const selectedComponentInstance =
-    selectedPort && hardware.components.find(c => c.port === selectedPort.name);
+  const selectedComponentInstance = getInstanceInPort(selectedPort);
 
   const getInstanceName = (baseName: string, count: number = 0): string => {
     const name = `${baseName}${count || ""}`;
@@ -70,9 +75,7 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
     components.find(c => c.name === selectedComponentInstance.component)!;
 
   const renderPort = (port: IPort, i: number) => {
-    const componentInstance = hardware.components.find(
-      c => c.port === port.name
-    );
+    const componentInstance = getInstanceInPort(port);
     const placeholderPosition =
       (!isDesktop && port.placeholderPosition.tablet) ||
       port.placeholderPosition;
@@ -204,9 +207,7 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
           </Canvas>
           <ConnectionCanvas>
             {board.ports.map((port, i) => {
-              const componentInstance = hardware.components.find(
-                c => c.port === port.name
-              );
+              const componentInstance = getInstanceInPort(port);
               if (readOnly && !componentInstance) {
                 return null;
               }
@@ -220,11 +221,7 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
                       selectedPortIndex === i ? colors.brandOrange : "#bbb"
                     }
                     strokeWidth={2}
-                    strokeDasharray={
-                      hardware.components.some(c => c.port === port.name)
-                        ? "0"
-                        : "7 3"
-                    }
+                    strokeDasharray={!!componentInstance ? "0" : "7 3"}
                   />
                   {connectionCircle(port, selectedPortIndex === i)}
                 </g>
@@ -246,7 +243,9 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
                   {
                     component: component.name,
                     name: getInstanceName(t(component.instanceName)),
-                    port: selectedPort.name
+                    ports: {
+                      main: selectedPort.name
+                    }
                   }
                 ]
               }

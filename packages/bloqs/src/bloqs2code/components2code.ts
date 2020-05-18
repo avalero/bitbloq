@@ -98,20 +98,18 @@ export const pinsForComponent = (
 
     // Connected Component
   } else {
-    if (!componentInstance.port) {
-      throw new Error(
-        `Port expected but not found on component ${componentDefinition.name}`
-      );
-    }
-
+    const instancePorts = componentInstance.ports || {};
     componentDefinition.connectors.forEach(connector => {
+      const port = instancePorts[connector.name];
+      if (!port) {
+        throw new Error(
+          `Port expected but not found on component ${componentDefinition.name}`
+        );
+      }
+
       connector.pins.forEach(pin => {
         pinsInfo.push({
-          pinNumber: getPinNumber(
-            boardDefintion,
-            componentInstance.port!,
-            pin.portPin!
-          ),
+          pinNumber: getPinNumber(boardDefintion, port, pin.portPin!),
           pinVarName: `${componentInstance.name}${pin.name}`
         });
       });

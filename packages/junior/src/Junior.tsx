@@ -151,7 +151,11 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
 
       const component = hardware.components.find(c => c.name === componentName);
 
-      return component ? component.port : "?";
+      if (component && component.integrated) {
+        return;
+      }
+
+      return component && component.ports ? component.ports.main : "?";
     }
 
     return;

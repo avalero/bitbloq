@@ -75,9 +75,10 @@ const getJuniorSnapshot = async (document: IDocument) => {
 
   await Promise.all(
     board.ports.map(async port => {
-      const componentInstance = hardware.components.find(
-        c => c.port === port.name
+      const componentInstance = hardware.components.find(c =>
+        Object.values(c.ports || {}).includes(port.name)
       );
+
       if (!componentInstance) {
         return;
       }
