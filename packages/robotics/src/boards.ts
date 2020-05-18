@@ -26,7 +26,8 @@ const boards = [
           y: -96
         },
         width: 10,
-        height: 30
+        height: 30,
+        direction: "north"
       },
       {
         name: "22",
@@ -36,7 +37,8 @@ const boards = [
           y: -96
         },
         width: 10,
-        height: 30
+        height: 30,
+        direction: "north"
       },
       {
         name: "13",
@@ -46,7 +48,8 @@ const boards = [
           y: -96
         },
         width: 10,
-        height: 30
+        height: 30,
+        direction: "north"
       }
     ]
   }
