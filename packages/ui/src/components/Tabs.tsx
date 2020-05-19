@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
 import colors from "../colors";
@@ -11,17 +11,31 @@ export interface ITabsProps {
     color?: string;
     label: string;
   }>;
+  currentTab?: number;
+  onTabChange?: (newTab: number) => void;
   className?: string;
 }
 
 const ScrollableTabs: React.FunctionComponent<ITabsProps> = ({
   className,
+  currentTab,
+  onTabChange,
   tabs
 }) => {
-  const [activeTab, setActiveTab] = useState(-1);
+  const [activeTab, setActiveTab] = useState(currentTab || -1);
+
+  useEffect(() => {
+    if (currentTab !== undefined && onTabChange) {
+      setActiveTab(currentTab);
+    }
+  }, [currentTab, onTabChange]);
 
   const onSelectTab = (tab: number) => {
-    setActiveTab(tab);
+    if (onTabChange) {
+      onTabChange(tab);
+    } else {
+      setActiveTab(tab);
+    }
   };
 
   return (
@@ -88,7 +102,7 @@ const TabIcon = styled.div<{ active: boolean; color: string }>`
   align-items: center;
   justify-content: center;
   z-index: 1;
-  border-right: ${props => props.active ? "1px solid white" : "none"};
+  border-right: ${props => (props.active ? "1px solid white" : "none")};
   font-size: 14px;
   font-weight: bold;
 
