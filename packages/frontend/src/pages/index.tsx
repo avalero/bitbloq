@@ -110,7 +110,7 @@ const IndexPage: NextPage = () => {
               </OpenExercisePanelTitle>
               <HorizontalRule small />
               <OpenExercisePanelContent>
-                <OpenExerciseForm openText="Empezar" />
+                <OpenExerciseForm openText={t("start")} />
               </OpenExercisePanelContent>
             </OpenExercisePanel>
           </OpenExercise>
