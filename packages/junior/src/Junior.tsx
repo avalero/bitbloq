@@ -20,15 +20,18 @@ import {
   IBoard,
   IComponent,
   IHardware,
+  IExtraData,
   isBloqSelectComponentParameter
 } from "@bitbloq/bloqs";
 
 export interface IJuniorCallbackProps {
   hardware: JSX.Element;
   software: (isActive: boolean) => JSX.Element | null;
-  upload: () => void;
+  upload: (onPortOpen?: () => void) => void;
+  cancel: () => void;
   undo: () => void;
   redo: () => void;
+  reset: () => void;
   canUndo: boolean;
   canRedo: boolean;
 }
@@ -56,7 +59,7 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
 }) => {
   const t = useTranslate();
 
-  const [upload, _, uploadContent] = useCodeUpload(uploadOptions);
+  const { upload, cancel, uploadContent } = useCodeUpload(uploadOptions);
 
   const [content, setContent] = useState(initialContent);
   const program: IBloqLine[] = content.program || [];
@@ -64,6 +67,7 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
     board: "zumjunior",
     components: []
   };
+  const extraData: IExtraData = content.extraData || {};
 
   const [undoPast, setUndoPast] = useState<any[]>([]);
   const [undoFuture, setUndoFuture] = useState<any[]>([]);
@@ -84,6 +88,12 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
     setUndoPast([content, ...undoPast]);
     setUndoFuture(undoFuture.slice(1));
     setContent(undoFuture[0]);
+  };
+
+  const reset = () => {
+    if (content !== initialContent) {
+      updateContent(initialContent);
+    }
   };
 
   useEffect(() => {
@@ -141,7 +151,11 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
 
       const component = hardware.components.find(c => c.name === componentName);
 
-      return component ? component.port : "?";
+      if (component && component.integrated) {
+        return;
+      }
+
+      return component && component.ports ? component.ports.main : "?";
     }
 
     return;
@@ -157,7 +171,7 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
       )
   );
 
-  const onUpload = () => {
+  const onUpload = (onPortOpen?: () => void) => {
     const programBloqs = program
       .filter(line => !line.disabled)
       .map(line => line.bloqs);
@@ -167,13 +181,15 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
       components,
       bloqTypes,
       hardware,
-      programBloqs
+      programBloqs,
+      extraData
     );
     try {
       upload(
         [{ name: "main.ino", content: code }],
         juniorLibraries,
-        "zumjunior"
+        "zumjunior",
+        onPortOpen
       );
     } catch (e) {
       console.error(e.data);
@@ -187,7 +203,7 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
         components={components}
         hardware={hardware}
         onHardwareChange={newHardware =>
-          updateContent({ hardware: newHardware, program })
+          updateContent({ hardware: newHardware, program, extraData })
         }
         readOnly={readOnly}
       />
@@ -203,19 +219,25 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
             bloqTypes={bloqTypes}
             availableBloqs={availableBloqs}
             onLinesChange={(newProgram: IBloqLine[]) =>
-              updateContent({ program: newProgram, hardware })
+              updateContent({ program: newProgram, hardware, extraData })
             }
-            onUpload={onUpload}
+            onUpload={() => onUpload()}
             board={board}
             externalUpload={externalUpload}
             readOnly={readOnly}
+            extraData={extraData}
+            onExtraDataChange={(newExtraData: IExtraData) =>
+              updateContent({ extraData: newExtraData, hardware, program })
+            }
           />
           {!externalUpload && uploadContent}
         </>
       ) : null,
     upload: onUpload,
+    cancel,
     undo,
     redo,
+    reset,
     canUndo: undoPast.length > 0,
     canRedo: undoFuture.length > 0
   });

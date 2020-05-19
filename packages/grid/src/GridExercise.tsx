@@ -7,7 +7,7 @@ import { colors } from "@bitbloq/ui";
 import AddBloqPanel from "./AddBloqPanel";
 import BloqsList from "./BloqsList";
 import { bloqTypes } from "./config";
-import { ActionType, IActions, ILoop } from "./types";
+import { ActionType, IAction, IActions, ILoop } from "./types";
 import RombiIcon from "./icons/rombi.svg";
 
 export interface IGridExerciseProps {
@@ -92,13 +92,17 @@ const GridExercise: FC<IGridExerciseProps> = ({
         })
       );
     } else {
-      if (loopPlaceholder >= 0) {
+      if (loopPlaceholder > 0) {
         onChange(
           update(actions, {
             [selectedActionIndex]: {
               children: {
                 $splice: [
-                  [loopPlaceholder, 0, { type: bloqType.name as ActionType }]
+                  [
+                    loopPlaceholder - 1,
+                    0,
+                    { type: bloqType.name as ActionType }
+                  ]
                 ]
               }
             }
@@ -148,7 +152,7 @@ const GridExercise: FC<IGridExerciseProps> = ({
     }
     if (newBloq.type === "loop") {
       const updatedAction: ILoop = {
-        ...(actions[index - 1] as ILoop),
+        ...(actions[selectedActionIndex] as ILoop),
         repeat: newBloq.parameters.repeat as number
       };
       onChange(
@@ -248,13 +252,22 @@ const GridExercise: FC<IGridExerciseProps> = ({
       ? getBloqIndex(actions, activeAction, activeSubAction)
       : -1;
 
+  const bloqsInUse: IAction[] = [...actions];
+  actions
+    .filter(action => action.type === "loop")
+    .forEach((action: ILoop) => {
+      if (action.children) {
+        action.children.forEach((a: IAction) => bloqsInUse.push(a));
+      }
+    });
+
   const filteredAvailableBloqs =
     availableBloqs &&
     Object.keys(availableBloqs)
       .filter(type => !(loopPlaceholder >= 0 && type === "loop"))
       .reduce((filtered, type) => {
         const number =
-          availableBloqs[type] - actions.filter(a => a.type === type).length;
+          availableBloqs[type] - bloqsInUse.filter(a => a.type === type).length;
         return number ? { ...filtered, [type]: number } : filtered;
       }, {});
 
@@ -263,9 +276,10 @@ const GridExercise: FC<IGridExerciseProps> = ({
       <ContentWrap>
         <Content>
           {children}
-          {filteredAvailableBloqs && (
-            <BloqsList bloqs={filteredAvailableBloqs} />
-          )}
+          {filteredAvailableBloqs &&
+            Object.keys(filteredAvailableBloqs).length > 0 && (
+              <BloqsList bloqs={filteredAvailableBloqs} />
+            )}
         </Content>
         {onChange && filteredAvailableBloqs && (
           <AddBloqPanel

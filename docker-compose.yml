@@ -13,26 +13,17 @@ services:
       - 8000:80
 
   frontend:
-    build:
-      context: ./
-      dockerfile: ./packages/frontend/Dockerfile.devenv
+    image: node:12.13.0
     environment:
       - API_URL=http://localhost:8002/graphql
       - API_URL_SERVER=http://api:8000/graphql
     volumes:
       - type: bind
-        source: ./packages
-        target: /usr/src/app/packages
-      - /usr/src/app/node_modules
-      - /usr/src/app/packages/3d/node_modules
-      - /usr/src/app/packages/api/node_modules
-      - /usr/src/app/packages/bloqs/node_modules
-      - /usr/src/app/packages/frontend/node_modules
-      - /usr/src/app/packages/junior/node_modules
-      - /usr/src/app/packages/lib3d/node_modules
-      - /usr/src/app/packages/ui/node_modules
+        source: .
+        target: /usr/src/app
+    working_dir: /usr/src/app
 
-    command: bash -c "yarn --prod && cd packages/frontend && yarn dev"
+    command: bash -c "cd packages/frontend && yarn dev"
 
   api:
     build:

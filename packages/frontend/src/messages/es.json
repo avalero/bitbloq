@@ -463,9 +463,14 @@
       "cont-rot-servo": "Servo rotación continua",
       "double-led": "LED doble",
       "double-switch": "Interruptor doble",
+      "joystick": "Joystick",
       "miniservo": "Miniservo",
       "multisensor": "Multisensor",
       "seven-segment": "Display 7 segmentos"
+    },
+    "instanceName": {
+      "button": "boton",
+      "joystick": "joystick"
     }
   },
   "units": {
@@ -715,9 +720,26 @@
     "uploading-success": "Cargada correctamente",
     "uploading-error": "Error",
     "board-not-found": "No hay placa conectada",
-    "install-chrome-app-text": "Para poder cargar el programa en la placa, debes instalar la aplicación de Chrome de Bitbloq",
-    "open-chrome-webstore": "Instalar aplicación de Chrome",
-    "install-chrome-app-title": "Aplicación de Chrome no encontrada",
     "libraries": "Bibliotecas"
+  },
+  "music": {
+    "C4": "Do",
+    "D4": "Re",
+    "E4": "Mi",
+    "F4": "Fa",
+    "G4": "Sol",
+    "A4": "La",
+    "B4": "Si",
+    "C5": "Do'",
+    "D5": "Re'"
+  },
+  "robotics": {
+    "bloqs": "Bloques",
+    "boards": "Placas",
+    "components": "Componentes",
+    "diagram": "Diagrama",
+    "drag-board-here": "Arrastra una placa o un robot aquí",
+    "hardware": "Hardware",
+    "robots": "Robots"
   }
 }

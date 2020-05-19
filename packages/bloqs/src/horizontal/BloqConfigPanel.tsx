@@ -17,6 +17,7 @@ import {
   IBoard,
   IComponent,
   IComponentInstance,
+  IExtraData,
   isBloqSelectComponentParameter
 } from "../index";
 
@@ -35,6 +36,8 @@ interface IBloqConfigPanelProps {
   board: IBoard;
   components: IComponent[];
   selectedLeft: number;
+  extraData?: IExtraData;
+  onExtraDataChange?: (extraData: IExtraData) => void;
 }
 
 const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
@@ -51,7 +54,9 @@ const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
   getComponents,
   board,
   components,
-  selectedLeft
+  selectedLeft,
+  extraData,
+  onExtraDataChange
 }) => {
   const [selectedTab, setSelectedTab] = useState(BloqCategory.Action);
 
@@ -155,6 +160,8 @@ const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
             bloqType={bloqType}
             bloq={selectedBloq}
             onChange={onUpdateBloq}
+            extraData={extraData}
+            onExtraDataChange={onExtraDataChange}
           />
           {componentParam && (
             <PinSelector
@@ -298,6 +305,9 @@ const ConfigContainer = styled.div`
   flex: 1;
   align-items: center;
   justify-content: center;
+  padding: 15px 10px;
+  width: 100%;
+  box-sizing: border-box;
 `;
 
 const DeleteWrap = styled.div`

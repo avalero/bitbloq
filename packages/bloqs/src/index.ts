@@ -7,6 +7,7 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
+import { IMelodyNote } from "@bitbloq/ui";
 import HorizontalBloqEditor from "./horizontal/HorizontalBloqEditor";
 import HorizontalBloq from "./horizontal/HorizontalBloq";
 import BloqsLine from "./horizontal/BloqsLine";
@@ -132,7 +133,7 @@ export interface IPortPin {
   value: string;
 }
 
-interface IPosition {
+export interface IPosition {
   x: number;
   y: number;
 }
@@ -159,6 +160,8 @@ export interface IPort {
   direction: IPortDirection;
   schematicPosition: IConnectorPosition;
   schematicPlaceholderPosition: IConnectorPosition;
+  width?: number;
+  height?: number;
 }
 
 interface ISize {
@@ -179,6 +182,7 @@ export interface IIntegratedComponent {
 
 export interface IBoard {
   name: string;
+  label?: string;
   integrated: IIntegratedComponent[];
   code: IArduinoCode;
   image: IComponentImage;
@@ -205,6 +209,7 @@ export interface IConnector {
   type: string;
   position: IConnectorPosition;
   pins: IConnectorPin[];
+  direction?: IPortDirection;
 }
 
 export interface IComponentAction {
@@ -231,14 +236,22 @@ export interface IComponent {
 }
 
 export interface IComponentInstance {
+  id?: string;
   component: string;
   name: string;
-  port?: string;
+  ports?: { [connectorName: string]: string };
   integrated?: boolean;
   pins?: { [name: string]: string | number };
+  position?: IPosition;
 }
 
 export interface IHardware {
   board: string;
   components: IComponentInstance[];
+}
+
+export type IMelody = IMelodyNote[];
+
+export interface IExtraData {
+  melodies?: IMelody[];
 }

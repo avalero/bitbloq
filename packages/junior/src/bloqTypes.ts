@@ -25,7 +25,6 @@ import musicIcon from "./images/bloqs/music.svg";
 import music1Icon from "./images/bloqs/music1.svg";
 import music2Icon from "./images/bloqs/music2.svg";
 import music3Icon from "./images/bloqs/music3.svg";
-import music4Icon from "./images/bloqs/music4.svg";
 import musicStopIcon from "./images/bloqs/music-stop.svg";
 import sendAIcon from "./images/bloqs/send-message-a.svg";
 import sendBIcon from "./images/bloqs/send-message-b.svg";
@@ -650,9 +649,10 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     genCode: {
       definitions: [
         `{{component}}PinObj.write(90 {{"+" if(rotation === "clockwise") else "-"}} 
-            {{"10" if(speed === "slow")}} 
-            {{"20" if(speed === "medium")}} 
-            {{"30" if(speed === "fast")}});`
+            {{"0" if(rotation === "stop")}}
+            {{"10" if(rotation !== "stop" and speed === "slow")}} 
+            {{"20" if(rotation !== "stop" and speed === "medium")}} 
+            {{"30" if(rotation !== "stop" and speed === "fast")}});`
       ]
     }
   },
@@ -746,10 +746,9 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     label: "bloq-music",
     components: ["Buzzer"],
     iconSwitch: {
-      "melody === '1'": music1Icon,
-      "melody === '2'": music2Icon,
-      "melody === '3'": music3Icon,
-      "melody === '4'": music4Icon,
+      "melody === '0'": music1Icon,
+      "melody === '1'": music2Icon,
+      "melody === '2'": music3Icon,
       "melody === 'stop'": musicStopIcon,
       true: musicIcon
     },
@@ -761,25 +760,22 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         type: BloqParameterType.SelectComponent
       },
       {
-        name: "melody",
+        name: "melodyIndex",
         label: "bloq-parameter-melody",
         type: BloqParameterType.Select,
+        defaultValue: "0",
         options: [
           {
             label: "melody-1",
-            value: "1"
+            value: "0"
           },
           {
             label: "melody-2",
-            value: "2"
+            value: "1"
           },
           {
             label: "melody-3",
-            value: "3"
-          },
-          {
-            label: "melody-4",
-            value: "4"
+            value: "2"
           },
           {
             label: "melody-stop",

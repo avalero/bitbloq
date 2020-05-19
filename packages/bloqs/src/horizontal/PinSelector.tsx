@@ -99,7 +99,9 @@ const PinSelector: FC<IPinSelectorProps> = ({
           ))}
         </Connections>
         {componentInstances.map(c => {
-          const port = board.ports.find(p => p.name === c.port)!;
+          const port = board.ports.find(
+            p => p.name === Object.values(c.ports || {})[0]
+          )!;
           return (
             <PortButton
               key={c.name}

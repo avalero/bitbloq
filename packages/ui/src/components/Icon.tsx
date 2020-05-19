@@ -8,13 +8,17 @@ import Arrow from "./icons/Arrow";
 import ArrowLeft from "./icons/ArrowLeft";
 import At from "./icons/At";
 import BasicShapes from "./icons/BasicShapes";
+import Board from "./icons/Board";
 import BoardNotFound from "./icons/BoardNotFound";
 import Brush from "./icons/Brush";
 import Center from "./icons/Center";
 import CityElements from "./icons/CityElements";
+import Clock from "./icons/Clock";
 import Close from "./icons/Close";
 import CloudLogo from "./icons/CloudLogo";
+import Column from "./icons/Column";
 import Cone from "./icons/Cone";
+import Crotchet from "./icons/Crotchet";
 import Crown from "./icons/Crown";
 import Cthulhito from "./icons/Cthulhito";
 import Cube from "./icons/Cube";
@@ -48,12 +52,14 @@ import ImportSTL from "./icons/ImportSTL";
 import Info from "./icons/Info";
 import Interrogation from "./icons/Interrogation";
 import Intersection from "./icons/Intersection";
+import LedOn from "./icons/LedOn";
 import Logo3D from "./icons/Logo3D";
 import LogoApps from "./icons/LogoApps";
-import LogoBloqs from "./icons/LogoBloqs";
+import LogoRobotics from "./icons/LogoRobotics";
 import LogoCode from "./icons/LogoCode";
 import LogoJunior from "./icons/LogoJunior";
 import Loop from "./icons/Loop";
+import Minim from "./icons/Minim";
 import Minus from "./icons/Minus";
 import MoveDocument from "./icons/MoveDocument";
 import NewDocument from "./icons/NewDocument";
@@ -66,17 +72,21 @@ import PadlockOpen from "./icons/PadlockOpen";
 import Pencil from "./icons/Pencil";
 import People from "./icons/People";
 import Perspective from "./icons/Perspective";
+import Play from "./icons/Play";
 import Plus from "./icons/Plus";
 import Prism from "./icons/Prism";
 import Programming from "./icons/Programming";
 import Programming2 from "./icons/Programming2";
 import Programming3 from "./icons/Programming3";
+import ProgrammingBloqs from "./icons/ProgrammingBloqs";
 import ProgrammingBoard from "./icons/ProgrammingBoard";
+import ProgrammingDiagram from "./icons/ProgrammingDiagram";
 import ProgrammingDuplicate from "./icons/ProgrammingDuplicate";
 import ProgrammingQuestion from "./icons/ProgrammingQuestion";
 import ProgrammingUpload from "./icons/ProgrammingUpload";
 import Publish from "./icons/Publish";
 import Pyramid from "./icons/Pyramid";
+import Quaver from "./icons/Quaver";
 import RectangularPrism from "./icons/RectangularPrism";
 import Redo from "./icons/Redo";
 import Reflection from "./icons/Reflection";
@@ -88,12 +98,16 @@ import ResourceImage from "./icons/ResourceImage";
 import ResourceObject from "./icons/ResourceObject";
 import ResourceSound from "./icons/ResourceSound";
 import ResourceVideo from "./icons/ResourceVideo";
+import Robot from "./icons/Robot";
 import Rotation from "./icons/Rotation";
 import Scale from "./icons/Scale";
+import Semibreve from "./icons/Semibreve";
+import Semiquaver from "./icons/Semiquaver";
 import SemiCylinder from "./icons/SemiCylinder";
 import Sphere from "./icons/Sphere";
 import Spinner from "./icons/Spinner";
 import Star from "./icons/Star";
+import Stop from "./icons/Stop";
 import STL from "./icons/STL";
 import Text from "./icons/Text";
 import ThreeD from "./icons/ThreeD";
@@ -146,16 +160,24 @@ const Icon: React.SFC<IIconProps> = ({ name, className }) => {
       return <At className={className} />;
     case "basic-shapes":
       return <BasicShapes className={className} />;
+    case "board":
+      return <Board className={className} />;
     case "board-not-found":
       return <BoardNotFound className={className} />;
     case "brush":
       return <Brush className={className} />;
     case "city-elements":
       return <CityElements className={className} />;
+    case "clock":
+      return <Clock className={className} />;
     case "close":
       return <Close className={className} />;
     case "cloud-logo":
       return <CloudLogo className={className} />;
+    case "column":
+      return <Column className={className} />;
+    case "crotchet":
+      return <Crotchet className={className} />;
     case "crown":
       return <Crown className={className} />;
     case "cube":
@@ -216,8 +238,12 @@ const Icon: React.SFC<IIconProps> = ({ name, className }) => {
       return <Intersection className={className} />;
     case "center":
       return <Center className={className} />;
+    case "led-on":
+      return <LedOn className={className} />;
     case "loop":
       return <Loop className={className} />;
+    case "minim":
+      return <Minim className={className} />;
     case "minus":
       return <Minus className={className} />;
     case "new-document":
@@ -238,6 +264,8 @@ const Icon: React.SFC<IIconProps> = ({ name, className }) => {
       return <Pencil className={className} />;
     case "perspective":
       return <Perspective className={className} />;
+    case "play":
+      return <Play className={className} />;
     case "plus":
       return <Plus className={className} />;
     case "prism":
@@ -246,6 +274,8 @@ const Icon: React.SFC<IIconProps> = ({ name, className }) => {
       return <Torus className={className} />;
     case "star":
       return <Star className={className} />;
+    case "stop":
+      return <Stop className={className} />;
     case "rectangularPrism":
       return <RectangularPrism className={className} />;
     case "cone":
@@ -258,8 +288,12 @@ const Icon: React.SFC<IIconProps> = ({ name, className }) => {
       return <Programming2 className={className} />;
     case "programming3":
       return <Programming3 className={className} />;
+    case "programming-bloqs":
+      return <ProgrammingBloqs className={className} />;
     case "programming-board":
       return <ProgrammingBoard className={className} />;
+    case "programming-diagram":
+      return <ProgrammingDiagram className={className} />;
     case "programming-duplicate":
       return <ProgrammingDuplicate className={className} />;
     case "programming-question":
@@ -272,6 +306,8 @@ const Icon: React.SFC<IIconProps> = ({ name, className }) => {
       return <Pyramid className={className} />;
     case "publish":
       return <Publish className={className} />;
+    case "quaver":
+      return <Quaver className={className} />;
     case "redo":
       return <Redo className={className} />;
     case "reflection":
@@ -292,12 +328,18 @@ const Icon: React.SFC<IIconProps> = ({ name, className }) => {
       return <ResourceSound className={className} />;
     case "resource-video":
       return <ResourceVideo className={className} />;
+    case "robot":
+      return <Robot className={className} />;
     case "rotation":
       return <Rotation className={className} />;
     case "scale":
       return <Scale className={className} />;
     case "sphere":
       return <Sphere className={className} />;
+    case "semibreve":
+      return <Semibreve className={className} />;
+    case "semiquaver":
+      return <Semiquaver className={className} />;
     case "semiCylinder":
       return <SemiCylinder className={className} />;
     case "spinner":
@@ -330,8 +372,8 @@ const Icon: React.SFC<IIconProps> = ({ name, className }) => {
       return <ViewDocument className={className} />;
     case "logo-3d":
       return <Logo3D className={className} />;
-    case "logo-bloqs":
-      return <LogoBloqs className={className} />;
+    case "logo-robotics":
+      return <LogoRobotics className={className} />;
     case "logo-junior":
       return <LogoJunior className={className} />;
     case "logo-code":

@@ -1,25 +1,26 @@
 const webpack = require("webpack");
-const withTM = require("next-transpile-modules");
 const withWorkers = require("@zeit/next-workers");
 const { parsed: localEnv } = require("dotenv").config();
 const CopyPlugin = require("copy-webpack-plugin");
 const BorndatePackage = require("@bitbloq/borndate/package.json");
 
+const withTM = require("next-transpile-modules")([
+  "@bitbloq/api",
+  "@bitbloq/3d",
+  "@bitbloq/ui",
+  "@bitbloq/lib3d",
+  "@bitbloq/bloqs",
+  "@bitbloq/junior",
+  "@bitbloq/robotics",
+  "@bitbloq/code",
+  "react-dnd",
+  "react-dnd-html5-backend",
+  "dnd-core",
+  "monaco-editor"
+]);
+
 module.exports = withTM(
   withWorkers({
-    transpileModules: [
-      "@bitbloq/api",
-      "@bitbloq/3d",
-      "@bitbloq/ui",
-      "@bitbloq/lib3d",
-      "@bitbloq/bloqs",
-      "@bitbloq/junior",
-      "@bitbloq/code",
-      "react-dnd",
-      "dnd-core",
-      "monaco-editor"
-    ],
-
     webpack(config, options) {
       const { isServer } = options;
 

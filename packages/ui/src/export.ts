@@ -4,6 +4,9 @@ import Input from "./components/Input";
 import Select from "./components/Select";
 import ColorPicker from "./components/ColorPicker";
 import DialogModal, * as DialogModalModule from "./components/DialogModal";
+import Draggable from "./components/Draggable";
+import Droppable from "./components/Droppable";
+import DragAndDropProvider from "./components/DragAndDropProvider";
 import DropDown from "./components/DropDown";
 import Checkbox from "./components/Checkbox";
 import Tooltip from "./components/Tooltip";
@@ -15,11 +18,13 @@ import HorizontalRule from "./components/HorizontalRule";
 import TextArea from "./components/TextArea";
 import Option from "./components/Option";
 import * as MenuBar from "./components/MenuBar";
+import MelodyEditor, * as MelodyEditorModule from "./components/MelodyEditor";
 import Modal from "./components/Modal";
 import Spinner from "./components/Spinner";
 import ScrollableTabs from "./components/ScrollableTabs";
 import FileSelectButton from "./components/FileSelectButton";
 import LoadingBarOverlay from "./components/LoadingBarOverlay";
+import Tabs from "./components/Tabs";
 import TranslateProvider, {
   Translate,
   withTranslate,
@@ -29,6 +34,7 @@ import Layout from "./components/Layout";
 import JuniorButton from "./components/junior/Button";
 import JuniorSwitch from "./components/junior/Switch";
 import JuniorNumberInput from "./components/junior/NumberInput";
+import JuniorUpDownButton from "./components/junior/UpDownButton";
 import useKeyPressed from "./hooks/useKeyPressed";
 import baseStyles from "./base-styles";
 import colors from "./colors";
@@ -41,6 +47,9 @@ export {
   Select,
   ColorPicker,
   DialogModal,
+  Draggable,
+  Droppable,
+  DragAndDropProvider,
   DropDown,
   Checkbox,
   Tooltip,
@@ -54,7 +63,9 @@ export {
   TranslateProvider,
   FileSelectButton,
   LoadingBarOverlay,
+  Tabs,
   Translate,
+  MelodyEditor,
   Modal,
   Spinner,
   ScrollableTabs,
@@ -74,3 +85,4 @@ export type IDialogModalProps = DialogModalModule.IDialogModalProps;
 export type IMainMenuOption = MenuBar.IMainMenuOption;
 export type IDocumentProps = DocumentModule.IDocumentProps;
 export type IDocumentTab = DocumentModule.IDocumentTab;
+export type IMelodyNote = MelodyEditorModule.IMelodyNote;

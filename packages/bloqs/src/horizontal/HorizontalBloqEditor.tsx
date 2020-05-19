@@ -13,6 +13,7 @@ import {
   IBoard,
   IComponent,
   IComponentInstance,
+  IExtraData,
   BloqParameterType,
   isBloqSelectParameter,
   isBloqSelectComponentParameter
@@ -30,6 +31,8 @@ interface IHorizontalBloqEditorProps {
   components: IComponent[];
   externalUpload?: boolean;
   readOnly?: boolean;
+  extraData?: IExtraData;
+  onExtraDataChange?: (extraData: IExtraData) => void;
 }
 
 const HorizontalBloqEditor: React.FunctionComponent<
@@ -45,7 +48,9 @@ const HorizontalBloqEditor: React.FunctionComponent<
   board,
   components,
   externalUpload,
-  readOnly
+  readOnly,
+  extraData,
+  onExtraDataChange
 }) => {
   const [selectedLineIndex, setSelectedLine] = useState(-1);
   const [selectedBloqIndex, setSelectedBloq] = useState(-1);
@@ -86,8 +91,8 @@ const HorizontalBloqEditor: React.FunctionComponent<
               getComponents(bloqType.components || []) || [];
             const { name = "" } =
               compatibleComponents.sort((a, b) => {
-                const aPort = a.port || "";
-                const bPort = b.port || "";
+                const aPort = Object.values(a.ports || {})[0] || "";
+                const bPort = Object.values(b.ports || {})[0] || "";
                 const aIsNumber = !isNaN(parseInt(aPort, 10));
                 const bIsNumber = !isNaN(parseInt(bPort, 10));
 
@@ -298,6 +303,8 @@ const HorizontalBloqEditor: React.FunctionComponent<
         board={board}
         components={components}
         selectedLeft={selectedLeft}
+        extraData={extraData}
+        onExtraDataChange={onExtraDataChange}
       />
     </Container>
   );

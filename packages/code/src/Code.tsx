@@ -34,7 +34,6 @@ export interface ICodeRef {
 export interface ICodeProps {
   initialContent?: ICodeContent;
   onContentChange: (content: ICodeContent) => any;
-  chromeAppID: string;
   borndateFilesRoot: string;
   codeRef?: { current: ICodeRef | null };
 }
@@ -79,7 +78,7 @@ const parseErrors = (borndateErrors: any[]) =>
   });
 
 const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
-  { initialContent, onContentChange, chromeAppID, borndateFilesRoot, codeRef },
+  { initialContent, onContentChange, borndateFilesRoot, codeRef },
   ref
 ) => {
   const t = useTranslate();
@@ -127,9 +126,8 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
     }
   }));
 
-  const [upload, compile, uploadContent] = useCodeUpload({
-    filesRoot: borndateFilesRoot,
-    useBrowserUpload: true
+  const { upload, compile, uploadContent } = useCodeUpload({
+    filesRoot: borndateFilesRoot
   });
 
   const onAddNew = (type: string) => {

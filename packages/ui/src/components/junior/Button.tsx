@@ -4,6 +4,7 @@ import colors from "../../colors";
 
 export interface IButtonProps {
   secondary?: boolean;
+  tertiary?: boolean;
   red?: boolean;
   active?: boolean;
 }
@@ -34,8 +35,12 @@ const Button = styled.button<IButtonProps>`
       darkColor = colors.redPressed;
     } else if (props.secondary) {
       color = colors.black;
-      bgColor = "#eeeeee";
+      bgColor = "#ffffff";
       darkColor = "#dddddd";
+    } else if (props.tertiary) {
+      color = colors.black;
+      bgColor = "#ebebeb";
+      darkColor = "#c0c3c9";
     }
 
     return css`

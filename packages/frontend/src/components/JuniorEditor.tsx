@@ -2,7 +2,6 @@ import React from "react";
 import { Junior } from "@bitbloq/junior";
 import { Icon, useTranslate } from "@bitbloq/ui";
 import { IEditorProps } from "../types";
-import env from "../lib/env";
 import useDocumentContent from "../lib/useDocumentContent";
 
 const JuniorEditor: React.FunctionComponent<IEditorProps> = ({
@@ -28,8 +27,7 @@ const JuniorEditor: React.FunctionComponent<IEditorProps> = ({
       initialContent={initialContent || {}}
       onContentChange={onContentChange}
       uploadOptions={{
-        filesRoot: `${window.location.origin}/_next/static/borndate`,
-        useBrowserUpload: true
+        filesRoot: `${window.location.origin}/_next/static/borndate`
       }}
     >
       {({ hardware, software }) =>

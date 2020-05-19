@@ -51,6 +51,7 @@
     "react-dom": "^16.12.0",
     "react-select": "^2.1.2",
     "react-tether": "^2.0.0",
+    "tone": "^14",
     "uuid": "^3.3.3"
   },
   "publishConfig": {
