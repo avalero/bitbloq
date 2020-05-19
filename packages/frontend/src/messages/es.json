@@ -741,5 +741,19 @@
     "drag-board-here": "Arrastra una placa o un robot aquí",
     "hardware": "Hardware",
     "robots": "Robots"
+  },
+  "home": {
+    "sign-up": "Crear una cuenta",
+    "sign-in": "Entrar",
+    "belongs-to": "Bitbloq es un proyecto de: ",
+    "slogan": "La plataforma más completa para trabajar el diseño 3D, la programación y la robótica en el aula.",
+    "create-open": "Crea o abre un documento",
+    "coming-soon": "Próximamente",
+    "open-from-file": "Abrir documento desde archivo",
+    "open-from-file-text": "Abre cualquier documento de tipo .bitbloq que hayas guardado en tu ordenador.",
+    "go-to-exercise-step-1": "Pide a tu profesor el código del ejercicio que quieres hacer.",
+    "go-to-exercise-step-2": "Introduce el código y pulsa en “Empezar”.",
+    "exercise-code": "Código del ejercicio",
+    "invalid-code": "El código no es válido"
   }
 }

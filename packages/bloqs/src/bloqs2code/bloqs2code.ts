@@ -105,6 +105,7 @@ const bloqs2code = (
   program: IBloq[][],
   extraData: IExtraData = {}
 ) => {
+  // debugger;
   try {
     // adjust program
     const programFixed: IBloq[][] = adjustProgram(
