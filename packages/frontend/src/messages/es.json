@@ -1,4 +1,5 @@
 {
+  "start": "Empezar",
   "basic-shapes": "Formas básicas",
   "other-shapes": "Otras formas",
   "city-elements": "Elementos de ciudad",
@@ -741,5 +742,39 @@
     "drag-board-here": "Arrastra una placa o un robot aquí",
     "hardware": "Hardware",
     "robots": "Robots"
+  },
+  "home": {
+    "sign-up": "Crear una cuenta",
+    "sign-in": "Entrar",
+    "belongs-to": "Bitbloq es un proyecto de: ",
+    "slogan": "La plataforma más completa para trabajar el diseño 3D, la programación y la robótica en el aula.",
+    "create-open": "Crea o abre un documento",
+    "coming-soon": "Próximamente",
+    "open-from-file": "Abrir documento desde archivo",
+    "open-from-file-text": "Abre cualquier documento de tipo .bitbloq que hayas guardado en tu ordenador.",
+    "go-to-exercise-step-1": "Pide a tu profesor el código del ejercicio que quieres hacer.",
+    "go-to-exercise-step-2": "Introduce el código y pulsa en “Empezar”.",
+    "exercise-code": "Código del ejercicio",
+    "invalid-code": "El código no es válido"
+  },
+  "tools": {
+    "level-beginner": "Principiante",
+    "level-intermediate": "Medio",
+    "level-advanced": "Avanzado",
+    "junior-label": "Robótica Junior",
+    "junior-short-label": "Junior",
+    "junior-landing-text": "Da tus primeros pasos en la robótica con una programación por bloques sencilla e intuitiva.",
+    "robotica-label": "Robótica",
+    "robotica-short-label": "Robótica",
+    "robotica-landing-text": "Programa tus inventos por bloques y aprende los conceptos básicos de la programación.",
+    "arduino-label": "Código Arduino®",
+    "arduino-short-label": "Arduino®",
+    "arduino-landing-text": "Da el salto al código con Arduino®. Crea tus primeros programas y da vida a tus robots.",
+    "3d-label": "Diseño 3D",
+    "3d-short-label": "Diseño 3D",
+    "3d-landing-text": "Descubre las tres dimensiones, aprende geometría y convierte tus ideas en diseños.",
+    "apps-label": "Apps",
+    "apps-short-label": "Apps",
+    "apps-landing-text": "Empieza a diseñar y programar tus propias apps para Android®, iOS® o PC."
   }
 }

@@ -38,15 +38,12 @@ const IndexPage: NextPage = () => {
             <h1>
               <img src={logoBetaImage} alt="Bitbloq Beta" />
             </h1>
-            <p>
-              La plataforma más completa para trabajar el diseño 3D, la
-              programación y la robótica en el aula.
-            </p>
+            <p>{t("home.slogan")}</p>
           </Hero>
           <Tools>
             <h2>
               <Icon name="new-document" />
-              Crea o abre un documento
+              {t("home.create-open")}
             </h2>
             <ToolsList>
               {Object.keys(documentTypes)
@@ -56,9 +53,9 @@ const IndexPage: NextPage = () => {
                     <ToolIcon color={type.color}>
                       <Icon name={type.icon} />
                     </ToolIcon>
-                    <h3>{type.label}</h3>
-                    <ToolLevel>{type.level}</ToolLevel>
-                    <p>{type.landingText}</p>
+                    <h3>{t(type.label)}</h3>
+                    <ToolLevel>{t(type.level)}</ToolLevel>
+                    <p>{t(type.landingText)}</p>
                     {type.supported && (
                       <Button
                         {...{ [type.buttonType]: true }}
@@ -67,24 +64,23 @@ const IndexPage: NextPage = () => {
                         <PlusIcon>
                           <Icon name="plus" />
                         </PlusIcon>
-                        Nuevo documento
+                        {t("menu-new-document")}
                       </Button>
                     )}
-                    {!type.supported && <ComingSoon>Próximamente</ComingSoon>}
+                    {!type.supported && (
+                      <ComingSoon>{t("home.coming-soon")}</ComingSoon>
+                    )}
                   </Tool>
                 ))}
               <OpenDocumentPanel>
                 <OpenDocumentIcon color="white">
                   <Icon name="open-document" />
                 </OpenDocumentIcon>
-                <h3>Abrir documento desde archivo</h3>
-                <p>
-                  Abre cualquier documento de tipo .bitbloq que hayas guardado
-                  en tu ordenador.
-                </p>
+                <h3>{t("home.open-from-file")}</h3>
+                <p>{t("home.open-from-file-text")}</p>
                 <OpenDocumentButton quaternary onClick={() => onOpenDocument()}>
                   <Icon name="open-document" />
-                  Abrir documento
+                  {t("menu-open-document")}
                 </OpenDocumentButton>
               </OpenDocumentPanel>
             </ToolsList>
@@ -95,27 +91,26 @@ const IndexPage: NextPage = () => {
             <OpenExerciseInfo>
               <h2>
                 <Icon name="airplane-document" />
-                Ir a un ejercicio
+                {t("documents.go-to-exercise")}
               </h2>
               <OpenExerciseSteps>
                 <OpenExerciseStep>
                   <img src={studentStep1Image} />
-                  <p>
-                    1. Pide a tu profesor el código del ejercicio que quieres
-                    hacer.
-                  </p>
+                  <p>1. {t("home.go-to-exercise-step-1")}</p>
                 </OpenExerciseStep>
                 <OpenExerciseStep>
                   <img src={studentStep2Image} />
-                  <p>2. Introduce el código y pulsa en “Empezar”.</p>
+                  <p>2. {t("home.go-to-exercise-step-2")}</p>
                 </OpenExerciseStep>
               </OpenExerciseSteps>
             </OpenExerciseInfo>
             <OpenExercisePanel>
-              <OpenExercisePanelTitle>Ir al ejercicio</OpenExercisePanelTitle>
+              <OpenExercisePanelTitle>
+                {t("documents.go-to-exercise")}
+              </OpenExercisePanelTitle>
               <HorizontalRule small />
               <OpenExercisePanelContent>
-                <OpenExerciseForm openText="Empezar" />
+                <OpenExerciseForm openText={t("start")} />
               </OpenExercisePanelContent>
             </OpenExercisePanel>
           </OpenExercise>
