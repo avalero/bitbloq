@@ -76,9 +76,14 @@ const transformMusicBloq = (bloq: IBloq, extraData: IExtraData): IBloq[] => {
   melody.forEach(tone => {
     if (tone.note && tone.note !== "") {
       adjustedTimeLine.push(
-        createPlayToneBloq(tone.note, tone.duration * 1000)
+        createPlayToneBloq(
+          tone.note,
+          (tone.duration > 0 ? tone.duration : 0.5) * 1000 * 0.5
+        )
       );
-      adjustedTimeLine.push(createWaitBloq(tone.duration));
+      adjustedTimeLine.push(
+        createWaitBloq((tone.duration > 0 ? tone.duration : 0.5) * 0.5)
+      );
     }
   });
 
