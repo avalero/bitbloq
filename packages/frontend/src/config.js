@@ -16,26 +16,26 @@ const CreateDynamicComponent = (fn, loadingColor) =>
 
 export const documentTypes = {
   junior: {
-    label: "Robótica Junior",
-    shortLabel: "Junior",
+    label: "tools.junior-label",
+    shortLabel: "tools.junior-short-label",
     color: colors.brandOrange,
     buttonType: "orange",
     supported: ENABLED_TOOLS.includes("junior"),
     icon: "logo-junior",
-    level: "Principiante",
-    landingText: `Da tus primeros pasos en la robótica con una programación por bloques sencilla e intuitiva.`,
+    level: "tools.level-beginner",
+    landingText: "tools.junior-landing-text",
     editorComponent: CreateDynamicComponent(
       () => import("./components/JuniorEditor"),
       colors.brandOrange
     )
   },
   robotics: {
-    label: "Robótica",
-    shortLabel: "Robótica",
+    label: "tools.robotica-label",
+    shortLabel: "tools.robotica-short-label",
     color: colors.green,
     supported: ENABLED_TOOLS.includes("robotics"),
     icon: "logo-robotics",
-    level: "Medio",
+    level: "tools.level-intermediate",
     landingText:
       "Programa tus inventos por bloques y aprende los conceptos básicos de la programación.",
     editorComponent: CreateDynamicComponent(
@@ -44,14 +44,13 @@ export const documentTypes = {
     )
   },
   code: {
-    label: "Código Arduino®",
-    shortLabel: "Arduino®",
+    label: "tools.arduino-label",
+    shortLabel: "tools.arduino-short-label",
     color: colors.brandPink,
     buttonType: "pink",
     icon: "logo-code",
-    level: "Avanzado",
-    landingText:
-      "Da el salto al código con Arduino®. Crea tus primeros programas y da vida a tus robots.",
+    level: "tools.level-advanced",
+    landingText: "tools.arduino-landing-text",
     supported: ENABLED_TOOLS.includes("code"),
     editorComponent: CreateDynamicComponent(
       () => import("./components/CodeEditor"),
@@ -60,29 +59,27 @@ export const documentTypes = {
   },
   "3d": {
     acceptedResourcesTypes: [ResourcesTypes.object3D],
-    label: "Diseño 3D",
-    shortLabel: "Diseño 3D",
+    label: "tools.3d-label",
+    shortLabel: "tools.3d-short-label",
     color: colors.brandBlue,
     buttonType: "blue",
     supported: ENABLED_TOOLS.includes("3d"),
     icon: "logo-3d",
-    level: "Medio",
-    landingText:
-      "Descubre las tres dimensiones, aprende geometría y convierte tus ideas en diseños.",
+    level: "tools.level-intermediate",
+    landingText: "tools.3d-landing-text",
     editorComponent: CreateDynamicComponent(
       () => import("./components/ThreeDEditor"),
       colors.brandBlue
     )
   },
   apps: {
-    label: "Apps",
-    shortLabel: "Apps",
+    label: "tools.apps-label",
+    shortLabel: "tools.apps-short-label",
     color: colors.brandYellow,
     buttonType: "yellow",
     icon: "logo-apps",
-    level: "Avanzado",
-    landingText:
-      "Empieza a diseñar y programar tus propias apps para Android®, iOS® o PC.",
+    level: "tools.leve.-advanced",
+    landingText: "tools.apps-landing-text",
     supported: ENABLED_TOOLS.includes("apps")
   }
 };

@@ -53,9 +53,9 @@ const IndexPage: NextPage = () => {
                     <ToolIcon color={type.color}>
                       <Icon name={type.icon} />
                     </ToolIcon>
-                    <h3>{type.label}</h3>
-                    <ToolLevel>{type.level}</ToolLevel>
-                    <p>{type.landingText}</p>
+                    <h3>{t(type.label)}</h3>
+                    <ToolLevel>{t(type.level)}</ToolLevel>
+                    <p>{t(type.landingText)}</p>
                     {type.supported && (
                       <Button
                         {...{ [type.buttonType]: true }}
