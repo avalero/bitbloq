@@ -724,15 +724,15 @@
     "libraries": "Bibliotecas"
   },
   "music": {
-    "C4": "Do",
-    "D4": "Re",
-    "E4": "Mi",
-    "F4": "Fa",
-    "G4": "Sol",
-    "A4": "La",
-    "B4": "Si",
-    "C5": "Do'",
-    "D5": "Re'"
+    "NOTE_C4": "Do",
+    "NOTE_D4": "Re",
+    "NOTE_E4": "Mi",
+    "NOTE_F4": "Fa",
+    "NOTE_G4": "Sol",
+    "NOTE_A4": "La",
+    "NOTE_B4": "Si",
+    "NOTE_C5": "Do'",
+    "NOTE_D5": "Re'"
   },
   "robotics": {
     "bloqs": "Bloques",

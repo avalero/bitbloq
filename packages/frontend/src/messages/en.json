@@ -730,15 +730,15 @@
     }
   },
   "music": {
-    "G4": "G",
-    "B4": "B",
-    "C4": "B",
-    "D5": "D5",
-    "E4": "E4",
-    "D4": "D4",
-    "F4": "F4",
-    "C5": "C5",
-    "A4": "A4"
+    "NOTE_G4": "G",
+    "NOTE_B4": "B",
+    "NOTE_C4": "C",
+    "NOTE_D5": "D",
+    "NOTE_E4": "E",
+    "NOTE_D4": "D",
+    "NOTE_F4": "F",
+    "NOTE_C5": "C",
+    "NOTE_A4": "A"
   },
   "robotics": {
     "bloqs": "Blocks",

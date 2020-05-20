@@ -1,6 +1,6 @@
 import React, { FC } from "react";
 import styled from "@emotion/styled";
-import { Icon, colors } from "@bitbloq/ui";
+import { Icon, colors, useTranslate } from "@bitbloq/ui";
 
 export interface IOption {
   disabled?: boolean;
@@ -20,6 +20,7 @@ const DocumentCardMenu: FC<IDocumentCardMenuProps> = ({
   className,
   options = []
 }) => {
+  const t = useTranslate();
   return (
     <DocumentMenu className={className}>
       {options.map(
@@ -36,7 +37,7 @@ const DocumentCardMenu: FC<IDocumentCardMenuProps> = ({
             >
               <p>
                 {option.iconName && <MenuIcon name={option.iconName} />}
-                {option.label}
+                {t(option.label)}
               </p>
             </DocumentMenuOption>
           )
