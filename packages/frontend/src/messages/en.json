@@ -721,12 +721,12 @@
     "libraries": "Libraries",
     "boards": {
       "zumcore": "Zum Core",
-      "megar3": "Arduino Mega 2560 R3",
+      "megar3": "Arduino® Mega 2560 R3",
       "unor3": "Arduino Uno R3",
-      "uno": "Arduino Uno",
+      "uno": "Arduino® Uno",
       "zumjunior": "ZumJunior",
       "zumcore2": "ZumCore 2",
-      "mega": "Arduino Mega 2560"
+      "mega": "Arduino® Mega 2560"
     }
   },
   "music": {
@@ -762,5 +762,26 @@
     "open-from-file-text": "Open any .bitbloq document you have previously saved on your computer",
     "exercise-code": "Excercise Code",
     "invalid-code": "Invalid code"
+  },
+  "start": "Start",
+  "tools": {
+    "level-beginner": "Beginner",
+    "level-intermediate": "Intermediate",
+    "level-advanced": "Advanced",
+    "junior-label": "Robotics Junior",
+    "junior-short-label": "Junior",
+    "robotica-label": "Robotics",
+    "junior-landing-text": "tools.junior-landing-text",
+    "robotica-landing-text": "tools.robotica-landing-text",
+    "robotica-short-label": "Robotics",
+    "arduino-landing-text": "tools.arduino-landing-text",
+    "3d-label": "3D design",
+    "arduino-label": "Arduino® Code",
+    "arduino-short-label": "Arduino®",
+    "3d-landing-text": "tools.3d-landing-text",
+    "3d-short-label": "3D design",
+    "apps-label": "Apps",
+    "apps-landing-text": "tools.apps-landing-text",
+    "apps-short-label": "Apps"
   }
 }
