@@ -78,11 +78,11 @@ const transformMusicBloq = (bloq: IBloq, extraData: IExtraData): IBloq[] => {
       adjustedTimeLine.push(
         createPlayToneBloq(
           tone.note,
-          (tone.duration > 0 ? tone.duration : 0.5) * 1000 * 0.5
+          (tone.duration > 0 ? tone.duration : 0.5) * 1000 * 0.3
         )
       );
       adjustedTimeLine.push(
-        createWaitBloq((tone.duration > 0 ? tone.duration : 0.5) * 0.5)
+        createWaitBloq((tone.duration > 0 ? tone.duration : 0.5) * 0.3)
       );
     }
   });
