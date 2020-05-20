@@ -36,6 +36,56 @@ const getDate = (): string => {
 };
 
 /**
+ * Transforms a Music bloq into a set of bloqs consisting of playTone and Wait Bloqs
+ * @param bloq the music bloq
+ * @param extraData the melodies array
+ */
+const transformMusicBloq = (bloq: IBloq, extraData: IExtraData): IBloq[] => {
+  if (bloq.type !== "Music") {
+    return [bloq];
+  }
+
+  if (!extraData || !extraData.melodies) {
+    throw new Error("No melodies extradata");
+  }
+
+  const createWaitBloq = (time: number): IBloq => {
+    const waitBloq: IBloq = {
+      type: "WaitSeconds",
+      parameters: {
+        value: time
+      }
+    };
+    return waitBloq;
+  };
+
+  const createPlayToneBloq = (tone: string, time: number): IBloq => {
+    const playToneBloq: IBloq = {
+      type: "PlayTone",
+      parameters: {
+        tone,
+        time
+      }
+    };
+    return playToneBloq;
+  };
+
+  const melody = extraData.melodies[bloq.parameters.melodyIndex];
+
+  const adjustedTimeLine: IBloq[] = [];
+  melody.forEach(tone => {
+    if (tone.note && tone.note !== "") {
+      adjustedTimeLine.push(
+        createPlayToneBloq(tone.note, tone.duration * 1000)
+      );
+      adjustedTimeLine.push(createWaitBloq(tone.duration));
+    }
+  });
+
+  return adjustedTimeLine;
+};
+
+/**
  * Removes empty timelines
  * Splits timelines with WaitForMessage bloqs in new timelines.
  * @param program original program
@@ -43,7 +93,8 @@ const getDate = (): string => {
  */
 const adjustProgram = (
   program: IBloq[][],
-  bloqTypes: Array<Partial<IBloqType>>
+  bloqTypes: Array<Partial<IBloqType>>,
+  extraData: IExtraData
 ): IBloq[][] => {
   const waitMessage2EventMessage = (wait: IBloq): IBloq => {
     return {
@@ -73,6 +124,23 @@ const adjustProgram = (
 
     return result;
   });
+
+  // transform Music bloqs
+
+  adjustedProgram = adjustedProgram.map(timeline => {
+    timeline = timeline.flatMap(bloq => {
+      let result: IBloq[];
+      result =
+        bloq.type === "Music"
+          ? transformMusicBloq(bloq, extraData) // transform bloq
+          : [bloq];
+
+      return result;
+    });
+
+    return timeline;
+  });
+
   return adjustedProgram;
 };
 
@@ -105,12 +173,12 @@ const bloqs2code = (
   program: IBloq[][],
   extraData: IExtraData = {}
 ) => {
-  // debugger;
   try {
     // adjust program
     const programFixed: IBloq[][] = adjustProgram(
       cloneDeep(program),
-      bloqTypes
+      bloqTypes,
+      extraData
     );
 
     const board: IBoard = getBoardDefinition(boards, hardware);

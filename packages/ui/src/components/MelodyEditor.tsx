@@ -16,18 +16,28 @@ export interface IMelodyEditor {
   noteLabels?: { [note: string]: string };
 }
 
-const allNotes = ["D5", "C5", "B4", "A4", "G4", "F4", "E4", "D4", "C4"];
+const allNotes = [
+  "NOTE_D5",
+  "NOTE_C5",
+  "NOTE_B4",
+  "NOTE_A4",
+  "NOTE_G4",
+  "NOTE_F4",
+  "NOTE_E4",
+  "NOTE_D4",
+  "NOTE_C4"
+];
 
 const noteColors = {
-  D5: "#e10a98",
-  C5: "#790cd7",
-  B4: "#114698",
-  A4: "#0094cf",
-  G4: "#00c1c7",
-  F4: "#59b52e",
-  E4: "#d8af31",
-  D4: "#dd5b0c",
-  C4: "#ce1c23"
+  NOTE_D5: "#e10a98",
+  NOTE_C5: "#790cd7",
+  NOTE_B4: "#114698",
+  NOTE_A4: "#0094cf",
+  NOTE_G4: "#00c1c7",
+  NOTE_F4: "#59b52e",
+  NOTE_E4: "#d8af31",
+  NOTE_D4: "#dd5b0c",
+  NOTE_C4: "#ce1c23"
 };
 
 const toneDurations = ["16n", "8n", "4n", "2n", "1n"];
@@ -53,7 +63,7 @@ const MelodyEditor: FC<IMelodyEditor> = ({ notes, onChange, noteLabels }) => {
   const [scrollPosition, setScrollPosition] = useState(0);
 
   useEffect(() => {
-    import("tone").then(module => toneRef.current = module);
+    import("tone").then(module => (toneRef.current = module));
   }, []);
 
   const updateWidth = () => {
@@ -135,8 +145,11 @@ const MelodyEditor: FC<IMelodyEditor> = ({ notes, onChange, noteLabels }) => {
     if (noteIndex >= 0 && noteIndex < notes.length) {
       const currentNote = notes[noteIndex];
       const duration = toneDurations[currentNote.duration];
-      if (currentNote.note) {
-        synthRef.current.triggerAttackRelease(currentNote.note, duration);
+      if (currentNote.note && currentNote.note.length > "NOTE_".length) {
+        synthRef.current.triggerAttackRelease(
+          currentNote.note.substring("NOTE_".length), // remove NOTE_ prefix
+          duration
+        );
       }
 
       playTimeout.current = window.setTimeout(() => {

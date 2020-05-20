@@ -60,7 +60,7 @@ const NewDocumentButton: FC<INewDocumentButtonProps> = ({
                   <Icon name={documentTypes[type].icon} />
                 </NewDocumentOptionIcon>
                 <NewDocumentLabel>
-                  {documentTypes[type].label}
+                  {t(documentTypes[type].label)}
                   {!documentTypes[type].supported && (
                     <ComingSoon>{t("home.coming-soon")}</ComingSoon>
                   )}

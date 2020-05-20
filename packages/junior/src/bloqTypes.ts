@@ -587,6 +587,15 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   },
   {
     category: BloqCategory.Action,
+    name: "PlayTone",
+    components: [],
+    code: {},
+    genCode: {
+      definitions: ["zumJunior.playTone({{tone}}, {{time}} );"]
+    }
+  },
+  {
+    category: BloqCategory.Action,
     name: "ContRotServo",
     label: "bloq-cr-servo",
     components: ["ContRotServo"],
