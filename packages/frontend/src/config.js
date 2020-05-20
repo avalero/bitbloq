@@ -78,7 +78,7 @@ export const documentTypes = {
     color: colors.brandYellow,
     buttonType: "yellow",
     icon: "logo-apps",
-    level: "tools.leve.-advanced",
+    level: "tools.level-advanced",
     landingText: "tools.apps-landing-text",
     supported: ENABLED_TOOLS.includes("apps")
   }
