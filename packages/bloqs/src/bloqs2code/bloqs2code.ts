@@ -81,10 +81,10 @@ const transformMusicBloq = (bloq: IBloq, extraData: IExtraData): IBloq[] => {
           (tone.duration > 0 ? tone.duration : 0.5) * 1000 * 0.3
         )
       );
-      adjustedTimeLine.push(
-        createWaitBloq((tone.duration > 0 ? tone.duration : 0.5) * 0.3)
-      );
     }
+    adjustedTimeLine.push(
+      createWaitBloq((tone.duration > 0 ? tone.duration : 0.5) * 0.3)
+    );
   });
 
   return adjustedTimeLine;
