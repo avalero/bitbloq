@@ -41,8 +41,20 @@ const getDate = (): string => {
  * @param extraData the melodies array
  */
 const transformMusicBloq = (bloq: IBloq, extraData: IExtraData): IBloq[] => {
+  const createMuteBloq = (): IBloq => {
+    const muteBloq: IBloq = {
+      type: "MuteTone",
+      parameters: {}
+    };
+    return muteBloq;
+  };
+
   if (bloq.type !== "Music") {
     return [bloq];
+  }
+
+  if (bloq.parameters.melody === "stop") {
+    return [createMuteBloq()];
   }
 
   if (!extraData || !extraData.melodies) {
