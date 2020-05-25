@@ -768,10 +768,10 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     label: "bloq-music",
     components: ["Buzzer"],
     iconSwitch: {
-      "melody === '0'": music1Icon,
-      "melody === '1'": music2Icon,
-      "melody === '2'": music3Icon,
-      "melody === 'stop'": musicStopIcon,
+      "melodyIndex === '0'": music1Icon,
+      "melodyIndex === '1'": music2Icon,
+      "melodyIndex === '2'": music3Icon,
+      "melodyIndex === 'stop'": musicStopIcon,
       true: musicIcon
     },
     configurationComponent: "MusicConfiguration",
