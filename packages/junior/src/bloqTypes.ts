@@ -593,18 +593,18 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       globals: ["bool ___mute = false;"]
     },
     genCode: {
-      definitions: ["if(!___mute) zumJunior.playTone({{tone}}, {{time}} );"]
+      definitions: ["if(!___stop) zumJunior.playTone({{tone}}, {{time}} );"]
     }
   },
   {
     category: BloqCategory.Action,
-    name: "MuteTone",
+    name: "StopMelody",
     components: [],
     code: {
-      globals: ["bool ___mute = false;"]
+      globals: ["bool ___stop = false;"]
     },
     genCode: {
-      definitions: ["___mute = !___mute;"]
+      definitions: ["___stop = {{stop}};"]
     }
   },
   {
