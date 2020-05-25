@@ -41,10 +41,12 @@ const getDate = (): string => {
  * @param extraData the melodies array
  */
 const transformMusicBloq = (bloq: IBloq, extraData: IExtraData): IBloq[] => {
-  const createMuteBloq = (): IBloq => {
+  const createStopMelodyBloq = (stop: string): IBloq => {
     const muteBloq: IBloq = {
-      type: "MuteTone",
-      parameters: {}
+      type: "StopMelody",
+      parameters: {
+        stop
+      }
     };
     return muteBloq;
   };
@@ -54,14 +56,14 @@ const transformMusicBloq = (bloq: IBloq, extraData: IExtraData): IBloq[] => {
   }
 
   if (bloq.parameters.melody === "stop") {
-    return [createMuteBloq()];
+    return [createStopMelodyBloq("true")];
   }
 
   if (!extraData || !extraData.melodies) {
     throw new Error("No melodies extradata");
   }
 
-  const createWaitBloq = (time: number): IBloq => {
+  const createWaitBloq = (time: string): IBloq => {
     const waitBloq: IBloq = {
       type: "WaitSeconds",
       parameters: {
@@ -71,7 +73,7 @@ const transformMusicBloq = (bloq: IBloq, extraData: IExtraData): IBloq[] => {
     return waitBloq;
   };
 
-  const createPlayToneBloq = (tone: string, time: number): IBloq => {
+  const createPlayToneBloq = (tone: string, time: string): IBloq => {
     const playToneBloq: IBloq = {
       type: "PlayTone",
       parameters: {
@@ -87,18 +89,17 @@ const transformMusicBloq = (bloq: IBloq, extraData: IExtraData): IBloq[] => {
   const adjustedTimeLine: IBloq[] = [];
   melody.forEach(tone => {
     if (tone.note && tone.note !== "") {
+      const toneDuration =
+        (tone.duration > 0 ? tone.duration : 0.5) * 1000 * 0.3;
       adjustedTimeLine.push(
-        createPlayToneBloq(
-          tone.note,
-          (tone.duration > 0 ? tone.duration : 0.5) * 1000 * 0.3
-        )
+        createPlayToneBloq(tone.note, `!___stop * ${toneDuration}`)
       );
     }
-    adjustedTimeLine.push(
-      createWaitBloq((tone.duration > 0 ? tone.duration : 0.5) * 0.3)
-    );
+    const waitDuration = (tone.duration > 0 ? tone.duration : 0.5) * 0.3;
+    adjustedTimeLine.push(createWaitBloq(`!___stop * ${waitDuration}`));
   });
 
+  adjustedTimeLine.push(createStopMelodyBloq("false"));
   return adjustedTimeLine;
 };
 
