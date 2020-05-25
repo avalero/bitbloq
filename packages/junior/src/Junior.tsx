@@ -102,6 +102,13 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
     }
   }, [content]);
 
+  useEffect(() => {
+    if (content !== initialContent) {
+      onContentChange(initialContent);
+      updateContent(initialContent);
+    }
+  }, [initialContent]);
+
   const board: IBoard = getBoardDefinition(boards, hardware);
   if (hardware.components.length === 0) {
     // Add board integrated components to hardware list
