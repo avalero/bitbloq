@@ -270,16 +270,22 @@ const GridExercise: FC<IGridExerciseProps> = ({
           availableBloqs[type] - bloqsInUse.filter(a => a.type === type).length;
         return number ? { ...filtered, [type]: number } : filtered;
       }, {});
+  const filteredListBloqs =
+    availableBloqs &&
+    Object.keys(availableBloqs).reduce((filtered, type) => {
+      const number =
+        availableBloqs[type] - bloqsInUse.filter(a => a.type === type).length;
+      return number ? { ...filtered, [type]: number } : filtered;
+    }, {});
 
   return (
     <Container className={className}>
       <ContentWrap>
         <Content>
           {children}
-          {filteredAvailableBloqs &&
-            Object.keys(filteredAvailableBloqs).length > 0 && (
-              <BloqsList bloqs={filteredAvailableBloqs} />
-            )}
+          {filteredListBloqs && Object.keys(filteredListBloqs).length > 0 && (
+            <BloqsList bloqs={filteredListBloqs} />
+          )}
         </Content>
         {onChange && filteredAvailableBloqs && (
           <AddBloqPanel
