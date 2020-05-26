@@ -68,34 +68,34 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     label: "bloq-on-start",
     icon: startLoopIcon,
     iconSwitch: {
-      "type === 'loop'": startLoopIcon,
       "type === 'times' and times === 1": start1TimeIcon,
       "type === 'times' and times === 2": start2TimesIcon,
       "type === 'times' and times === 5": start5TimesIcon,
-      "type === 'times' and times === 10": start10TimesIcon
+      "type === 'times' and times === 10": start10TimesIcon,
+      "type === 'loop'": startLoopIcon
     },
     configurationComponent: "StartConfiguration",
     parameters: [
+      {
+        name: "times",
+        label: "bloq-parameter-start-times",
+        type: BloqParameterType.Number,
+        defaultValue: 1
+      },
       {
         name: "type",
         label: "bloq-parameter-start-type",
         type: BloqParameterType.Select,
         options: [
           {
-            label: "bloq-parameter-start-loop",
-            value: "loop"
-          },
-          {
             label: "bloq-parameter-start-times",
             value: "times"
+          },
+          {
+            label: "bloq-parameter-start-loop",
+            value: "loop"
           }
         ]
-      },
-      {
-        name: "times",
-        label: "bloq-parameter-start-times",
-        type: BloqParameterType.Number,
-        defaultValue: 1
       }
     ],
     genCode: {
