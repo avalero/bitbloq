@@ -590,10 +590,12 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     name: "PlayTone",
     components: [],
     code: {
-      globals: ["bool ___mute = false;"]
+      globals: ["bool ___stop = false;", "bool ___playing = false;"]
     },
     genCode: {
-      definitions: ["if(!___stop) zumJunior.playTone({{tone}}, {{time}} );"]
+      definitions: [
+        "if(!___stop){ ___playing = true; zumJunior.playTone({{tone}}, {{time}} );}"
+      ]
     }
   },
   {
@@ -601,10 +603,18 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     name: "StopMelody",
     components: [],
     code: {
-      globals: ["bool ___stop = false;"]
+      globals: ["bool ___stop = false;", "bool ___playing = false;"]
     },
     genCode: {
-      definitions: ["___stop = {{stop}};"]
+      definitions: ["if(___playing) ___stop = {{stop}};"]
+    }
+  },
+  {
+    category: BloqCategory.Action,
+    name: "PlayMelody",
+    components: [],
+    genCode: {
+      definitions: ["___playing = {{playing}};"]
     }
   },
   {
