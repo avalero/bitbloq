@@ -51,6 +51,16 @@ const transformMusicBloq = (bloq: IBloq, extraData: IExtraData): IBloq[] => {
     return muteBloq;
   };
 
+  const createPlayMelodyBloq = (playing: string): IBloq => {
+    const muteBloq: IBloq = {
+      type: "PlayMelody",
+      parameters: {
+        playing
+      }
+    };
+    return muteBloq;
+  };
+
   if (bloq.type !== "Music") {
     return [bloq];
   }
@@ -63,6 +73,7 @@ const transformMusicBloq = (bloq: IBloq, extraData: IExtraData): IBloq[] => {
     throw new Error("No melodies extradata");
   }
 
+  // time in seconds
   const createWaitBloq = (time: string): IBloq => {
     const waitBloq: IBloq = {
       type: "WaitSeconds",
@@ -86,7 +97,11 @@ const transformMusicBloq = (bloq: IBloq, extraData: IExtraData): IBloq[] => {
 
   const melody = extraData.melodies[bloq.parameters.melodyIndex];
 
-  const adjustedTimeLine: IBloq[] = [];
+  const adjustedTimeLine: IBloq[] = [
+    // createStopMelodyBloq("true"), // stop if any other melody is playing
+    // createWaitBloq("0.005"),
+    // createStopMelodyBloq("false"),
+  ];
   melody.forEach(tone => {
     if (tone.note && tone.note !== "") {
       const toneDuration =
@@ -100,6 +115,8 @@ const transformMusicBloq = (bloq: IBloq, extraData: IExtraData): IBloq[] => {
   });
 
   adjustedTimeLine.push(createStopMelodyBloq("false"));
+  adjustedTimeLine.push(createPlayMelodyBloq("false"));
+
   return adjustedTimeLine;
 };
 

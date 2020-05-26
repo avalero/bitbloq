@@ -470,6 +470,7 @@ export const components: Array<Partial<IComponent>> = [
         BQ::ZUM::I2CALPSSensor {{pin.pinVarName}}ALPS({{pin.pinVarName}});
         BQ::ZUM::I2CColorSensor {{pin.pinVarName}}Color({{pin.pinVarName}});
         BQ::ZUM::I2CTempSensor {{pin.pinVarName}}Temp({{pin.pinVarName}});
+        uint8_t ___tempThreshold{{pin.pinVarName}}Temp;
         {% endfor %}`
       ],
       setup: [
@@ -477,6 +478,7 @@ export const components: Array<Partial<IComponent>> = [
         {{pin.pinVarName}}ALPS.setup();
         {{pin.pinVarName}}Color.setup();
         {{pin.pinVarName}}Temp.setup();
+        ___tempThreshold{{pin.pinVarName}}Temp = {{pin.pinVarName}}Temp.getTemp();
         {% endfor %}`
       ]
     }

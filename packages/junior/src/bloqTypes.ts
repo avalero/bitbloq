@@ -503,7 +503,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       "value === 'cold'": temperatureColdIcon
     },
     conditionCode:
-      '{{component}}i2cTemp.getTemp() {{ ">=25" | safe if (value === "hot") else "<25" | safe}}',
+      '{{component}}i2cTemp.getTemp() {{ ">= ___tempThreshold{{component}}i2cTemp" | safe if (value === "hot") else "< ___tempThreshold{{component}}i2cTemp" | safe}}',
     configurationComponent: "TemperatureConfiguration",
     components: ["ZumjuniorMultiSensor"],
     parameters: [
@@ -590,10 +590,12 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     name: "PlayTone",
     components: [],
     code: {
-      globals: ["bool ___mute = false;"]
+      globals: ["bool ___stop = false;", "bool ___playing = false;"]
     },
     genCode: {
-      definitions: ["if(!___stop) zumJunior.playTone({{tone}}, {{time}} );"]
+      definitions: [
+        "if(!___stop){ ___playing = true; zumJunior.playTone({{tone}}, {{time}} );}"
+      ]
     }
   },
   {
@@ -601,10 +603,18 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     name: "StopMelody",
     components: [],
     code: {
-      globals: ["bool ___stop = false;"]
+      globals: ["bool ___stop = false;", "bool ___playing = false;"]
     },
     genCode: {
-      definitions: ["___stop = {{stop}};"]
+      definitions: ["if(___playing) ___stop = {{stop}};"]
+    }
+  },
+  {
+    category: BloqCategory.Action,
+    name: "PlayMelody",
+    components: [],
+    genCode: {
+      definitions: ["___playing = {{playing}};"]
     }
   },
   {
@@ -1107,7 +1117,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       "value === 'hot'": temperatureHotIcon
     },
     conditionCode:
-      '{{component}}i2cTemp.getTemp() {{ ">=25" | safe if (value === "hot") else "<25" | safe}}',
+      '{{component}}i2cTemp.getTemp() {{ ">=___tempThreshold{{component}}i2cTemp" | safe if (value === "hot") else "< ___tempThreshold{{component}}i2cTemp" | safe}}',
     configurationComponent: "TemperatureConfiguration",
     components: ["ZumjuniorMultiSensor"],
     parameters: [
