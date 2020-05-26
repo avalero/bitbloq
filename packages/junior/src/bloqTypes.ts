@@ -503,7 +503,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       "value === 'cold'": temperatureColdIcon
     },
     conditionCode:
-      '{{component}}i2cTemp.getTemp() {{ ">=25" | safe if (value === "hot") else "<25" | safe}}',
+      '{{component}}i2cTemp.getTemp() {{ ">= ___tempThreshold{{component}}i2cTemp" | safe if (value === "hot") else "< ___tempThreshold{{component}}i2cTemp" | safe}}',
     configurationComponent: "TemperatureConfiguration",
     components: ["ZumjuniorMultiSensor"],
     parameters: [
@@ -1117,7 +1117,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       "value === 'hot'": temperatureHotIcon
     },
     conditionCode:
-      '{{component}}i2cTemp.getTemp() {{ ">=25" | safe if (value === "hot") else "<25" | safe}}',
+      '{{component}}i2cTemp.getTemp() {{ ">=___tempThreshold{{component}}i2cTemp" | safe if (value === "hot") else "< ___tempThreshold{{component}}i2cTemp" | safe}}',
     configurationComponent: "TemperatureConfiguration",
     components: ["ZumjuniorMultiSensor"],
     parameters: [
