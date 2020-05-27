@@ -65,7 +65,7 @@ const transformMusicBloq = (bloq: IBloq, extraData: IExtraData): IBloq[] => {
     return [bloq];
   }
 
-  if (bloq.parameters.melody === "stop") {
+  if (bloq.parameters.melodyIndex === "stop") {
     return [createStopMelodyBloq("true")];
   }
 
