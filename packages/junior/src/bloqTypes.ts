@@ -872,7 +872,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   },
   {
     category: BloqCategory.Action,
-    name: "sendMessageA",
+    name: "sendMessage",
     label: "bloq-send-message",
     iconSwitch: {
       "value === 'messageA'": sendAIcon,
@@ -1262,6 +1262,14 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     code: {}
   },
   {
+    category: BloqCategory.Action,
+    name: "RemoveMessage",
+    components: [],
+    genCode: {
+      definitions: ["___{{value}} = false;"]
+    }
+  },
+  {
     category: BloqCategory.Wait,
     name: "WaitMessage",
     extends: "WaitParent",
@@ -1280,14 +1288,14 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         "bool ___messageC = false;",
         "bool ___messageD = false;",
         "bool ___messageE = false;"
-      ],
-      endloop: [
-        "___messageA = false;",
-        "___messageB = false;",
-        "___messageC = false;",
-        "___messageD = false;",
-        "___messageE = false;"
       ]
+      // endloop: [
+      //   "___messageA = false;",
+      //   "___messageB = false;",
+      //   "___messageC = false;",
+      //   "___messageD = false;",
+      //   "___messageE = false;"
+      // ]
     },
     conditionCode: "___{{value}}",
     configurationComponent: "ReceiveMessageConfiguration",
