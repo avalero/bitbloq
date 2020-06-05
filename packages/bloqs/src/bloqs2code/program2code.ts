@@ -232,10 +232,10 @@ const program2code = (
       arduinoCode.definitions!.push(
         `
           if(onStartForEver${timelineFlagName}){
-            ${timelineFunctionName}();
+            heap.insert(${timelineFunctionName},0);
           }else if(onStartLoopTimes${timelineFlagName} > 1){
             onStartLoopTimes${timelineFlagName}--;
-            ${timelineFunctionName}();
+            heap.insert(${timelineFunctionName},0);
           }else{
             ${timelineFlagName}=false;
           }
