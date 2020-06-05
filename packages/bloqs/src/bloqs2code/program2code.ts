@@ -183,7 +183,6 @@ const program2code = (
       switch (bloqDefinition.category) {
         case BloqCategory.Wait:
         case BloqCategory.Event:
-          // debugger;
           functionName = `func_${++functionNameIndex}`;
           if (bloqDefinition.category === BloqCategory.Event) {
             timelineFunctionName = functionName;
@@ -233,10 +232,10 @@ const program2code = (
       arduinoCode.definitions!.push(
         `
           if(onStartForEver${timelineFlagName}){
-            ${timelineFunctionName}();
+            heap.insert(${timelineFunctionName},0);
           }else if(onStartLoopTimes${timelineFlagName} > 1){
             onStartLoopTimes${timelineFlagName}--;
-            ${timelineFunctionName}();
+            heap.insert(${timelineFunctionName},0);
           }else{
             ${timelineFlagName}=false;
           }

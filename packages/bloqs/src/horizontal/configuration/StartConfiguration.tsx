@@ -26,11 +26,11 @@ const StartConfiguration: FC<IStartConfigurationProps> = ({
   return (
     <JuniorSwitch
       buttons={[
-        { content: <ButtonIcon src={StartLoopIcon} />, id: "loop" },
         { content: <ButtonIcon src={Start1TimeIcon} />, id: "1" },
         { content: <ButtonIcon src={Start2TimesIcon} />, id: "2" },
         { content: <ButtonIcon src={Start5TimesIcon} />, id: "5" },
-        { content: <ButtonIcon src={Start10TimesIcon} />, id: "10" }
+        { content: <ButtonIcon src={Start10TimesIcon} />, id: "10" },
+        { content: <ButtonIcon src={StartLoopIcon} />, id: "loop" }
       ]}
       value={type === "loop" ? "loop" : times.toString()}
       onChange={value => {

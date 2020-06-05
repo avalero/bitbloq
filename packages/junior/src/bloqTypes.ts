@@ -68,34 +68,34 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     label: "bloq-on-start",
     icon: startLoopIcon,
     iconSwitch: {
-      "type === 'loop'": startLoopIcon,
       "type === 'times' and times === 1": start1TimeIcon,
       "type === 'times' and times === 2": start2TimesIcon,
       "type === 'times' and times === 5": start5TimesIcon,
-      "type === 'times' and times === 10": start10TimesIcon
+      "type === 'times' and times === 10": start10TimesIcon,
+      "type === 'loop'": startLoopIcon
     },
     configurationComponent: "StartConfiguration",
     parameters: [
+      {
+        name: "times",
+        label: "bloq-parameter-start-times",
+        type: BloqParameterType.Number,
+        defaultValue: 1
+      },
       {
         name: "type",
         label: "bloq-parameter-start-type",
         type: BloqParameterType.Select,
         options: [
           {
-            label: "bloq-parameter-start-loop",
-            value: "loop"
-          },
-          {
             label: "bloq-parameter-start-times",
             value: "times"
+          },
+          {
+            label: "bloq-parameter-start-loop",
+            value: "loop"
           }
         ]
-      },
-      {
-        name: "times",
-        label: "bloq-parameter-start-times",
-        type: BloqParameterType.Number,
-        defaultValue: 1
       }
     ],
     genCode: {
@@ -503,7 +503,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       "value === 'cold'": temperatureColdIcon
     },
     conditionCode:
-      '{{component}}i2cTemp.getTemp() {{ ">=25" | safe if (value === "hot") else "<25" | safe}}',
+      '{{component}}i2cTemp.getTemp() {{ ">= ___tempThreshold{{component}}i2cTemp" | safe if (value === "hot") else "< ___tempThreshold{{component}}i2cTemp" | safe}}',
     configurationComponent: "TemperatureConfiguration",
     components: ["ZumjuniorMultiSensor"],
     parameters: [
@@ -583,6 +583,38 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       definitions: [
         'digitalWrite({{component}}{{led}}Pin, {{"LOW" if(value === "on") else "HIGH"}});'
       ]
+    }
+  },
+  {
+    category: BloqCategory.Action,
+    name: "PlayTone",
+    components: [],
+    code: {
+      globals: ["bool ___stop = false;", "bool ___playing = false;"]
+    },
+    genCode: {
+      definitions: [
+        "if(!___stop){ ___playing = true; zumJunior.playTone({{tone}}, {{time}} );}"
+      ]
+    }
+  },
+  {
+    category: BloqCategory.Action,
+    name: "StopMelody",
+    components: [],
+    code: {
+      globals: ["bool ___stop = false;", "bool ___playing = false;"]
+    },
+    genCode: {
+      definitions: ["if(___playing) ___stop = {{stop}};"]
+    }
+  },
+  {
+    category: BloqCategory.Action,
+    name: "PlayMelody",
+    components: [],
+    genCode: {
+      definitions: ["___playing = {{playing}};"]
     }
   },
   {
@@ -746,10 +778,10 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     label: "bloq-music",
     components: ["Buzzer"],
     iconSwitch: {
-      "melody === '0'": music1Icon,
-      "melody === '1'": music2Icon,
-      "melody === '2'": music3Icon,
-      "melody === 'stop'": musicStopIcon,
+      "melodyIndex === '0'": music1Icon,
+      "melodyIndex === '1'": music2Icon,
+      "melodyIndex === '2'": music3Icon,
+      "melodyIndex === 'stop'": musicStopIcon,
       true: musicIcon
     },
     configurationComponent: "MusicConfiguration",
@@ -840,7 +872,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   },
   {
     category: BloqCategory.Action,
-    name: "sendMessageA",
+    name: "sendMessage",
     label: "bloq-send-message",
     iconSwitch: {
       "value === 'messageA'": sendAIcon,
@@ -1085,7 +1117,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       "value === 'hot'": temperatureHotIcon
     },
     conditionCode:
-      '{{component}}i2cTemp.getTemp() {{ ">=25" | safe if (value === "hot") else "<25" | safe}}',
+      '{{component}}i2cTemp.getTemp() {{ ">=___tempThreshold{{component}}i2cTemp" | safe if (value === "hot") else "< ___tempThreshold{{component}}i2cTemp" | safe}}',
     configurationComponent: "TemperatureConfiguration",
     components: ["ZumjuniorMultiSensor"],
     parameters: [
@@ -1230,6 +1262,14 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     code: {}
   },
   {
+    category: BloqCategory.Action,
+    name: "RemoveMessage",
+    components: [],
+    genCode: {
+      definitions: ["___{{value}} = false;"]
+    }
+  },
+  {
     category: BloqCategory.Wait,
     name: "WaitMessage",
     extends: "WaitParent",
@@ -1248,14 +1288,14 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         "bool ___messageC = false;",
         "bool ___messageD = false;",
         "bool ___messageE = false;"
-      ],
-      endloop: [
-        "___messageA = false;",
-        "___messageB = false;",
-        "___messageC = false;",
-        "___messageD = false;",
-        "___messageE = false;"
       ]
+      // endloop: [
+      //   "___messageA = false;",
+      //   "___messageB = false;",
+      //   "___messageC = false;",
+      //   "___messageD = false;",
+      //   "___messageE = false;"
+      // ]
     },
     conditionCode: "___{{value}}",
     configurationComponent: "ReceiveMessageConfiguration",

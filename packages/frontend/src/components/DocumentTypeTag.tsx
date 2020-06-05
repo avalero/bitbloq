@@ -1,6 +1,6 @@
 import * as React from "react";
 import styled from "@emotion/styled";
-import { Icon } from "@bitbloq/ui";
+import { Icon, useTranslate } from "@bitbloq/ui";
 import { documentTypes } from "../config";
 
 interface IDocumentTypeTagProps {
@@ -12,12 +12,13 @@ const DocumentTypeTag: React.SFC<IDocumentTypeTagProps> = ({
   document,
   small
 }) => {
+  const t = useTranslate();
   const documentType = documentTypes[document.type] || {};
 
   return (
     <Container color={documentType.color} small={small}>
       <Icon name={documentType.icon} />
-      {documentType.shortLabel}
+      {t(documentType.shortLabel)}
     </Container>
   );
 };

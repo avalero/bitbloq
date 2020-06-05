@@ -35,6 +35,91 @@ const getDate = (): string => {
   return dateString;
 };
 
+// time in seconds
+const createWaitBloq = (time: string): IBloq => {
+  const waitBloq: IBloq = {
+    type: "WaitSeconds",
+    parameters: {
+      value: time
+    }
+  };
+  return waitBloq;
+};
+
+/**
+ * Transforms a Music bloq into a set of bloqs consisting of playTone and Wait Bloqs
+ * @param bloq the music bloq
+ * @param extraData the melodies array
+ */
+const transformMusicBloq = (bloq: IBloq, extraData: IExtraData): IBloq[] => {
+  const createStopMelodyBloq = (stop: string): IBloq => {
+    const muteBloq: IBloq = {
+      type: "StopMelody",
+      parameters: {
+        stop
+      }
+    };
+    return muteBloq;
+  };
+
+  const createPlayMelodyBloq = (playing: string): IBloq => {
+    const muteBloq: IBloq = {
+      type: "PlayMelody",
+      parameters: {
+        playing
+      }
+    };
+    return muteBloq;
+  };
+
+  if (bloq.type !== "Music") {
+    return [bloq];
+  }
+
+  if (bloq.parameters.melodyIndex === "stop") {
+    return [createStopMelodyBloq("true")];
+  }
+
+  if (!extraData || !extraData.melodies) {
+    throw new Error("No melodies extradata");
+  }
+
+  const createPlayToneBloq = (tone: string, time: string): IBloq => {
+    const playToneBloq: IBloq = {
+      type: "PlayTone",
+      parameters: {
+        tone,
+        time
+      }
+    };
+    return playToneBloq;
+  };
+
+  const melody = extraData.melodies[bloq.parameters.melodyIndex];
+
+  const adjustedTimeLine: IBloq[] = [
+    // createStopMelodyBloq("true"), // stop if any other melody is playing
+    // createWaitBloq("0.005"),
+    // createStopMelodyBloq("false"),
+  ];
+  melody.forEach(tone => {
+    if (tone.note && tone.note !== "") {
+      const toneDuration =
+        (tone.duration > 0 ? tone.duration : 0.5) * 1000 * 0.3;
+      adjustedTimeLine.push(
+        createPlayToneBloq(tone.note, `!___stop * ${toneDuration}`)
+      );
+    }
+    const waitDuration = (tone.duration > 0 ? tone.duration : 0.5) * 0.3;
+    adjustedTimeLine.push(createWaitBloq(`!___stop * ${waitDuration}`));
+  });
+
+  adjustedTimeLine.push(createStopMelodyBloq("false"));
+  adjustedTimeLine.push(createPlayMelodyBloq("false"));
+
+  return adjustedTimeLine;
+};
+
 /**
  * Removes empty timelines
  * Splits timelines with WaitForMessage bloqs in new timelines.
@@ -43,12 +128,20 @@ const getDate = (): string => {
  */
 const adjustProgram = (
   program: IBloq[][],
-  bloqTypes: Array<Partial<IBloqType>>
+  bloqTypes: Array<Partial<IBloqType>>,
+  extraData: IExtraData
 ): IBloq[][] => {
-  const waitMessage2EventMessage = (wait: IBloq): IBloq => {
+  const createOnMessageBloq = (value: string): IBloq => {
     return {
       type: "OnMessage",
-      parameters: { value: wait.parameters.value }
+      parameters: { value }
+    };
+  };
+
+  const createRemoveMessageBloq = (value: string): IBloq => {
+    return {
+      type: "RemoveMessage",
+      parameters: { value }
     };
   };
 
@@ -56,22 +149,32 @@ const adjustProgram = (
     timeline => timeline.length > 0
   );
 
-  adjustedProgram = adjustedProgram.flatMap(timeline => {
-    const result: IBloq[][] = [];
-    timeline.forEach((bloqInstance, index, arr) => {
+  // Any time a message is sent, it must be set to "unsent -> false" after 5 ms
+  adjustedProgram.forEach(timeline => {
+    timeline.forEach(bloqInstance => {
       const bloqDefinition = getBloqDefinition(bloqTypes, bloqInstance);
-      if (bloqDefinition.name === "WaitMessage") {
-        arr[index] = waitMessage2EventMessage(bloqInstance);
-        const lastIndex = result.flatMap(e => e).length;
-        result.push(arr.slice(lastIndex, index));
-      }
-      if (index === arr.length - 1) {
-        const lastIndex = result.flatMap(e => e).length;
-        result.push(arr.slice(lastIndex));
+      if (bloqDefinition.name === "sendMessage") {
+        adjustedProgram.push([
+          createOnMessageBloq(bloqInstance.parameters.value as string),
+          createWaitBloq("0.005"),
+          createRemoveMessageBloq(bloqInstance.parameters.value as string)
+        ]);
       }
     });
+  });
 
-    return result;
+  adjustedProgram = adjustedProgram.map(timeline => {
+    timeline = timeline.flatMap(bloq => {
+      let result: IBloq[];
+      result =
+        bloq.type === "Music"
+          ? transformMusicBloq(bloq, extraData) // transform bloq
+          : [bloq];
+
+      return result;
+    });
+
+    return timeline;
   });
   return adjustedProgram;
 };
@@ -109,7 +212,8 @@ const bloqs2code = (
     // adjust program
     const programFixed: IBloq[][] = adjustProgram(
       cloneDeep(program),
-      bloqTypes
+      bloqTypes,
+      extraData
     );
 
     const board: IBoard = getBoardDefinition(boards, hardware);

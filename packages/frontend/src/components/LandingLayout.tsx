@@ -63,10 +63,10 @@ const LandingLayout: FC<ILandingLayoutProps> = ({ headerFixed, children }) => {
           </DropDown>
           <NewDocumentButton />
           <HeaderButton onClick={() => router.push("/login")}>
-            Entrar
+            {t("home.sign-in")}
           </HeaderButton>
           <HeaderButton secondary onClick={() => router.push("/signup")}>
-            Crear una cuenta
+            {t("home.sign-up")}
           </HeaderButton>
         </AppHeader>
       </div>
@@ -80,7 +80,7 @@ const LandingLayout: FC<ILandingLayoutProps> = ({ headerFixed, children }) => {
               <p>soporte.bitbloq@bq.com</p>
             </FooterLeft> */}
           <FooterRight>
-            <p>Bitbloq es un proyecto de:</p>
+            <p>{t("home.belongs-to")}</p>
             <img src={bqLogo} alt="BQ" />
           </FooterRight>
         </Footer>

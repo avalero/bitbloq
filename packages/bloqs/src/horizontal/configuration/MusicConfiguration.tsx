@@ -27,7 +27,7 @@ const MusicConfiguration: FC<IMusicConfigurationProps> = ({
   onExtraDataChange
 }) => {
   const t = useTranslate();
-  const melodyIndex = (bloq.parameters.melody as string) || "0";
+  const melodyIndex = (bloq.parameters.melodyIndex as string) || "0";
   const melodies = extraData && extraData.melodies;
   const [melody, setMelody] = useState<IMelody>(defaultMelody);
 
@@ -52,34 +52,36 @@ const MusicConfiguration: FC<IMusicConfigurationProps> = ({
           value={melodyIndex}
           onChange={newValue =>
             onChange(
-              update(bloq, { parameters: { melody: { $set: newValue } } })
+              update(bloq, { parameters: { melodyIndex: { $set: newValue } } })
             )
           }
         />
       </SwitchWrap>
-      <MelodyEditor
-        notes={melody}
-        onChange={notes => {
-          setMelody(notes);
-          if (!onExtraDataChange) {
-            return;
-          }
-          const newMelodies = [...(extraData.melodies || [])];
-          newMelodies[melodyIndex] = notes;
-          onExtraDataChange({ ...extraData, melodies: newMelodies });
-        }}
-        noteLabels={{
-          C4: t("music.C4"),
-          D4: t("music.D4"),
-          E4: t("music.E4"),
-          F4: t("music.F4"),
-          G4: t("music.G4"),
-          A4: t("music.A4"),
-          B4: t("music.B4"),
-          C5: t("music.C5"),
-          D5: t("music.D5")
-        }}
-      />
+      {melodyIndex !== "stop" && (
+        <MelodyEditor
+          notes={melody}
+          onChange={notes => {
+            setMelody(notes);
+            if (!onExtraDataChange) {
+              return;
+            }
+            const newMelodies = [...(extraData.melodies || [])];
+            newMelodies[melodyIndex] = notes;
+            onExtraDataChange({ ...extraData, melodies: newMelodies });
+          }}
+          noteLabels={{
+            NOTE_C4: t("music.NOTE_C4"),
+            NOTE_D4: t("music.NOTE_D4"),
+            NOTE_E4: t("music.NOTE_E4"),
+            NOTE_F4: t("music.NOTE_F4"),
+            NOTE_G4: t("music.NOTE_G4"),
+            NOTE_A4: t("music.NOTE_A4"),
+            NOTE_B4: t("music.NOTE_B4"),
+            NOTE_C5: t("music.NOTE_C5"),
+            NOTE_D5: t("music.NOTE_D5")
+          }}
+        />
+      )}
     </Container>
   );
 };

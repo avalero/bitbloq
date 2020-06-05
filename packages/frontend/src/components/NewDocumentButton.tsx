@@ -1,6 +1,6 @@
 import React, { FC, useRef } from "react";
 import styled from "@emotion/styled";
-import { colors, Button, DropDown, Icon } from "@bitbloq/ui";
+import { colors, Button, DropDown, Icon, useTranslate } from "@bitbloq/ui";
 import { documentTypes } from "../config";
 import OpenDocumentInput, {
   IOpenDocumentInputHandle
@@ -20,6 +20,7 @@ const NewDocumentButton: FC<INewDocumentButtonProps> = ({
   attachmentPosition = "top center",
   targetPosition = "bottom center"
 }) => {
+  const t = useTranslate();
   const onNewDocument = (type: string) => {
     window.open(`/app/edit-document/local/${type}/new`);
   };
@@ -41,7 +42,7 @@ const NewDocumentButton: FC<INewDocumentButtonProps> = ({
         {(isOpen: boolean) => (
           <StyledButton tertiary={!quaternary} quaternary={quaternary}>
             <Icon name="new-document" />
-            Nuevo documento
+            {t("menu-new-document")}
           </StyledButton>
         )}
         <Container arrowOffset={arrowOffset}>
@@ -59,9 +60,9 @@ const NewDocumentButton: FC<INewDocumentButtonProps> = ({
                   <Icon name={documentTypes[type].icon} />
                 </NewDocumentOptionIcon>
                 <NewDocumentLabel>
-                  {documentTypes[type].label}
+                  {t(documentTypes[type].label)}
                   {!documentTypes[type].supported && (
-                    <ComingSoon>Próximamente</ComingSoon>
+                    <ComingSoon>{t("home.coming-soon")}</ComingSoon>
                   )}
                 </NewDocumentLabel>
               </NewDocumentOption>
@@ -71,7 +72,7 @@ const NewDocumentButton: FC<INewDocumentButtonProps> = ({
             <NewDocumentOptionIcon>
               <Icon name="open-document" />
             </NewDocumentOptionIcon>
-            Abrir documento
+            {t("menu-open-document")}
           </OpenDocumentButton>
         </Container>
       </DropDown>

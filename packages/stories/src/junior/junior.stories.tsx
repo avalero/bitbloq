@@ -109,7 +109,7 @@ export const HorizontalBloqEditorReadOnly = () => {
           }
         },
         {
-          type: "sendMessageA",
+          type: "sendMessage",
           parameters: {
             value: "messageC"
           }
