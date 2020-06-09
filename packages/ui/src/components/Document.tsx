@@ -301,7 +301,11 @@ class Document extends React.Component<IDocumentProps, IState> {
               ) : (
                 ""
               )}
-              {backCallback ? <Icon className="back" name="arrow-left" /> : ""}
+              {!!backCallback ? (
+                <Icon className="back" name="arrow-left" />
+              ) : (
+                ""
+              )}
             </DocumentIcon>
             <Title canEdit={!!onEditTitle} onClick={onEditTitle}>
               <span>
