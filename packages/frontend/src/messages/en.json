@@ -1,6 +1,6 @@
 {
-  "basic-shapes": "Basic geometries",
-  "other-shapes": "Other geometries",
+  "basic-shapes": "Basic shapes",
+  "other-shapes": "Other shapes",
   "people": "People",
   "shape-truck": "Truck",
   "city-elements": "City elements",
@@ -27,15 +27,15 @@
   "menu-mode": "Mode",
   "menu-advanced": "Advanced",
   "menu-basic": "Basic",
-  "menu-color": "Color",
-  "menu-gray": "Gray",
+  "menu-color": "Colour",
+  "menu-gray": "Grey",
   "menu-change-theme": "Change theme",
   "menu-share": "Share",
-  "menu-download-project": "Download poject",
+  "menu-download-project": "Download project",
   "menu-duplicate": "Duplicate",
   "menu-publish-in-explora": "Publish in Explora",
   "menu-undo-union": "Undo union",
-  "menu-undo-difference": "Undo difference",
+  "menu-undo-difference": "Undo subtraction",
   "menu-delete": "Delete",
   "menu-undo-repetition": "Undo repetition",
   "menu-rename": "Rename",
@@ -64,17 +64,17 @@
   "exercises-header-info": "Exercises",
   "exercises-header-button": "Create exercise",
   "exercises-empty-title": "No exercises",
-  "exercises-empty-description": "No exercise has been created yet. In order to create an exercise, just click on \"Create Exercise\" and then share with your students the exercise access code",
+  "exercises-empty-description": "No exercise has been created yet. In order to create an exercise, just click on \"Create exercise\" and then share the exercise access code with your students.",
   "exercises-modal-title": "Create exercise",
   "exercises-modal-text": "Exercise name",
   "exercises-modal-update": "Change exercise name",
   "exercises-modal-placeholder": "Untitled exercise ",
-  "exercises-modal-remove": "Remove",
-  "exercises-remove-submission": "Are you sure you want to delete this exercise? If you make so you will remove all the submissions",
-  "exercise-details-code": "Code to share",
+  "exercises-modal-remove": "Delete",
+  "exercises-remove-submission": "Are you sure you want to delete this exercise? Doing so will remove all its submissions.",
+  "exercise-details-code": "Exercise access code",
   "exercises-remove-nosubmission": "Are you sure you want to delete this exercise?",
-  "exercise-details-nosubmissions": "Nobody has accessed to this exercise yet",
-  "exercise-details-submissions": "It allows more submissions",
+  "exercise-details-nosubmissions": "Nobody has accessed this exercise yet",
+  "exercise-details-submissions": "It supports more submissions:",
   "document-body-title": " Untitled document",
   "submission-table-team": "Team",
   "document-body-description": " No description",
@@ -87,18 +87,18 @@
   "submission-passwordmodal-placeholder": "Password",
   "tab-3d": "3D",
   "tab-project-info": "Document information",
-  "tooltip-select-top": "Select first level objects to use this tool",
-  "tooltip-select-multiple": "Select multiple objects by pressing *“Control + clic”* on each one to use this tool",
+  "tooltip-select-top": "Select first-level objects to use this tool",
+  "tooltip-select-multiple": "Use *\"CTRL + Click\"* to select multiple objects to use this tool",
   "tooltip-select-one": "Select only one object to use this tool",
   "tooltip-zoom-minus": "Zoom -",
   "tooltip-orthogonal-view": "Orthogonal view",
   "tooltip-center-view": "Center view",
   "tooltip-perspective-view": "Perspective view",
   "tooltip-zoom-plus": "Zoom +",
-  "tooltip-error-length": "Must have at least %v%mm",
+  "tooltip-error-length": "Must be at least %v%mm",
   "tooltip-error-sides": "Must have at least %v% sides",
   "tooltip-error-number": "It must be at least %v%",
-  "tooltip-error-peaks": "Must have at least %v% peaks",
+  "tooltip-error-peaks": "Must have at least %v% points",
   "redo": "Redo",
   "navigation-top": "top",
   "undo": "Undo",
@@ -114,7 +114,7 @@
   "object-type-cube": "Cube",
   "object-type-sphere": "Sphere",
   "object-type-semicylinder": "Semicylinder",
-  "object-type-truncatedcone": "Trancated Cone",
+  "object-type-truncatedcone": "Truncated Cone",
   "object-type-cone": "Cone",
   "object-type-tube": "Tube",
   "object-type-torus": "Torus",
@@ -123,7 +123,7 @@
   "object-type-stl-object": ".STL Object",
   "object-type-text-object": "Text",
   "object-type-union": "Union",
-  "object-type-difference": "Difference",
+  "object-type-difference": "Subtraction",
   "object-type-pyramid": "Pyramid",
   "object-type-heart": "Heart",
   "object-type-instersection": "Intersection",
@@ -135,26 +135,26 @@
   "operation-position": "Position",
   "operation-reflection": "Reflection",
   "operation-union": "Union",
-  "operation-difference": "Difference",
+  "operation-difference": "Subtraction",
   "operation-intersection": "Intersection",
   "operation-repeat-polar": "Polar repeat",
   "operation-repeat": "Repeat",
   "operation-group": "Group",
-  "param-width": "Width",
-  "param-depth": "Depth",
+  "param-width": "Length",
+  "param-depth": "Width",
   "param-height": "Height",
   "param-radius": "Radius",
   "param-bottom-radius": "Bottom radius",
   "param-top-radius": "Top radius",
   "param-number-of-sides": "Number of sides",
   "param-side-length": "Side length",
-  "param-color": "Color",
+  "param-color": "Colour",
   "param-torus-radius": "Torus radius",
   "param-ring-radius": "Ring radius",
   "param-inner-radius": "Inner radius",
-  "param-translation-relative": "Translate over",
+  "param-translation-relative": "Translation axes",
   "param-outer-radius": "Outer radius",
-  "param-rotation-relative": "Rotation axis",
+  "param-rotation-relative": "Rotation axes",
   "param-relative": "Relative",
   "param-axis": "Axis",
   "param-angle": "Angle",
@@ -168,31 +168,31 @@
   "param-y-repetition": "Y distance",
   "param-x-repetition": "X distance",
   "param-z-repetition": "Z distance",
-  "param-peaks": "Peaks",
+  "param-peaks": "Points",
   "param-relative-axis": "Object axes",
   "param-x-y": "X - Y",
   "param-y-z": "Y - Z",
-  "param-absolute-axis": "Work space axis",
+  "param-absolute-axis": "Workspace axes",
   "param-font": "Font",
   "param-z-x": "Z - X",
   "param-base-object": "Base object",
   "param-repetitions": "Repetitions",
   "untitled-project": "Untitled project",
-  "status-rotation": "Rotation (grads):",
+  "status-rotation": "Rotation (degrees):",
   "bloqs-sensors": "Sensors",
   "bloqs-actions": "Actions",
   "status-position": "Position (mm):",
   "bloq-parameter-component": "Component",
-  "bloqs-waits": "Waits",
+  "bloqs-waits": "Wait blocks",
   "bloq-parameter-button": "Button",
-  "bloq-parameter-led": "Led",
+  "bloq-parameter-led": "LED",
   "bloq-parameter-action": "Action",
   "bloq-parameter-press": "Press",
   "bloq-parameter-release": "Release",
   "bloq-parameter-on": "On",
   "bloq-parameter-off": "Off",
-  "bloq-parameter-led-2": "Led 2",
-  "bloq-parameter-led-1": "Led 1",
+  "bloq-parameter-led-2": "LED 2",
+  "bloq-parameter-led-1": "LED 1",
   "bloq-parameter-switch": "Switch",
   "bloq-parameter-switch-1": "Switch 1",
   "bloq-parameter-value": "Value",
@@ -201,8 +201,8 @@
   "bloq-parameter-switch-2": "Switch 2",
   "bloq-on-button-pressed": "On button pressed",
   "bloq-button-instance-name": "button",
-  "bloq-led-instance-name": "led",
-  "bloq-seven-segment-instance-name": "sevenSegment",
+  "bloq-led-instance-name": "LED",
+  "bloq-seven-segment-instance-name": "sevenSegments",
   "bloq-servo-instance-name": "sevenSegments",
   "bloq-set-seven-segment-num": "Write Number",
   "bloq-switch-instance-name": "switch",
@@ -212,9 +212,9 @@
   "bloq-on-seven-segment": "When display value is",
   "bloq-component-port": "Port",
   "bloq-parameter-seven-segment": "Display",
-  "bloq-inc-seven-segment-num": "Increment numeric value",
-  "bloq-dec-seven-segment-num": "Decrement numeric value",
-  "bloq-inc-seven-value": "¿How many?",
+  "bloq-inc-seven-segment-num": "Increase numeric value",
+  "bloq-dec-seven-segment-num": "Decrease numeric value",
+  "bloq-inc-seven-value": "How many?",
   "bloq-controt-servo-instance-name": "servoRC",
   "bloq-parameter-clockwise": "Clockwise",
   "bloq-parameter-rotation": "Rotation direction",
@@ -226,8 +226,8 @@
   "blue": "Blue",
   "bloq-parameter-color": "Colour",
   "bloq-on-cr-servo": "If rotation is set to...",
-  "bloq-double-led": "Turn on/off LEDs",
-  "bloq-cr-servo": "Rotate",
+  "bloq-double-led": "Turn LEDs on/off ",
+  "bloq-cr-servo": "Rotate/For Continuous Rotation Servo",
   "bloq-on-switch": "If switch position is...",
   "bloq-rgbled-color": "RGB LED Colour",
   "bloq-wait-5-second": "Wait 5 seconds",
@@ -241,8 +241,8 @@
   "D-tone": "D",
   "E-tone": "E",
   "F-tone": "F",
-  "general-enter-button": "Enter",
-  "playground-enter-button": "Enter with your account",
+  "general-enter-button": "Log in",
+  "playground-enter-button": "Log in with your account",
   "G-tone": "G",
   "general-create-button": "Create",
   "general-change-button": "Change",
@@ -262,7 +262,7 @@
       "multisensor": "Multisensor",
       "miniservo": "Miniservo",
       "button": "Button",
-      "seven-segment": "7 segment display",
+      "seven-segment": "7-segment display",
       "joystick": "Joystick"
     },
     "instanceName": {
@@ -275,9 +275,9 @@
   "menu-import-resource": "Import resource",
   "submission-error-submission-exists": "This team name is already in use",
   "submission-error-not-name": "You must choose a team name",
-  "submission-error-wrong-password": "The password is not correct",
+  "submission-error-wrong-password": "Incorrect password",
   "tooltip-error-min-value": "It must be at least %v% %v%",
-  "document-enter-button": "Sign in with your account",
+  "document-enter-button": "Log in with your account",
   "submission-error-not-accepted-submission": "No more submissions allowed",
   "general-add-button": "Add",
   "general-error-email": "Invalid e-mail",
@@ -287,53 +287,53 @@
       "delete": {
         "confirmation": {
           "button": "Home",
-          "text": "Unfortunately, your account has been removed. Therefore, you will not be able to access with your credentials anymore. Please, create a new one.",
-          "title": "Account removed"
+          "text": "Unfortunately, your account has been successfully deleted. Therefore, you will not be able to log in with your credentials anymore. Please, create a new account.",
+          "title": "Account deleted"
         },
         "button": "Delete account",
         "modal": {
-          "content-member": "Are you sure you want to remove your account? You will lose all your documents",
-          "content-teacher": "Are you sure you want to remove your account? If you do so you will lose all your documents",
-          "content-highlighted": "and you will not be able to sign in this account anymore",
+          "content-member": "Are you sure you want to delete your account? If you do so, you will lose all your saved documents\n",
+          "content-teacher": "Are you sure you want to delete your account? If you do so, you will lose all your saved documents and exercises",
+          "content-highlighted": "and you will not be able to log in with this account anymore",
           "title": "Delete account"
         },
         "modal-confirmation": {
           "label": "Password",
           "placeholder": "Password",
           "save": "Yes!",
-          "title": "Confirm removal",
-          "text": "Write your password to confirm your account removal"
+          "title": "Confirm delete",
+          "text": "Write your password to confirm you want to delete your account."
         },
-        "title": "Remove my account"
+        "title": "Delete my account"
       },
       "email": {
         "title": "My e-mail",
         "sent-title": "E-mail sent",
-        "sent-button": "Sent an e-mail again",
-        "sent-text": "Check your inbox. If not there, please check your spam mail folder",
-        "email-exists": "This e-amil is already in use",
+        "sent-button": "Send an e-mail again",
+        "sent-text": "Check your inbox. If it is not there, please check your spam folder.",
+        "email-exists": "This e-mail address is already in use",
         "new": "New e-mail",
-        "change-text": "Write your new e-mail and we will send you a confirmation mail with a link to update it",
-        "button": "Change e-mail"
+        "change-text": "Write your new e-mail address and we will send you an email with a link to update it.",
+        "button": "Change e-mail address"
       },
       "password": {
-        "wrong-error": "Password is not correct",
+        "wrong-error": "Incorrect password",
         "title": "My password",
         "repeat-placeholder": "Write new password again",
         "repeat-error": "Passwords must match",
         "password-changed-title": "Password changed",
         "new-placeholder": "New password",
         "current-placeholder": "Current password",
-        "password-changed": "Your password has been successfully updated",
+        "password-changed": "Your password has been successfully updated. You will no longer be able to log in with your previous password.",
         "empty-error": "You must write a password",
-        "change-text": "Write your current password and your new password",
+        "change-text": "Write your current password and your new password.",
         "button": "Change password"
       },
       "plan": {
         "title": "My plan",
-        "changed-title": "Plan updated",
-        "changed": "You have successfully updated your plan. From now on you are a Bitbloq teacher\nBitbloq teacher",
-        "label": "Update your plan to:",
+        "changed-title": "Upgraded plan",
+        "changed": "Your account has been successfully upgraded, now you have a teacher plan. ",
+        "label": "Upgrade your plan to:",
         "button": "Upgrade my plan"
       },
       "personal-data": {
@@ -344,7 +344,7 @@
         "button-save": "Save",
         "warning-size": "Image size is too big",
         "warning-ok": "Accept",
-        "warning-ext": "Not valid image format",
+        "warning-ext": "Invalid image format",
         "errors": {
           "birth-date-validAge": "You must be older than %v%",
           "birth-date-validDate": "You must type a valid date",
@@ -354,7 +354,7 @@
         },
         "warning-title": "Warning",
         "labels": {
-          "birth-date": "Birth",
+          "birth-date": "Birthdate",
           "surnames": "Surname",
           "name": "Name"
         },
@@ -369,26 +369,26 @@
       "title": "User data"
     },
     "purchases": {
-      "title": "Bought"
+      "title": "Purchased items"
     }
   },
   "change-email-page": {
     "confirm": "Confirm",
     "error": {
       "button": "Back",
-      "text": "This token is no longer valid. Please, resend the confirmation e-mail",
+      "text": "This token stopped working. Please, resend the e-mail.",
       "title": "Invalid token"
     },
-    "password-empty": "Password cannot be empty",
+    "password-empty": "Password cannot be blank",
     "password-error": "Incorrect password",
     "placeholder": "Password",
     "title": "Confirm your changes",
-    "text": "Write your password to confirm you e-mail update"
+    "text": "Write your password to confirm your updated e-mail address."
   },
   "cloud": {
     "buttons": {
-      "import": "Import resource",
-      "see-more": "More resources..."
+      "import": "Import new resource",
+      "see-more": "Find more resources on Bitbloq Cloud"
     },
     "details": {
       "date": "Import date",
@@ -400,34 +400,34 @@
       "return": "Return"
     },
     "options": {
-      "details": "Resource details",
+      "details": "See resource details",
       "recover": "Restore",
-      "trash": "Trash"
+      "trash": "Send to recycle bin"
     },
     "resources": {
-      "deleted": "Trash",
+      "deleted": "Recycle bin",
       "images": "Images",
       "objects": "3D objects",
       "sounds": "Sounds",
       "videos": "Videos"
     },
     "text": {
-      "empty-imported-title": "There are no resources",
+      "empty-imported-title": "No imported resources",
       "empty": "No resources in this category",
-      "empty-imported-text": "You have no resources for this type of document",
+      "empty-imported-text": "You have not imported compatible resources for this document yet",
       "no-result": "No results",
-      "trash": "No resources in trash"
+      "trash": "No resources in recycle bin"
     },
     "upload": {
-      "add": "Add a resource from Bitbloq Cloud",
+      "add": "Add an imported resource",
       "drag": "Drag and drop a file",
       "import": "Import new resource",
-      "warning-ext": "This resource is not valid for this type of document",
+      "warning-ext": "This resource is not valid for this type of document.",
       "name": "Resource name",
       "select": "Or choose a file",
       "warning-title": "Warning",
-      "title": "Add resource",
-      "warning-size": "Resource size is greater than %v%MB. Please reduce its size and try againg"
+      "title": "Add imported resource",
+      "warning-size": "Resource size is greater than %v%MB. Please reduce its size and try again."
     }
   },
   "document-info": {
@@ -437,8 +437,8 @@
       "image": "Choose an image"
     },
     "errors": {
-      "image-ext": "Image format is not valid",
-      "image-size": "Image size to too big"
+      "image-ext": "Invalid image format",
+      "image-size": "Image size too big"
     },
     "labels": {
       "description": "Document description",
@@ -447,30 +447,30 @@
       "image": "Document image"
     },
     "placeholders": {
-      "resources": "This document has no resources",
+      "resources": "This document has no imported resources",
       "title": "Document title",
       "description": "Document description"
     },
     "sublabels": {
-      "image": "Image must be bigger than 600x400 px (jpg or png format)",
-      "resources": "These are the imported resources that the student require in order to visualize and perform the exercise."
+      "image": "Image must be bigger than 600x400 px (jpg or png format), maximum %v%MB.",
+      "resources": "These are the imported resources that the student requires in order to view and perform the exercise."
     },
-    "title": "Information of the document"
+    "title": "Document information"
   },
   "exercises": {
     "rate": {
       "observations": {
         "title": "Notes",
-        "placeholder": "Notes about the exercise."
+        "placeholder": "Notes about the exercise"
       },
       "rate": {
-        "error": "The mark should be a decimal number between 1 and 10",
-        "title": "Note"
+        "error": "The grade must be between 1 and 10, with only one decimal place.",
+        "title": "Grade"
       },
-      "title": "Exercise's mark."
+      "title": "Exercise grade"
     },
     "resources": {
-      "title": "Exercise's resources."
+      "title": "Exercise resources"
     }
   },
   "filter": {
@@ -479,21 +479,21 @@
     }
   },
   "units": {
-    "mm": "Unit as mm",
-    "sides": "Sides",
-    "peaks": "peaks"
+    "mm": "mm",
+    "sides": "sides",
+    "peaks": "points"
   },
   "user": {
     "cloud": {
-      "access": "See my Bitbloq Cloud."
+      "access": "See my Bitbloq Cloud"
     },
     "session": {
       "account": "My account",
-      "logout": "Logout"
+      "logout": "Log out"
     }
   },
   "legal": {
-    "cookies-policy": "Cookies-policy",
+    "cookies-policy": "Cookie policy",
     "general-conditions": "General conditions",
     "privacy-policy": "Privacy policy"
   },
@@ -502,32 +502,32 @@
   },
   "login": {
     "divider": "or",
-    "error": "Not valid email or password",
+    "error": "Invalid email or password",
     "forgot-password": "Forgot password",
     "labels": {
-      "email": "Email",
+      "email": "Email address",
       "password": "Password"
     },
     "placeholders": {
-      "email": "Email",
+      "email": "Email address",
       "password": "Password"
     },
-    "ok": "Enter",
-    "signup": "Singup",
-    "title": "Enter",
+    "ok": "Log in",
+    "signup": "Sign up",
+    "title": "Log in",
     "with": "With the account:"
   },
   "plans": {
-    "bitbloq-cloud-info": "With Bitbloq Cloud you will provide cloud space to store photos, videos, STLs, etc. This way, these can be imported to your documents.",
-    "choose-plan": "Choose the plan that better adjust to your needs",
-    "during-beta": "During the beta",
+    "bitbloq-cloud-info": "Bitbloq Cloud gives you cloud space to store photos, videos, STLs, etc. This way, these can be imported to your documents.",
+    "choose-plan": "Choose the best plan for your needs",
+    "during-beta": "During beta stage",
     "try-without-registration": "Start working without signing up.",
-    "try-it": "Try it now!",
+    "try-it": "Or try it now!",
     "features": {
       "create-documents": "Create documents",
       "open-documents": "Open downloaded documents ",
-      "create-documents-with-bq-kits": "Create documents with kits and BQ's robots",
-      "exercise-access": "Access to exercises ",
+      "create-documents-with-bq-kits": "Create documents with BQ kits and robots",
+      "exercise-access": "Access exercises ",
       "download-documents": "Download documents on your device",
       "bitbloq-cloud": "Bitbloq Cloud",
       "create-exercises": "Create exercises",
@@ -536,166 +536,166 @@
       "save-unlimited-documents": "Save documents online",
       "exercise-compilation": "Online compilation for your students",
       "correct-exercises": "Correct exercises",
-      "unregistered-student-access": "Give access your students without login"
+      "unregistered-student-access": "Allow your students access without signing them up"
     },
     "free": "Free",
-    "member-signup": "I want to start with Bitbloq",
+    "member-signup": "I want to start with Bitbloq!",
     "member-description": "With this free plan, you can save your documents online",
     "link": "Plans",
     "member-subtitle": "All you need to start for free",
     "includes-bitbloq-cloud": "Includes Bitbloq Cloud",
     "teacher": "Teacher",
     "member": "Member",
-    "teacher-description": "This plan allows to make and correct exercises, give access to your students without singing up and acces to Bitbloq Cloud.",
+    "teacher-description": "This plan allows you to create and correct exercises, to give access to your students without them singing up and to access Bitbloq Cloud.",
     "monthly-price": "%v%€ / month",
     "teacher-signup": "I want to teach with Bitbloq!",
-    "unregistered": "Without sing-up",
-    "teacher-subtitle": "Furthermore, with the course plan you will be able to... "
+    "unregistered": "Without signing up",
+    "teacher-subtitle": "Furthermore, with the teacher plan you will be able to... "
   },
   "save-copy-modal": {
     "buttons": {
       "add": {
-        "to-account": "Add account",
-        "to-another-account": "Add another account",
+        "to-account": "Add to your account",
+        "to-another-account": "Add to another account",
         "copy": "Add copy"
       },
       "cancel": "Cancel",
       "ok": "Accept"
     },
     "text": {
-      "add-copy": "Write your email and your password asociated to this account to add the copy.",
+      "add-copy": "Write your email address and your account password to add a copy.",
       "copy-added": {
         "example": "A copy of this example has been added to your documents.",
-        "exercise": "A copy of this exercise has been added to your documents"
+        "exercise": "A copy of this exercise has been added to your documents."
       },
-      "error": "Email or password not correct",
-      "email": "Email",
+      "error": "Incorrect email or password",
+      "email": "Email address",
       "password": "Password",
-      "select-account": "Add the copy to your account or to another?"
+      "select-account": "Add a copy to your account or to another account?"
     },
     "title": {
       "add-copy": {
-        "exercise": "Add copy of this exercise to my documents",
+        "exercise": "Add a copy of this exercise to my documents",
         "example": "Add a copy of the example to my documents"
       },
-      "copy-added": "Copy added correctly ",
-      "select-account": "Add copy to my documents"
+      "copy-added": "Copy added successfully ",
+      "select-account": "Add a copy to my documents"
     }
   },
   "signup": {
     "activate-modal": {
       "error": {
-        "text": "This token stopped working, try sending the email again",
-        "title": "The token is not valid",
+        "text": "This token stopped working. Please, resend the e-mail.",
+        "title": "Invalid token",
         "button": "Back"
       },
-      "content": "Account  validated successfully. Now you can access and enjoy all the features for being part of Bitbloq!",
-      "ok": "Enter Bitbloq!",
+      "content": "Account successfully validated. Now you can access and enjoy all the advantages of being part of Bitbloq!",
+      "ok": "Access Bitbloq!",
       "title": "Account validated"
     },
     "create-modal": {
       "title": "Account created",
-      "content": "Account created successfully. We sent an email to your account to validate it. If you do not see the message, see the spam folder",
-      "ok": "Resend the email.",
-      "cancel": "Back to home"
+      "content": "Account successfully created. We have sent a validation email to your address. If you don't see it, look for it in your spam folder. ",
+      "ok": "Resend the email",
+      "cancel": "Back to Home Screen"
     },
     "leave-modal": {
-      "title": "Exit process",
+      "title": "Abandon process",
       "ok": "Back to process",
-      "content": "Are you sure that you want to exit this process? If so, your Bitbloq ??????",
-      "content-highlighted": "It will not be created",
+      "content": "Are you sure you want to abandon this process? If you do so, your Bitbloq account ",
+      "content-highlighted": "will not be created",
       "cancel": "Exit"
     },
     "birth-date": {
       "cancel": "Cancel",
       "ok": "Save",
-      "subtitle": "Lastly, we need your birthday.",
-      "title": "Birthday"
+      "subtitle": "Lastly, we need your birthdate.",
+      "title": "Birthdate"
     },
     "login": {
-      "account-link": "Login using your credentials",
+      "account-link": "Log in using your credentials",
       "with-sub-text-2": "and the",
-      "with-text": "Create account with my account of:",
-      "account-text": "Already with an account with this Bitbloq version?",
-      "with-sub-text-1": "At singing up with an account, you accept "
+      "with-text": "Create account with my profile:",
+      "account-text": "Already have an account for this Bitbloq version?",
+      "with-sub-text-1": "By signing up with an account, you accept the"
     },
     "not-activate-modal": {
-      "cancel": "Back to home",
+      "cancel": "Back to Home Screen",
       "ok": "Resend the email",
-      "text": "In order to access  you should confirm your email using the email sent to you. If you do not see this email, check your spam folder.",
-      "title": "Account not validated"
+      "text": "In order to log in, you should confirm your email address using the email sent to you. If you do not see this email, check your spam folder.",
+      "title": "Unvalidated account"
     },
     "user-data": {
       "cancel": "Cancel",
       "educational-stages": {
         "primary": "Primary",
         "preschool": "Preschool",
-        "high-school": "High-School",
-        "bachelor": "Bachelor",
+        "high-school": "High School",
+        "bachelor": "Baccalaureate",
         "college": "College"
       },
       "errors": {
-        "accept-terms": "You should read and accept the general conditions and our privacy policy.",
-        "birth-date-required": "Enter a a valid date",
-        "birth-date-validAge": "You should be +14 in order to make an account on Bitbloq",
+        "accept-terms": "You must read and accept the general conditions and privacy policy.",
+        "birth-date-required": "Enter a valid date",
+        "birth-date-validAge": "To create a Bitbloq account, you must be over 14",
         "center-name": "The name entered is not valid",
-        "birth-date-validDate": "Enter valid date",
+        "birth-date-validDate": "Enter a valid date",
         "city": "Enter a city",
-        "email-existing": "An user already exists with this email",
+        "email-existing": "A user with this email address already exists",
         "password": "Enter a password",
         "name": "The name entered is not valid",
-        "post-code": "Enter postal code",
-        "email-validate": "Enter a valid email",
-        "surnames": "The surnames entered are not valid"
+        "post-code": "Enter postcode",
+        "email-validate": "Enter a valid email address",
+        "surnames": "Invalid surname entered"
       },
       "labels": {
         "accept-terms-1": "I have read and accept the",
         "accept-terms-2": "and the",
-        "birth-date": "Birth-date",
+        "birth-date": "Birthdate",
         "center-name": "Center name",
         "country": "Country",
-        "email": "Email",
+        "email": "Email address",
         "im-teacher": "I am a Teacher",
         "city": "City",
         "educational-stage": "Stage",
-        "no-notifications": "I do not want to receive the latest news and features on my email",
+        "no-notifications": "I do not want to receive the latest news and updates by email.",
         "name": "Name",
         "password": "Password",
-        "post-code": "Postal code",
-        "surnames": "Surnames"
+        "post-code": "Postcode",
+        "surnames": "Surname"
       },
       "placeholders": {
         "birth-date-year": "YYYY",
         "birth-date-month": "MM",
         "birth-date-day": "DD",
         "center-name": "Center name",
-        "email": "Email",
+        "email": "Email address",
         "city": "City",
         "name": "Name",
         "password": "Password",
         "post-code": "00000",
-        "surnames": "Surnames"
+        "surnames": "Surname"
       },
-      "ok": "Ok",
-      "title": "User's data"
+      "ok": "Save",
+      "title": "User data"
     },
-    "step": "%v% of 2????",
+    "step": "Step %v% of 2",
     "plan": {
-      "advantages": "These are the features you will receive being %v% in Bitbloq",
+      "advantages": "These are the advantages of being %v% in Bitbloq:",
       "free": "Free",
       "monthly-price": "%v%€ per month",
-      "free-beta": "Free during the beta",
+      "free-beta": "Free during the beta stage",
       "ok": "Join Bitbloq now!",
       "sub-title": "Choose the type of account you want to create:",
       "cancel": "Previous",
       "title": "Account settings"
     },
-    "title": "Make an account"
+    "title": "Create an account"
   },
   "page-error-text": {
-    "403": "Sorry, you do not have the rights to access this content",
-    "404": "Ops! The web page you are trying to access does not exist.",
-    "500": "Ops! An unexpected error occurred, try again later."
+    "403": "Sorry, you do not have the rights to access this content.",
+    "404": "Oops! The web page you are trying to access does not exist.",
+    "500": "Oops! An unexpected error occurred, try again later."
   },
   "code": {
     "add-new": "Add new",
@@ -703,18 +703,18 @@
     "add-new-h": "Add .h file",
     "compile": "Compile",
     "add-new-cpp": "Add .cpp file",
-    "create-file": "Make new file",
+    "create-file": "Create new file",
     "compiling": "Compiling",
     "add-new-folder": "Add new folder",
-    "compile-success": "Successful compilation",
+    "compile-success": "Successfully compiled ",
     "create-folder": "Create folder",
     "folder-name": "Folder name",
     "file-name": "File name",
-    "uploading-to-board": "Uploading to board",
+    "uploading-to-board": "Uploading to board...",
     "upload": "Upload",
     "uploading-error": "Uploading error",
-    "uploading-success": "Uploading success",
-    "install-chrome-app-text": "In order to upload the program to the board, you should install the Bitbloq’s Chrome App.",
+    "uploading-success": "Successfully uploaded",
+    "install-chrome-app-text": "In order to upload the program to the board, you must install the Bitbloq’s Chrome App.",
     "board-not-found": "No board detected",
     "open-chrome-webstore": "Install Chrome's App",
     "install-chrome-app-title": "Chrome's app not found",
@@ -730,21 +730,30 @@
     }
   },
   "music": {
-    "NOTE_G4": "G",
-    "NOTE_B4": "B",
-    "NOTE_C4": "C",
-    "NOTE_D5": "D",
-    "NOTE_E4": "E",
-    "NOTE_D4": "D",
-    "NOTE_F4": "F",
-    "NOTE_C5": "C",
-    "NOTE_A4": "A"
+    "G4": "G4",
+    "B4": "B4",
+    "C4": "C4",
+    "D5": "D5",
+    "E4": "E4",
+    "D4": "D4",
+    "F4": "F4",
+    "C5": "C5",
+    "A4": "A4",
+    "NOTE_C4": "C4",
+    "NOTE_D4": "D4",
+    "NOTE_E4": "E4",
+    "NOTE_F4": "F4",
+    "NOTE_B4": "B4",
+    "NOTE_G4": "G4",
+    "NOTE_A4": "A4",
+    "NOTE_C5": "C5",
+    "NOTE_D5": "D5"
   },
   "robotics": {
     "bloqs": "Blocks",
     "boards": "Boards",
     "components": "Components",
-    "drag-board-here": "Drag and drop a board or robot",
+    "drag-board-here": "Drag and drop a board or a robot",
     "diagram": "Diagram",
     "hardware": "Hardware",
     "robots": "Robots"
@@ -753,13 +762,13 @@
     "sign-up": "Sign up",
     "sign-in": "Log in",
     "belongs-to": "Bitbloq is developed by: ",
-    "slogan": "The most complete tool to learn 3D design, programming and robotics",
+    "slogan": "The most complete tool to learn 3D design, programming and robotics.",
     "create-open": "New/Open Document",
     "coming-soon": "Coming Soon",
-    "open-from-file": "Open file",
-    "go-to-exercise-step-1": "Ask you teacher for an exercise code ",
-    "go-to-exercise-step-2": "Insert your code and begin working",
-    "open-from-file-text": "Open any .bitbloq document you have previously saved on your computer",
+    "open-from-file": "Open document from file",
+    "go-to-exercise-step-1": "Ask your teacher for an exercise code.",
+    "go-to-exercise-step-2": "Insert your code and press \"Start\".",
+    "open-from-file-text": "Open any .bitbloq document you have previously saved on your computer.",
     "exercise-code": "Excercise Code",
     "invalid-code": "Invalid code"
   },
@@ -768,20 +777,20 @@
     "level-beginner": "Beginner",
     "level-intermediate": "Intermediate",
     "level-advanced": "Advanced",
-    "junior-label": "Robotics Junior",
+    "junior-label": "Junior Robotics",
     "junior-short-label": "Junior",
     "robotica-label": "Robotics",
-    "junior-landing-text": "tools.junior-landing-text",
-    "robotica-landing-text": "tools.robotica-landing-text",
+    "junior-landing-text": "Make your first steps in robotics with easy and intuitive block programming.",
+    "robotica-landing-text": "Program your inventions with blocks and learn the basic programming concepts.",
     "robotica-short-label": "Robotics",
-    "arduino-landing-text": "tools.arduino-landing-text",
+    "arduino-landing-text": "Get started with code with Arduino®. Create your first programs and bring your robots to life. ",
     "3d-label": "3D design",
     "arduino-label": "Arduino® Code",
     "arduino-short-label": "Arduino®",
-    "3d-landing-text": "tools.3d-landing-text",
+    "3d-landing-text": "Discover 3D, learn geometry and turn your ideas into designs.",
     "3d-short-label": "3D design",
     "apps-label": "Apps",
-    "apps-landing-text": "tools.apps-landing-text",
+    "apps-landing-text": "Start designing and programming your own apps for Android®, iOS® or PC. ",
     "apps-short-label": "Apps"
   }
 }
