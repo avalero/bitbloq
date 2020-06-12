@@ -15,7 +15,7 @@ type IDraggableAction =
   | { type: "drag"; x: number; y: number }
   | { type: "end" };
 
-interface IDragEndParams {
+interface IDragParams {
   x: number;
   y: number;
   width: number;
@@ -26,7 +26,7 @@ export interface IDraggableProps {
   data?: any;
   className?: string;
   dragCopy?: boolean;
-  onDragEnd?: (params: IDragEndParams) => void;
+  onDragEnd?: (params: IDragParams) => void;
 }
 
 const Draggable: FC<IDraggableProps> = ({
@@ -82,13 +82,18 @@ const Draggable: FC<IDraggableProps> = ({
         }
 
         case "end": {
+          const {
+            width: draggedWidth,
+            height: draggedHeight
+          } = draggedRef.current!.getBoundingClientRect();
           dragAndDropController.endDrag();
           if (onDragEnd) {
-            const {
-              width,
-              height
-            } = draggedRef.current!.getBoundingClientRect();
-            onDragEnd({ x: state.draggedX, y: state.draggedY, width, height });
+            onDragEnd({
+              x: state.draggedX,
+              y: state.draggedY,
+              width: draggedWidth,
+              height: draggedHeight
+            });
           }
           return {
             ...state,

@@ -1,10 +1,19 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { FC, useState, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
+import { IBoard, IComponent } from "@bitbloq/bloqs";
 import { useTranslate } from "@bitbloq/ui";
+import { RecoilRoot } from "recoil";
 import Hardware from "./Hardware";
 import Bloqs from "./Bloqs";
 import Diagram from "./Diagram";
 import { IRoboticsContent } from "./index";
+import { HardwareDefinitionProvider } from "./useHardwareDefinition";
+
+import boardsJSON from "./boards";
+import componentsJSON from "./components";
+
+const boards = boardsJSON as IBoard[];
+const components = componentsJSON as IComponent[];
 
 export interface IRoboticsCallbackProps {
   hardware: React.ReactElement;
@@ -18,7 +27,7 @@ export interface IRoboticsProps {
   children: (props: IRoboticsCallbackProps) => React.ReactElement;
 }
 
-const Robotics: React.FunctionComponent<IRoboticsProps> = ({
+const Robotics: FC<IRoboticsProps> = ({
   children,
   initialContent,
   onContentChange
@@ -53,16 +62,26 @@ const Robotics: React.FunctionComponent<IRoboticsProps> = ({
     }
   }, [content]);
 
-  return children({
-    hardware: (
-      <Hardware
-        hardware={content && content.hardware ? content.hardware : {}}
-        onChange={hardware => updateContent({ ...content, hardware })}
-      />
-    ),
-    bloqs: <Bloqs />,
-    diagram: <Diagram />
-  });
+  return (
+    <HardwareDefinitionProvider boards={boards} components={components}>
+      {children({
+        hardware: (
+          <Hardware
+            hardware={content && content.hardware ? content.hardware : {}}
+            onChange={hardware => updateContent({ ...content, hardware })}
+          />
+        ),
+        bloqs: <Bloqs />,
+        diagram: <Diagram />
+      })}
+    </HardwareDefinitionProvider>
+  );
 };
 
-export default Robotics;
+const RoboticsRoot: FC<IRoboticsProps> = props => (
+  <RecoilRoot>
+    <Robotics {...props} />
+  </RecoilRoot>
+);
+
+export default RoboticsRoot;

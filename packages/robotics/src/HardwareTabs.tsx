@@ -3,19 +3,15 @@ import styled from "@emotion/styled";
 import { IBoard, IComponent } from "@bitbloq/bloqs";
 import { breakpoints, Draggable, Icon, Tabs, useTranslate } from "@bitbloq/ui";
 import Component from "./Component";
+import useHardwareDefinition from "./useHardwareDefinition";
 
 export interface IHardwareTabsProps {
   selectedBoard?: IBoard;
-  boards: IBoard[];
-  components: IComponent[];
 }
 
-const HardwareTabs: FC<IHardwareTabsProps> = ({
-  selectedBoard,
-  boards,
-  components
-}) => {
+const HardwareTabs: FC<IHardwareTabsProps> = ({ selectedBoard }) => {
   const t = useTranslate();
+  const { boards, components } = useHardwareDefinition();
 
   const compatibleComponents = useMemo(
     () =>

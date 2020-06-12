@@ -1,10 +1,9 @@
 import React, { FC, useState, useRef, useEffect, useMemo } from "react";
 import styled from "@emotion/styled";
+import { useRecoilCallback, useRecoilState } from "recoil";
 import update from "immutability-helper";
 import { v1 as uuid } from "uuid";
 import {
-  IBoard,
-  IComponent,
   IComponentInstance,
   IHardware,
   IPosition,
@@ -20,15 +19,12 @@ import {
   Icon,
   useTranslate
 } from "@bitbloq/ui";
+import useHardwareDefinition from "./useHardwareDefinition";
+import { componentListState, componentWithIdState } from "./state";
 
 import Component from "./Component";
+import DraggableComponent from "./DraggableComponent";
 import HardwareTabs from "./HardwareTabs";
-
-import boardsJSON from "./boards";
-import componentsJSON from "./components";
-
-const boards = boardsJSON as IBoard[];
-const components = componentsJSON as IComponent[];
 
 export interface IHardwareProps {
   hardware: Partial<IHardware>;
@@ -57,10 +53,7 @@ const getConnectionPath = (
 const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
   const t = useTranslate();
 
-  const componentsMap: { [name: string]: IComponent } = useMemo(
-    () => components.reduce((map, c) => ({ ...map, [c.name]: c }), {}),
-    [components]
-  );
+  const { getBoard, getComponent } = useHardwareDefinition();
 
   const componentRefs = useRef<{
     [id: string]: React.RefObject<HTMLDivElement>;
@@ -89,7 +82,7 @@ const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
 
   const [boardSelected, setBoardSelected] = useState(false);
 
-  const boardObject = boards.find(b => b.name === hardware.board);
+  const boardObject = getBoard(hardware.board || "");
 
   const getInstanceName = (baseName: string, count: number = 0): string => {
     const name = `${baseName}${count || ""}`;
@@ -97,6 +90,21 @@ const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
       hardware.components && hardware.components.some(c => c.name === name);
     return exist ? getInstanceName(baseName, count ? count + 1 : 2) : name;
   };
+
+  const [componentList, setComponentList] = useRecoilState(componentListState);
+
+  const addComponentInstance = useRecoilCallback(
+    ({ set }, component, position) => {
+      const id = uuid();
+      setComponentList([...componentList, id]);
+      set(componentWithIdState(id), {
+        id,
+        component: component.name,
+        position,
+        name: getInstanceName(t(component.instanceName))
+      });
+    }
+  );
 
   useEffect(() => {
     const onResize = () => {
@@ -162,20 +170,9 @@ const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
     if (type === "canvas") {
       const { component } = draggableData;
       if (component) {
-        onChange({
-          ...hardware,
-          components: [
-            ...(hardware.components || []),
-            {
-              id: uuid(),
-              component: component.name,
-              name: getInstanceName(t(component.instanceName)),
-              position: {
-                x: x - width / 2 + draggableWidth / 2,
-                y: y - height / 2 + draggableHeight / 2
-              }
-            }
-          ]
+        addComponentInstance(component, {
+          x: x - width / 2 + draggableWidth / 2,
+          y: y - height / 2 + draggableHeight / 2
         });
       }
     }
@@ -215,7 +212,7 @@ const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
             <Connections>
               <g transform={`translate(${width / 2},${height / 2})`}>
                 {(hardware.components || []).map(instance => {
-                  const component = componentsMap[instance.component];
+                  const component = getComponent(instance.component);
                   const ports = instance.ports || {};
 
                   return Object.keys(ports).map(connector => {
@@ -295,62 +292,9 @@ const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
                 )}
               </BoardPlaceholderWrap>
             )}
-            {(hardware.components || []).map((instance, i) => {
-              if (!instance.position) {
-                return null;
-              }
-              const component = componentsMap[instance.component];
-              if (!component) {
-                return null;
-              }
-              return (
-                <CanvasComponent
-                  ref={getComponentRef(instance)}
-                  key={instance.id}
-                  top={instance.position.y}
-                  left={instance.position.x}
-                >
-                  <Draggable
-                    dragCopy={false}
-                    onDragEnd={({
-                      x,
-                      y,
-                      width: dragWidth,
-                      height: dragHeight
-                    }) => {
-                      const {
-                        x: canvasX,
-                        y: canvasY
-                      } = canvasRef.current!.getBoundingClientRect();
-                      onChange(
-                        update(hardware, {
-                          components: {
-                            [i]: {
-                              position: {
-                                x: { $set: x - canvasX + dragWidth / 2 },
-                                y: { $set: y - canvasY + dragHeight / 2 }
-                              }
-                            }
-                          }
-                        })
-                      );
-                    }}
-                  >
-                    <Component
-                      component={component}
-                      instance={instance}
-                      onChange={newInstance =>
-                        onChange(
-                          update(hardware, {
-                            components: { [i]: { $set: newInstance } }
-                          })
-                        )
-                      }
-                    />
-                  </Draggable>
-                </CanvasComponent>
-              );
-            })}
+            {componentList.map(id => (
+              <DraggableComponent key={id} id={id} />
+            ))}
             {boardObject && (
               <Connectors visible={!!draggingConnector}>
                 {boardObject.ports.map(port => (
@@ -374,11 +318,7 @@ const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
             )}
           </Canvas>
         </CanvasWrap>
-        <HardwareTabs
-          selectedBoard={boardObject}
-          boards={boards}
-          components={components}
-        />
+        <HardwareTabs selectedBoard={boardObject} />
       </Container>
     </DragAndDropProvider>
   );
