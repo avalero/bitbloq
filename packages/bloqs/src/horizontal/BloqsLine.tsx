@@ -303,9 +303,17 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
                       {!editInPlace && selectedBloq === i && (
                         <EmptyBloq data-selected={true} />
                       )}
-                      {selectedPlaceholder === i + 1 && (
-                        <EmptyPlaceholder data-selected={true} />
-                      )}
+                      {selectedPlaceholder === i + 1 &&
+                        (editInPlace ? (
+                          <SelectedWrap>
+                            <BloqPlaceholder
+                              selected={true}
+                              category={BloqCategory.Action}
+                            />
+                          </SelectedWrap>
+                        ) : (
+                          <EmptyPlaceholder data-selected={true} />
+                        ))}
                       {!readOnly &&
                         selectedBloq === i &&
                         bloq.type !== "end-loop" && (
@@ -325,6 +333,7 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
           })}
           {!readOnly &&
             bloqs.length > 0 &&
+            selectedPlaceholder < bloqs.length &&
             (selectedBloq !== bloqs.length - 1 ||
               bloqs[bloqs.length - 1].type === "end-loop") && (
               <BloqPlaceholder
@@ -460,9 +469,9 @@ const ScrollRightButton = styled(ScrollButton)`
 `;
 
 const SelectedWrap = styled.div<{
-  isLoop: boolean;
-  isFirst: boolean;
-  canDelete: boolean;
+  isLoop?: boolean;
+  isFirst?: boolean;
+  canDelete?: boolean;
 }>`
   position: relative;
   padding: 10px;

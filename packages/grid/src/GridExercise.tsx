@@ -2,10 +2,9 @@ import React, { FC, useState } from "react";
 import update from "immutability-helper";
 import styled from "@emotion/styled";
 import { IBloq, IBloqType, IBloqLine, BloqsLine } from "@bitbloq/bloqs";
-import { colors } from "@bitbloq/ui";
+import { breakpoints, colors } from "@bitbloq/ui";
 
 import AddBloqPanel from "./AddBloqPanel";
-import BloqsList from "./BloqsList";
 import { bloqTypes } from "./config";
 import { ActionType, IAction, IActions, ILoop } from "./types";
 import RombiIcon from "./icons/rombi.svg";
@@ -268,35 +267,44 @@ const GridExercise: FC<IGridExerciseProps> = ({
       .reduce((filtered, type) => {
         const number =
           availableBloqs[type] - bloqsInUse.filter(a => a.type === type).length;
-        return number ? { ...filtered, [type]: number } : filtered;
+        return { ...filtered, [type]: number };
       }, {});
   const filteredListBloqs =
     availableBloqs &&
     Object.keys(availableBloqs).reduce((filtered, type) => {
       const number =
         availableBloqs[type] - bloqsInUse.filter(a => a.type === type).length;
-      return number ? { ...filtered, [type]: number } : filtered;
+      return { ...filtered, [type]: number };
     }, {});
 
   return (
     <Container className={className}>
-      <ContentWrap>
-        <Content>
-          {children}
-          {filteredListBloqs && Object.keys(filteredListBloqs).length > 0 && (
-            <BloqsList bloqs={filteredListBloqs} />
-          )}
-        </Content>
+      <Content>
+        {children}
+        {filteredListBloqs && (
+          <AvailableBloqsWrap>
+            <AvailableBloqs>
+              {Object.keys(filteredListBloqs).map(typeName => {
+                const type = bloqTypes.find(t => t.name === typeName)!;
+                const count = filteredListBloqs[typeName];
+                return (
+                  <AvailableBloq>
+                    <img src={type.icon} />
+                    <span>{count >= 0 ? count : <>&#8734;</>}</span>
+                  </AvailableBloq>
+                );
+              })}
+            </AvailableBloqs>
+          </AvailableBloqsWrap>
+        )}
         {onChange && filteredAvailableBloqs && (
           <AddBloqPanel
-            isOpen={selectedPlaceholder > 0}
             availableBloqs={filteredAvailableBloqs}
             onSelectBloqType={addBloq}
-            onClose={() => setSelectedPlaceholder(-1)}
-            selectedLeft={selectedLeft}
+            disabled={selectedPlaceholder < 0}
           />
         )}
-      </ContentWrap>
+      </Content>
       <StyledBloqsLine
         bloqTypes={bloqTypes}
         line={bloqLine}
@@ -332,26 +340,33 @@ const Container = styled.div`
 `;
 
 const Content = styled.div`
-  align-items: self-start;
+  align-items: stretch;
+  justify-content: center;
   display: flex;
-  padding-top: 10px;
+  padding: 10px 10px 0px 10px;
+  @media screen and (min-width: ${breakpoints.tablet}px) {
+    padding: 20px 20px 0px 20px;
+  }
+  flex: 1;
 
   > :not(:last-child) {
     margin-right: 10px;
   }
-`;
-
-const ContentWrap = styled.div`
-  display: flex;
-  flex: 1;
-  justify-content: center;
-  position: relative;
+  @media screen and (min-width: ${breakpoints.tablet}px) {
+    > :not(:last-child) {
+      margin-right: 20px;
+    }
+  }
 `;
 
 const StyledBloqsLine = styled(BloqsLine)`
   flex: unset;
   margin: 0 10px;
   padding: 10px 0;
+  @media screen and (min-width: ${breakpoints.tablet}px) {
+    margin: 0 20px;
+    padding: 20px 0;
+  }
 `;
 
 const ActiveIndicator = styled.div`
@@ -369,5 +384,51 @@ const ActiveIndicator = styled.div`
   img {
     width: 14px;
     height: 14px;
+  }
+`;
+
+const AvailableBloqsWrap = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+`;
+
+const AvailableBloqs = styled.div`
+  border: 1px solid ${colors.gray7};
+  width: 60px;
+
+  @media screen and (min-width: ${breakpoints.tablet}px) {
+    width: 72px;
+  }
+`;
+
+const AvailableBloq = styled.div`
+  display: flex;
+  height: 30px;
+  align-items: center;
+  font-size: 16px;
+  font-weight: bold;
+  border-bottom: 1px solid ${colors.gray7};
+
+  img {
+    width: 24px;
+    margin: 0 6px;
+  }
+
+  span {
+    width: 30px;
+    display: block;
+    text-align: center;
+  }
+
+  &:last-of-type {
+    border-bottom: none;
+  }
+
+  @media screen and (min-width: ${breakpoints.tablet}px) {
+    height: 38px;
+    img {
+      width: 30px;
+    }
   }
 `;
