@@ -11,7 +11,7 @@ export const Program = () => {
   return (
     <div
       style={{
-        width: 1200,
+        width: 1000,
         height: 572,
         border: "1px solid #ccc",
         display: "flex",
@@ -31,7 +31,9 @@ export const Program = () => {
           loop: 2
         }}
         onChange={setActions}
-      />
+      >
+        <div style={{ width: 450, height: "100%", backgroundColor: "red" }} />
+      </GridExercise>
     </div>
   );
 };
@@ -91,7 +93,9 @@ export const ReadOnlyProgram = () => {
           { type: ActionType.Forward }
         ]}
         activeAction={6}
-      />
+      >
+        <div style={{ width: 450, height: "100%", backgroundColor: "red" }} />
+      </GridExercise>
     </div>
   );
 };

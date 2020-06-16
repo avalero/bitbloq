@@ -1,7 +1,8 @@
 import React, { FC, ReactElement } from "react";
 import { HorizontalBloq } from "@bitbloq/bloqs";
+import { breakpoints } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import { bloqTypes, breakpoint } from "./config";
+import { bloqTypes } from "./config";
 
 interface IAddBloqPanelProps {
   bloqs: { [bloq: string]: number };
@@ -56,7 +57,7 @@ const Container = styled.div`
   padding: 8px;
   width: max-content;
 
-  @media screen and (min-width: ${breakpoint}px) {
+  @media screen and (min-width: ${breakpoints.tablet}px) {
     grid-template-columns: auto;
   }
 `;

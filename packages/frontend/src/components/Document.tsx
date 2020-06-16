@@ -407,9 +407,9 @@ class Document extends React.Component<any, DocumentState> {
             {t => (
               <>
                 <Query query={DOCUMENT_QUERY} variables={{ id }}>
-                  {({ loading, error, data, refetch }) => {
-                    if (error) {
-                      return <GraphQLErrorMessage apolloError={error} />;
+                  {({ loading, data, refetch, ...rest }) => {
+                    if (rest.error) {
+                      return <GraphQLErrorMessage apolloError={rest.error} />;
                     }
                     if (loading) {
                       return <AppLayout loading />;

@@ -11,8 +11,6 @@ import pickIcon from "./icons/pick.svg";
 import useIcon from "./icons/use.svg";
 import pushIcon from "./icons/push.svg";
 
-export const breakpoint = 1024;
-
 export const bloqTypes: IBloqType[] = [
   {
     category: BloqCategory.Event,
@@ -66,6 +64,7 @@ export const bloqTypes: IBloqType[] = [
   {
     category: BloqCategory.Loop,
     name: "loop",
+    icon: loopIcon,
     iconComponent: "LoopIcon",
     code: {}
   },
