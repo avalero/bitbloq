@@ -281,7 +281,7 @@ const GridExercise: FC<IGridExerciseProps> = ({
     <Container className={className}>
       <Content>
         {children}
-        {filteredListBloqs && (
+        {onChange && filteredListBloqs && (
           <AvailableBloqsWrap>
             <AvailableBloqs>
               {Object.keys(filteredListBloqs).map(typeName => {
