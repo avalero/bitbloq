@@ -133,17 +133,25 @@ const IntegerProperty: FC<IIntegerPropertyProps> = ({
   maxValue
 }) => (
   <FormGroup>
-    <Translate>{t => label && <label>{t(label)}</label>}</Translate>
-    <NumberInput
-      value={value}
-      unit={unit}
-      onChange={(newValue: string, text: string) => onChange(newValue, text)}
-      onFocus={onFocus}
-      onBlur={onBlur}
-      fineStep={fineStep}
-      minValue={minValue}
-      maxValue={maxValue}
-    />
+    <Translate>
+      {t => (
+        <>
+          {label && <label>{t(label)}</label>}
+          <NumberInput
+            value={value}
+            unit={unit && t(unit)}
+            onChange={(newValue: string, text: string) =>
+              onChange(newValue, text)
+            }
+            onFocus={onFocus}
+            onBlur={onBlur}
+            fineStep={fineStep}
+            minValue={minValue}
+            maxValue={maxValue}
+          />
+        </>
+      )}
+    </Translate>
   </FormGroup>
 );
 
@@ -211,12 +219,13 @@ interface IInputComponents {
 }
 
 const inputComponents: IInputComponents = {
-  integer: (commonProps, { fineStep, minValue, maxValue }) => (
+  integer: (commonProps, { fineStep, minValue, maxValue, unit }) => (
     <IntegerProperty
       {...commonProps}
       fineStep={fineStep}
       minValue={minValue}
       maxValue={maxValue}
+      unit={unit}
     />
   ),
   string: commonProps => <StringProperty {...commonProps} />,
