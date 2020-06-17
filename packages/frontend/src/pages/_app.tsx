@@ -2,11 +2,6 @@ import App from "next/app";
 import acceptLanguageParser from "accept-language-parser";
 import { TranslateProvider } from "@bitbloq/ui";
 
-import * as html from "../messages/html";
-import enCountries from "../messages/countries_en.json";
-import esCountries from "../messages/countries_es.json";
-import enMessages from "../messages/en.json";
-import esMessages from "../messages/es.json";
 import redirect from "../lib/redirect";
 import { ServiceWorkerProvider } from "../lib/useServiceWorker";
 import {
@@ -16,21 +11,7 @@ import {
 } from "../config";
 import { getChromeVersion } from "../util";
 import FlagsModal from "../components/FlagsModal";
-
-const messages = {
-  en: {
-    ...enMessages,
-    countries: enCountries,
-    "cookies-policy": html.enCookiesPolicy,
-    "general-conditions": html.enGeneralConditions
-  },
-  es: {
-    ...esMessages,
-    countries: esCountries,
-    "cookies-policy": html.esCookiesPolicy,
-    "general-conditions": html.esGeneralConditions
-  }
-};
+import messages from "../messages";
 
 interface IBitbloqAppProps {
   language: string;
