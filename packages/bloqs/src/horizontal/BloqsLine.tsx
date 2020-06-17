@@ -167,6 +167,9 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
               category={BloqCategory.Event}
             />
           )}
+          {!readOnly && !startsWithEvent() && selectedPlaceholder === 0 && (
+            <EmptyPlaceholder data-selected={true} />
+          )}
 
           {groups.map((group, j) => {
             const isLoop = group[0] && group[0].type === "loop";
@@ -219,7 +222,7 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
                           {bloq.type === "loop" && (
                             <LoopButtonsWrap>
                               <LoopButton
-                                secondary
+                                tertiary
                                 onClick={() => {
                                   if (!onUpdateBloq) {
                                     return;
@@ -239,7 +242,7 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
                                 <Icon name="plus" />
                               </LoopButton>
                               <LoopButton
-                                secondary
+                                tertiary
                                 onClick={() => {
                                   if (!onUpdateBloq) {
                                     return;

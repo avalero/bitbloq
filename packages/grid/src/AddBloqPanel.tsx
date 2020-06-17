@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { breakpoints, Icon, JuniorButton } from "@bitbloq/ui";
+import { breakpoints, Icon } from "@bitbloq/ui";
 import {
   IBloqType,
   BloqCategory,

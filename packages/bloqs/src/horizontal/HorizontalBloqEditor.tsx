@@ -269,14 +269,14 @@ const HorizontalBloqEditor: React.FunctionComponent<
         <Toolbar>
           <ToolbarLeft>
             <JuniorButton
-              secondary
+              tertiary
               disabled={undoPast.length === 0}
               onClick={onUndo}
             >
               <Icon name="undo" />
             </JuniorButton>
             <JuniorButton
-              secondary
+              tertiary
               disabled={undoFuture.length === 0}
               onClick={onRedo}
             >
