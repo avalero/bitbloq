@@ -2,17 +2,16 @@ import React, { FC, useEffect, useState } from "react";
 import { useSubscription, useMutation } from "@apollo/react-hooks";
 import { ISessionExpires } from "@bitbloq/api";
 import { DialogModal } from "@bitbloq/ui";
-import { logout } from "../lib/session";
 import { RENEW_SESSION_MUTATION } from "../apollo/queries";
 import { DocumentNode } from "apollo-link";
 
 export interface ISessionWarningModalProps {
   subscription: DocumentNode;
-  setActivteToFalse?: () => any;
+  onExpired?: () => any;
 }
 const SessionWarningModal: FC<ISessionWarningModalProps> = ({
   subscription,
-  setActivteToFalse
+  onExpired
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [secondsRemaining, setSecondsRemaining] = useState(0);
@@ -26,15 +25,8 @@ const SessionWarningModal: FC<ISessionWarningModalProps> = ({
           (subscriptionData.data.userSessionExpires ||
             subscriptionData.data.submissionSessionExpires)) ||
         {};
-      if (sessionExpires.expiredSession) {
-        if (
-          subscriptionData.data.submissionSessionExpires &&
-          subscriptionData.data.submissionSessionExpires.expiredSession &&
-          setActivteToFalse
-        ) {
-          await setActivteToFalse();
-        }
-        return logout();
+      if (sessionExpires.expiredSession && onExpired) {
+        onExpired();
       }
       if (
         !sessionExpires.expiredSession &&
