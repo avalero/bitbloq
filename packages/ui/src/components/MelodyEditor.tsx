@@ -352,6 +352,7 @@ const Container = styled.div`
   max-height: 438px;
   max-width: 100%;
   overflow: hidden;
+  flex: 1;
 `;
 
 const Controls = styled.div`

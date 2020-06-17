@@ -390,7 +390,7 @@ const ActiveIndicator = styled.div`
 const AvailableBloqsWrap = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: center;
 `;
 
 const AvailableBloqs = styled.div`
