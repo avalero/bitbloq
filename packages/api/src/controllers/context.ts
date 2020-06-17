@@ -27,14 +27,14 @@ const checkOtherSessionOpen = async (user: IUserInToken, justToken: string) => {
         const result: IDataInRedis = await redisClient.hgetallAsync(
           String(user.userID)
         );
-        reply = result.authToken;
-        expiresAt = new Date(result.expiresAt);
+        reply = result ? result.authToken : "";
+        expiresAt = result ? new Date(result.expiresAt) : new Date();
       } else if (user.submissionID) {
         const result: IDataInRedis = await redisClient.hgetallAsync(
           String(user.submissionID)
         );
-        reply = result.subToken;
-        expiresAt = new Date(result.expiresAt);
+        reply = result ? result.subToken : "";
+        expiresAt = result ? new Date(result.expiresAt) : new Date();
       } else {
         reply = "";
         expiresAt = new Date();
