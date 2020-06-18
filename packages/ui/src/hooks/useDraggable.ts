@@ -1,4 +1,4 @@
-import { Ref, useEffect, useRef, useState } from "react";
+import { Ref, useEffect, useRef, useState, CSSProperties } from "react";
 
 interface IState {
   dragging: boolean;
@@ -16,13 +16,23 @@ interface IOnDragParams {
   element: HTMLDivElement;
 }
 
-interface IUseDragParams {
+export interface IUseDragParams {
   onDragStart?: (params: IOnDragParams) => void;
   onDrag?: (params: IOnDragParams) => void;
   onDragEnd?: (params: IOnDragParams) => void;
 }
 
-const useDraggable = (params: IUseDragParams) => {
+export interface IUseDragElementProps {
+  ref: Ref<HTMLDivElement>;
+  style: CSSProperties;
+  onDragStart: (e: React.DragEvent) => void;
+  onMouseDown: (e: React.MouseEvent) => void;
+  onTouchStart: (e: React.TouchEvent) => void;
+  onTouchMove: (e: React.TouchEvent) => void;
+  onTouchEnd: (e: React.TouchEvent) => void;
+}
+
+const useDraggable = (params: IUseDragParams): IUseDragElementProps => {
   const ref = useRef<HTMLDivElement>(null);
   const [state, setState] = useState<IState>({
     dragging: false,
@@ -32,9 +42,8 @@ const useDraggable = (params: IUseDragParams) => {
     diffY: 0
   });
 
-  const element = ref.current;
-
   const startDrag = (clientX: number, clientY: number) => {
+    const element = ref.current;
     const { x, y, width, height } = element!.getBoundingClientRect();
     if (params.onDragStart) {
       params.onDragStart({ x, y, width, height, element: element! });
@@ -49,6 +58,7 @@ const useDraggable = (params: IUseDragParams) => {
   };
 
   const drag = (clientX: number, clientY: number) => {
+    const element = ref.current;
     const { width, height, diffX, diffY } = state;
     if (params.onDrag) {
       params.onDrag({
@@ -62,6 +72,7 @@ const useDraggable = (params: IUseDragParams) => {
   };
 
   const endDrag = (clientX: number, clientY: number) => {
+    const element = ref.current;
     const { width, height, diffX, diffY } = state;
     if (params.onDragEnd) {
       params.onDragEnd({
@@ -99,26 +110,33 @@ const useDraggable = (params: IUseDragParams) => {
   };
 
   const onMouseDown = (e: React.MouseEvent) => {
+    e.stopPropagation();
     startDrag(e.clientX, e.clientY);
   };
 
   const onTouchStart = (e: React.TouchEvent) => {
+    e.stopPropagation();
     const touch = e.touches[0];
     startDrag(touch.clientX, touch.clientY);
   };
 
   const onTouchMove = (e: React.TouchEvent) => {
+    e.stopPropagation();
     const touch = e.touches[0];
     drag(touch.clientX, touch.clientY);
   };
 
   const onTouchEnd = (e: React.TouchEvent) => {
+    e.stopPropagation();
     const touch = e.touches[0];
     endDrag(touch.clientX, touch.clientY);
   };
 
+  const style = { cursor: state.dragging ? "grabbing" : "grab" };
+
   return {
     ref,
+    style,
     onDragStart,
     onMouseDown,
     onTouchStart,

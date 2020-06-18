@@ -1,8 +1,9 @@
 import React, { FC, useMemo } from "react";
 import styled from "@emotion/styled";
-import { IBoard, IComponent } from "@bitbloq/bloqs";
+import { IBoard, IComponent, IComponentInstance } from "@bitbloq/bloqs";
 import { breakpoints, Draggable, Icon, Tabs, useTranslate } from "@bitbloq/ui";
-import Component from "./Component";
+import { useSetRecoilState } from "recoil";
+import { draggingInstanceState } from "./state";
 import useHardwareDefinition from "./useHardwareDefinition";
 
 export interface IHardwareTabsProps {
@@ -12,6 +13,9 @@ export interface IHardwareTabsProps {
 const HardwareTabs: FC<IHardwareTabsProps> = ({ selectedBoard }) => {
   const t = useTranslate();
   const { boards, components } = useHardwareDefinition();
+  const setDraggingInstance = useSetRecoilState<IComponentInstance>(
+    draggingInstanceState
+  );
 
   const compatibleComponents = useMemo(
     () =>
@@ -34,9 +38,35 @@ const HardwareTabs: FC<IHardwareTabsProps> = ({ selectedBoard }) => {
         <Items>
           {compatibleComponents.map(component => (
             <ComponentWrap key={component.name}>
-              <ComponentDraggable data={{ component }}>
-                <Component component={component} editable={false} />
-              </ComponentDraggable>
+              <Draggable
+                data={{ component }}
+                onDragStart={params =>
+                  setDraggingInstance({
+                    component: component.name,
+                    x: params.x,
+                    y: params.y
+                  })
+                }
+                onDrag={params =>
+                  setDraggingInstance({
+                    component: component.name,
+                    x: params.x,
+                    y: params.y
+                  })
+                }
+                onDragEnd={() => setDraggingInstance({ component: "" })}
+              >
+                {props => (
+                  <Component {...props}>
+                    <img
+                      src={component.image.url}
+                      width={component.image.width}
+                      height={component.image.height}
+                      alt={component.label}
+                    />
+                  </Component>
+                )}
+              </Draggable>
               <p>{t(component.label || "")}</p>
             </ComponentWrap>
           ))}
@@ -54,7 +84,11 @@ const HardwareTabs: FC<IHardwareTabsProps> = ({ selectedBoard }) => {
           {boards.map(board => (
             <Board key={board.name}>
               <Draggable data={{ board }}>
-                <BoardImage src={board.image.url} />
+                {props => (
+                  <div {...props}>
+                    <BoardImage src={board.image.url} />
+                  </div>
+                )}
               </Draggable>
               <p>{board.label}</p>
             </Board>
@@ -143,4 +177,18 @@ const ComponentWrap = styled.div`
 
 const ComponentDraggable = styled(Draggable)`
   display: inline-block;
+`;
+
+const Component = styled.div`
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  background: #d7d7d7;
+  border-radius: 4px;
+  padding: 10px;
+
+  img {
+    margin: 10px;
+    pointer-events: none;
+  }
 `;
