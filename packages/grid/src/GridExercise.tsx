@@ -87,7 +87,7 @@ const GridExercise: FC<IGridExerciseProps> = ({
       const action: ILoop = { type: ActionType.Loop, children: [], repeat: 2 };
       onChange(
         update(actions, {
-          $splice: [[selectedPlaceholder - 1, 0, action]]
+          $splice: [[selectedActionIndex, 0, action]]
         })
       );
     } else {
