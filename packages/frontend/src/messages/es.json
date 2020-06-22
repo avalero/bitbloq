@@ -259,6 +259,7 @@
   "general-error-email": "Este correo no es válido",
   "account": {
     "title": "Mi cuenta",
+    "language": "Idioma",
     "user-data": {
       "delete": {
         "button": "Eliminar cuenta",

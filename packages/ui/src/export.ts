@@ -28,6 +28,7 @@ import Tabs from "./components/Tabs";
 import TranslateProvider, {
   Translate,
   withTranslate,
+  useLanguage,
   useTranslate
 } from "./components/TranslateProvider";
 import Layout from "./components/Layout";
@@ -70,6 +71,7 @@ export {
   Spinner,
   ScrollableTabs,
   withTranslate,
+  useLanguage,
   useTranslate,
   Layout,
   useKeyPressed,
