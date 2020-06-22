@@ -5,7 +5,15 @@ import { useMutation } from "react-apollo";
 import { css } from "@emotion/core";
 import styled from "@emotion/styled";
 import { IUser } from "@bitbloq/api";
-import { useTranslate, Button, DialogModal, Icon, colors } from "@bitbloq/ui";
+import {
+  useLanguage,
+  useTranslate,
+  Button,
+  DialogModal,
+  Icon,
+  Select,
+  colors
+} from "@bitbloq/ui";
 import {
   CHANGE_EMAIL_MUTATION,
   DELETE_USER,
@@ -31,9 +39,15 @@ enum TabType {
   Purchases
 }
 
+const languageOptions = [
+  { label: "Castellano", value: "es" },
+  { label: "English", value: "en" }
+];
+
 const AccountPage: NextPage = () => {
   const personalDataFormId = "personal-data-form";
   const t = useTranslate();
+  const language = useLanguage();
   const { userData, fetchUserData } = useUserData();
 
   const memberPlan: IPlan = plans.filter(p => p.name === "member")[0];
@@ -160,6 +174,11 @@ const AccountPage: NextPage = () => {
     }
   };
 
+  const onChangeLanguage = newLanguage => {
+    document.cookie = `language=${newLanguage}`;
+    window.location.reload();
+  };
+
   if (error) {
     return <GraphQLErrorMessage apolloError={error} />;
   }
@@ -266,6 +285,17 @@ const AccountPage: NextPage = () => {
                 </>} */}
               </>
             </Panel>
+            <Panel
+              title={t("account.language")}
+              icon=""
+              buttons={
+                <LanguageSelect
+                  options={languageOptions}
+                  value={language}
+                  onChange={onChangeLanguage}
+                />
+              }
+            />
             {!userData.socialLogin && (
               <Panel
                 title={t("account.user-data.delete.title")}
@@ -510,4 +540,8 @@ const PanelContent = styled.div`
   h1 {
     font-size: 16px;
   }
+`;
+
+const LanguageSelect = styled(Select)`
+  width: 200px;
 `;

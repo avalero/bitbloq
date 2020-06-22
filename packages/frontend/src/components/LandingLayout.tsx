@@ -1,7 +1,15 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { FC, useRef, useState, useEffect } from "react";
-import { useTranslate, DropDown, Icon, Button, Layout } from "@bitbloq/ui";
+import {
+  useLanguage,
+  useTranslate,
+  DropDown,
+  Icon,
+  Button,
+  Layout,
+  Select
+} from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import AppFooter from "./AppFooter";
 import AppHeader from "./AppHeader";
@@ -13,9 +21,15 @@ export interface ILandingLayoutProps {
   headerFixed?: boolean;
 }
 
+const languageOptions = [
+  { label: "Castellano", value: "es" },
+  { label: "English", value: "en" }
+];
+
 const LandingLayout: FC<ILandingLayoutProps> = ({ headerFixed, children }) => {
   const router = useRouter();
   const t = useTranslate();
+  const langCode = useLanguage();
   const headerRef = useRef<HTMLDivElement>(null);
   const [isHeaderSticky, setIsHeaderSticky] = useState(false);
 
@@ -34,6 +48,11 @@ const LandingLayout: FC<ILandingLayoutProps> = ({ headerFixed, children }) => {
 
     return undefined;
   }, []);
+
+  const onChangeLanguage = newLanguage => {
+    document.cookie = `language=${newLanguage}`;
+    window.location.reload();
+  };
 
   return (
     <>
@@ -79,6 +98,13 @@ const LandingLayout: FC<ILandingLayoutProps> = ({ headerFixed, children }) => {
               <p>900 00 00 00</p>
               <p>soporte.bitbloq@bq.com</p>
             </FooterLeft> */}
+          <FooterLeft>
+            <LanguageSelect
+              options={languageOptions}
+              value={langCode}
+              onChange={onChangeLanguage}
+            />
+          </FooterLeft>
           <FooterRight>
             <p>{t("home.belongs-to")}</p>
             <img src={bqLogo} alt="BQ" />
@@ -144,6 +170,9 @@ const Footer = styled.div`
 `;
 
 const FooterLeft = styled.div`
+  flex: 1;
+  display: flex;
+  align-items: center;
   h2 {
     font-size: 16px;
     font-weight: bold;
@@ -152,6 +181,11 @@ const FooterLeft = styled.div`
   p {
     margin-top: 10px;
   }
+`;
+
+const LanguageSelect = styled(Select)`
+  color: #373b44;
+  width: 200px;
 `;
 
 const FooterRight = styled.div`

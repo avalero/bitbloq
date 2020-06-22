@@ -1,4 +1,5 @@
 import App from "next/app";
+import cookie from "cookie";
 import acceptLanguageParser from "accept-language-parser";
 import { TranslateProvider } from "@bitbloq/ui";
 
@@ -20,15 +21,20 @@ interface IBitbloqAppProps {
 class BitbloqApp extends App<IBitbloqAppProps> {
   public static async getInitialProps(ctx) {
     const { req, pathname } = ctx.ctx;
+    const cookies = cookie.parse(
+      req ? req.headers.cookie || "" : document.cookie
+    );
     const userAgent = req ? req.headers["user-agent"] : navigator.userAgent;
     const acceptLanguage = req
       ? req.headers["accept-language"]
       : navigator.language;
 
     const language =
+      cookies.language ||
       acceptLanguageParser.pick(supportedLanguages, acceptLanguage, {
         loose: true
-      }) || defaultLanguage;
+      }) ||
+      defaultLanguage;
 
     if (pathname !== "/browser-warning") {
       const chromeVersion = getChromeVersion(userAgent);
@@ -51,7 +57,7 @@ class BitbloqApp extends App<IBitbloqAppProps> {
 
     return (
       <ServiceWorkerProvider>
-        <TranslateProvider messages={messages[language]}>
+        <TranslateProvider messages={messages[language]} language={language}>
           <Component {...pageProps} />
           <FlagsModal />
         </TranslateProvider>

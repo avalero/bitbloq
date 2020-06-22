@@ -283,6 +283,7 @@
   "general-error-email": "Invalid e-mail",
   "account": {
     "title": "My account",
+    "language": "Language",
     "user-data": {
       "delete": {
         "confirmation": {
