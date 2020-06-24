@@ -36,6 +36,7 @@ import JuniorButton from "./components/junior/Button";
 import JuniorSwitch from "./components/junior/Switch";
 import JuniorNumberInput from "./components/junior/NumberInput";
 import JuniorUpDownButton from "./components/junior/UpDownButton";
+import useDraggable from "./hooks/useDraggable";
 import useKeyPressed from "./hooks/useKeyPressed";
 import baseStyles from "./base-styles";
 import colors from "./colors";
@@ -74,6 +75,7 @@ export {
   useLanguage,
   useTranslate,
   Layout,
+  useDraggable,
   useKeyPressed,
   baseStyles,
   colors,

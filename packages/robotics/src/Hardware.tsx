@@ -1,10 +1,9 @@
 import React, { FC, useState, useRef, useEffect, useMemo } from "react";
 import styled from "@emotion/styled";
+import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
 import update from "immutability-helper";
 import { v1 as uuid } from "uuid";
 import {
-  IBoard,
-  IComponent,
   IComponentInstance,
   IHardware,
   IPosition,
@@ -20,62 +19,32 @@ import {
   Icon,
   useTranslate
 } from "@bitbloq/ui";
+import useHardwareDefinition from "./useHardwareDefinition";
+import {
+  componentListState,
+  componentWithIdState,
+  draggingConnectorState,
+  draggingInstanceState
+} from "./state";
 
+import Connections from "./Connections";
 import Component from "./Component";
+import DraggingComponent from "./DraggingComponent";
 import HardwareTabs from "./HardwareTabs";
-
-import boardsJSON from "./boards";
-import componentsJSON from "./components";
-
-const boards = boardsJSON as IBoard[];
-const components = componentsJSON as IComponent[];
 
 export interface IHardwareProps {
   hardware: Partial<IHardware>;
   onChange: (newHardware: Partial<IHardware>) => void;
 }
 
-const getConnectionPath = (
-  x1: number,
-  y1: number,
-  d1: IPortDirection,
-  x2: number,
-  y2: number,
-  d2: IPortDirection
-) => {
-  let path = `M ${x1} ${y1} `;
-  if (d1 === IPortDirection.South) {
-    path += `L ${x1} ${(y1 + y2) / 2}`;
-    path += `L ${x2} ${(y1 + y2) / 2}`;
-  }
-
-  path += `L ${x2} ${y2}`;
-
-  return path;
-};
-
 const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
   const t = useTranslate();
 
-  const componentsMap: { [name: string]: IComponent } = useMemo(
-    () => components.reduce((map, c) => ({ ...map, [c.name]: c }), {}),
-    [components]
-  );
+  const { getBoard, getComponent } = useHardwareDefinition();
 
   const componentRefs = useRef<{
     [id: string]: React.RefObject<HTMLDivElement>;
   }>({});
-
-  const getComponentRef = (component: IComponentInstance) => {
-    if (!component.id) {
-      return null;
-    }
-    const refs = componentRefs.current!;
-    if (!refs[component.id]) {
-      refs[component.id] = React.createRef();
-    }
-    return refs[component.id];
-  };
 
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
@@ -83,13 +52,9 @@ const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
   const boardRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
 
-  const [draggingConnector, setDraggingConnector] = useState<IConnector | null>(
-    null
-  );
-
   const [boardSelected, setBoardSelected] = useState(false);
 
-  const boardObject = boards.find(b => b.name === hardware.board);
+  const boardObject = getBoard(hardware.board || "");
 
   const getInstanceName = (baseName: string, count: number = 0): string => {
     const name = `${baseName}${count || ""}`;
@@ -97,6 +62,36 @@ const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
       hardware.components && hardware.components.some(c => c.name === name);
     return exist ? getInstanceName(baseName, count ? count + 1 : 2) : name;
   };
+
+  const [componentList, setComponentList] = useRecoilState(componentListState);
+  const draggingConnector = useRecoilValue(draggingConnectorState);
+
+  const addComponentInstance = useRecoilCallback(
+    ({ set }, component, position) => {
+      const id = uuid();
+      setComponentList([...componentList, id]);
+      set(componentWithIdState(id), {
+        id,
+        component: component.name,
+        position,
+        name: getInstanceName(t(component.instanceName))
+      });
+    }
+  );
+
+  console.log("RENDER!!!");
+
+  const addConnection = useRecoilCallback(
+    ({ set }, instance, connector, port) => {
+      set(componentWithIdState(instance.id), {
+        ...instance,
+        ports: {
+          ...instance.ports,
+          [connector.name]: port.name
+        }
+      });
+    }
+  );
 
   useEffect(() => {
     const onResize = () => {
@@ -131,17 +126,6 @@ const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
     };
   }, []);
 
-  const onDragStart = ({ draggableData }) => {
-    const { type, connector } = draggableData;
-    if (type === "connector") {
-      setDraggingConnector(connector);
-    }
-  };
-
-  const onDragEnd = () => {
-    setDraggingConnector(null);
-  };
-
   const onDrop = ({
     draggableData,
     droppableData,
@@ -162,20 +146,9 @@ const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
     if (type === "canvas") {
       const { component } = draggableData;
       if (component) {
-        onChange({
-          ...hardware,
-          components: [
-            ...(hardware.components || []),
-            {
-              id: uuid(),
-              component: component.name,
-              name: getInstanceName(t(component.instanceName)),
-              position: {
-                x: x - width / 2 + draggableWidth / 2,
-                y: y - height / 2 + draggableHeight / 2
-              }
-            }
-          ]
+        addComponentInstance(component, {
+          x: x - width / 2 + draggableWidth / 2,
+          y: y - height / 2 + draggableHeight / 2
         });
       }
     }
@@ -183,93 +156,18 @@ const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
     if (type === "port") {
       const { connector, instance } = draggableData;
       const { port } = droppableData;
-
-      const componentIndex = hardware.components!.indexOf(instance);
-
-      onChange(
-        update(hardware, {
-          components: {
-            [componentIndex]: {
-              ports: {
-                $set: {
-                  ...instance.ports,
-                  [connector.name]: port.name
-                }
-              }
-            }
-          }
-        })
-      );
+      if (connector && instance && port) {
+        addConnection(instance, connector, port);
+      }
     }
   };
 
   return (
-    <DragAndDropProvider
-      onDragStart={onDragStart}
-      onDrop={onDrop}
-      onDragEnd={onDragEnd}
-    >
+    <DragAndDropProvider onDrop={onDrop}>
       <Container>
         <CanvasWrap data={{ type: "canvas" }} active={!draggingConnector}>
-          {boardObject && (
-            <Connections>
-              <g transform={`translate(${width / 2},${height / 2})`}>
-                {(hardware.components || []).map(instance => {
-                  const component = componentsMap[instance.component];
-                  const ports = instance.ports || {};
-
-                  return Object.keys(ports).map(connector => {
-                    const port = ports[connector];
-                    const connectorObject = component.connectors.find(
-                      c => c.name === connector
-                    );
-                    const portObject = boardObject.ports.find(
-                      p => p.name === port
-                    );
-
-                    const componentRef = getComponentRef(instance);
-                    const componentEl = componentRef && componentRef.current;
-
-                    if (
-                      !connectorObject ||
-                      !portObject ||
-                      !instance.position ||
-                      !componentEl
-                    ) {
-                      return;
-                    }
-
-                    const {
-                      width: componentWidth,
-                      height: componentHeight
-                    } = componentEl.getBoundingClientRect();
-
-                    const connectorX =
-                      instance.position.x +
-                      (connectorObject.position.x / 2) * componentWidth;
-                    const connectorY =
-                      instance.position.y +
-                      (connectorObject.position.y / 2) * componentHeight;
-
-                    const portX =
-                      portObject.position.x + (portObject.width || 0) / 2;
-                    const portY =
-                      portObject.position.y + (portObject.height || 0) / 2;
-
-                    const path = getConnectionPath(
-                      connectorX,
-                      connectorY,
-                      connectorObject.direction || IPortDirection.South,
-                      portX,
-                      portY,
-                      portObject.direction
-                    );
-
-                    return <Connection d={path} />;
-                  });
-                })}
-              </g>
-            </Connections>
+          {hardware.board && (
+            <Connections width={width} height={height} board={hardware.board} />
           )}
           <Canvas ref={canvasRef}>
             {boardObject ? (
@@ -280,10 +178,6 @@ const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
                 dragging={!!draggingConnector}
                 onClick={e => {
                   setBoardSelected(true);
-                  console.log(
-                    e.clientX - width / 2 - 70,
-                    e.clientY - height / 2 - 111
-                  );
                 }}
               />
             ) : (
@@ -295,62 +189,9 @@ const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
                 )}
               </BoardPlaceholderWrap>
             )}
-            {(hardware.components || []).map((instance, i) => {
-              if (!instance.position) {
-                return null;
-              }
-              const component = componentsMap[instance.component];
-              if (!component) {
-                return null;
-              }
-              return (
-                <CanvasComponent
-                  ref={getComponentRef(instance)}
-                  key={instance.id}
-                  top={instance.position.y}
-                  left={instance.position.x}
-                >
-                  <Draggable
-                    dragCopy={false}
-                    onDragEnd={({
-                      x,
-                      y,
-                      width: dragWidth,
-                      height: dragHeight
-                    }) => {
-                      const {
-                        x: canvasX,
-                        y: canvasY
-                      } = canvasRef.current!.getBoundingClientRect();
-                      onChange(
-                        update(hardware, {
-                          components: {
-                            [i]: {
-                              position: {
-                                x: { $set: x - canvasX + dragWidth / 2 },
-                                y: { $set: y - canvasY + dragHeight / 2 }
-                              }
-                            }
-                          }
-                        })
-                      );
-                    }}
-                  >
-                    <Component
-                      component={component}
-                      instance={instance}
-                      onChange={newInstance =>
-                        onChange(
-                          update(hardware, {
-                            components: { [i]: { $set: newInstance } }
-                          })
-                        )
-                      }
-                    />
-                  </Draggable>
-                </CanvasComponent>
-              );
-            })}
+            {componentList.map(id => (
+              <Component key={id} id={id} />
+            ))}
             {boardObject && (
               <Connectors visible={!!draggingConnector}>
                 {boardObject.ports.map(port => (
@@ -374,12 +215,9 @@ const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
             )}
           </Canvas>
         </CanvasWrap>
-        <HardwareTabs
-          selectedBoard={boardObject}
-          boards={boards}
-          components={components}
-        />
+        <HardwareTabs selectedBoard={boardObject} />
       </Container>
+      <DraggingComponent />
     </DragAndDropProvider>
   );
 };
@@ -459,13 +297,6 @@ const BoardPlaceholder = styled.div<{ active: boolean }>`
   justify-content: center;
 `;
 
-const CanvasComponent = styled.div<{ top: number; left: number }>`
-  position: absolute;
-  top: ${props => props.top}px;
-  left: ${props => props.left}px;
-  transform: translate(-50%, -50%);
-`;
-
 const Connectors = styled.div<{ visible: boolean }>`
   visibility: ${props => (props.visible ? "visible" : "hidden")};
 `;
@@ -490,20 +321,4 @@ const Port = styled.div<{
   border: solid 1px #373b44;
   background-color: ${props =>
     props.dragging ? "#373b44" : "rgba(55, 59, 68, 0.3)"};
-`;
-
-const Connections = styled.svg`
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 2;
-`;
-
-const Connection = styled.path`
-  stroke: ${colors.black};
-  stroke-width: 3px;
-  fill: none;
 `;
