@@ -1,6 +1,6 @@
 import React, { FC, useState } from "react";
 import styled from "@emotion/styled";
-import { Icon } from "@bitbloq/ui";
+import { Icon, useTranslate } from "@bitbloq/ui";
 import { useApolloClient, useQuery } from "@apollo/react-hooks";
 import { useSpring, animated } from "react-spring";
 import { EXAMPLES_QUERY } from "../apollo/queries";
@@ -12,6 +12,7 @@ const LandingExamples: FC = () => {
   const { data } = useQuery(EXAMPLES_QUERY);
   const [first, setFirst] = useState(0);
 
+  const t = useTranslate();
   const numExamples = (data && data.examples && data.examples.length) || 0;
 
   const examplesStyle = useSpring({
@@ -31,7 +32,7 @@ const LandingExamples: FC = () => {
     <Container>
       <h2>
         <Icon name="view-document" />
-        Descubre todo lo que puedes crear
+        {t("home.discover")}
       </h2>
       <Wrap>
         <ExamplesWrap>

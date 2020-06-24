@@ -144,7 +144,7 @@ const ExerciseLoginModal: FC<IExerciseLoginModalProps> = ({
             </Button>
           </>
         }
-        cancelText={t("leave-exercise")}
+        cancelText={t("exercises.leave-exercise")}
         onCancel={() => {
           window.close();
           window.location.assign("/");
