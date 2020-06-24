@@ -9,7 +9,7 @@ export interface IOpenExerciseForm {
 }
 
 const OpenExerciseForm: FC<IOpenExerciseForm> = ({
-  openText = "Ir al ejercicio"
+  openText = "documents.go-to-exercise"
 }) => {
   const t = useTranslate();
   const client = useApolloClient();
@@ -56,7 +56,7 @@ const OpenExerciseForm: FC<IOpenExerciseForm> = ({
       />
       {exerciseError && <Error>{t("home.invalid-code")}</Error>}
       <Button type="submit" disabled={loadingExercise}>
-        {openText}
+        {t(openText)}
       </Button>
     </Form>
   );

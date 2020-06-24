@@ -132,19 +132,19 @@ const ExerciseLoginModal: FC<IExerciseLoginModalProps> = ({
     return (
       <DialogModal
         isOpen={true}
-        title="Bienvenido al ejercicio"
-        text="¿Qué quieres hacer?"
+        title={t("exercises.welcome-to-exercise")}
+        text={t("exercises.what-do-you-want-to-do")}
         content={
           <>
             <Button onClick={() => gotoStep(Steps.Start)}>
-              Empezar una entrega
+              {t("exercises.start-submission")}
             </Button>
             <Button onClick={() => gotoStep(Steps.Continue)}>
-              Continuar una entrega
+              {t("exercises.resume-submission")}
             </Button>
           </>
         }
-        cancelText="Salir del ejercicio"
+        cancelText={t("leave-exercise")}
         onCancel={() => {
           window.close();
           window.location.assign("/");
@@ -156,24 +156,29 @@ const ExerciseLoginModal: FC<IExerciseLoginModalProps> = ({
       <Modal
         isOpen={true}
         title={
-          step === Steps.Start ? "Empezar una entrega" : "Continuar una entrega"
+          step === Steps.Start
+            ? t("exercises.start-submission")
+            : t("exercises.resume-submission")
         }
       >
         <ModalContent>
           <LoginForm>
             <FormGroup>
-              <label>Nombre del equipo</label>
+              <label>{t("exercises.team-name")}</label>
               <Input
                 value={teamName}
                 error={!!teamNameError}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setTeamName(e.target.value)
                 }
-                placeholder="Nombre del equipo"
+                placeholder={t("exercises.team-name")}
               />
             </FormGroup>
             <FormGroup>
-              <label>Contraseña {step === Steps.Start && "(opcional)"}</label>
+              <label>
+                {t("placeholders.password")}{" "}
+                {step === Steps.Start && t("exercises.optional")}
+              </label>
               <Input
                 value={password}
                 error={!!passwordError}
@@ -181,7 +186,7 @@ const ExerciseLoginModal: FC<IExerciseLoginModalProps> = ({
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setPassword(e.target.value)
                 }
-                placeholder="Contraseña"
+                placeholder={t("placeholders.password")}
               />
             </FormGroup>
           </LoginForm>
@@ -190,7 +195,7 @@ const ExerciseLoginModal: FC<IExerciseLoginModalProps> = ({
           )}
           <Buttons>
             <Button tertiary onClick={() => gotoStep(Steps.StartOrContinue)}>
-              Atrás
+              {t("exercises.go-back")}
             </Button>
             <Button
               onClick={() =>
@@ -198,7 +203,7 @@ const ExerciseLoginModal: FC<IExerciseLoginModalProps> = ({
               }
               ref={submitRef}
             >
-              Empezar
+              {t("exercises.start")}
             </Button>
           </Buttons>
         </ModalContent>

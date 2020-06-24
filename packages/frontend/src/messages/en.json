@@ -283,7 +283,6 @@
   "general-error-email": "Invalid e-mail",
   "account": {
     "title": "My account",
-    "language": "Language",
     "user-data": {
       "delete": {
         "confirmation": {
@@ -371,7 +370,8 @@
     },
     "purchases": {
       "title": "Purchased items"
-    }
+    },
+    "language": "Language"
   },
   "change-email-page": {
     "confirm": "Confirm",
@@ -472,7 +472,16 @@
     },
     "resources": {
       "title": "Exercise resources"
-    }
+    },
+    "start-submission": "Start a submission",
+    "go-back": "Go back",
+    "welcome-to-exercise": "Welcome",
+    "team-name": "Team name",
+    "leave-exercise": "Abandom the exercise",
+    "what-do-you-want-to-do": "What do you want to do?",
+    "resume-submission": "Resume an exercise",
+    "start": "Start",
+    "optional": "Optional"
   },
   "filter": {
     "text": {
@@ -499,7 +508,22 @@
     "privacy-policy": "Privacy policy"
   },
   "documents": {
-    "go-to-exercise": "Go to exercise"
+    "go-to-exercise": "Go to exercise",
+    "sort-by": "Sort by",
+    "modified-at": "Modification",
+    "name-a-z": "A-Z",
+    "created-at": "Creation",
+    "name-z-a": "Z-A",
+    "go-to-example": "Go to the example",
+    "my-documents": "My documents",
+    "new-folder": "New folder",
+    "no-results": "No search results",
+    "no-documents": "You have no documents",
+    "folder-no-name": "Folder without name",
+    "create-or-upload": "You can create a new document or update one from your computer",
+    "create-folder": "Create folder",
+    "create": "Create",
+    "folder-name": "Folder name"
   },
   "login": {
     "divider": "or",

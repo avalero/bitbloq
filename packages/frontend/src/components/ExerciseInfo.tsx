@@ -65,7 +65,9 @@ const ExerciseInfo: React.FunctionComponent<IExerciseInfoProps> = ({
         )}
         {!isTeacher && (
           <GotoExercise>
-            <Button onClick={onGotoExercise}>Ir al ejercicio</Button>
+            <Button onClick={onGotoExercise}>
+              {t("documents.go-to-exercise")}
+            </Button>
           </GotoExercise>
         )}
       </Right>
