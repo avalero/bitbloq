@@ -33,7 +33,7 @@
     "@types/lodash": "^4.14.123",
     "@types/mongoose": "^5.3.23",
     "apollo-server": "^2.4.8",
-    "apollo-server-koa": "^2.4.8",
+    "apollo-server-koa": "^2.14.2",
     "axios": "^0.19.2",
     "bcrypt": "^3.0.5",
     "bluebird": "^3.5.3",
