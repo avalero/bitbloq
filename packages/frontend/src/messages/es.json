@@ -769,6 +769,7 @@
     "robots": "Robots"
   },
   "home": {
+    "discover": "Descubre todo lo que puedes crear",
     "sign-up": "Crear una cuenta",
     "sign-in": "Entrar",
     "belongs-to": "Bitbloq es un proyecto de: ",

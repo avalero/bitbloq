@@ -36,8 +36,7 @@ export const documentTypes = {
     supported: ENABLED_TOOLS.includes("robotics"),
     icon: "logo-robotics",
     level: "tools.level-intermediate",
-    landingText:
-      "Programa tus inventos por bloques y aprende los conceptos básicos de la programación.",
+    landingText: "tools.robotica-landing-text",
     editorComponent: CreateDynamicComponent(
       () => import("./components/RoboticsEditor"),
       colors.green

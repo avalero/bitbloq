@@ -473,7 +473,7 @@
     "resources": {
       "title": "Exercise resources"
     },
-    "start-submission": "Start a submission",
+    "start-submission": "Start an exercise",
     "go-back": "Go back",
     "welcome-to-exercise": "Welcome",
     "team-name": "Team name",
@@ -795,7 +795,8 @@
     "go-to-exercise-step-2": "Insert your code and press \"Start\".",
     "open-from-file-text": "Open any .bitbloq document you have previously saved on your computer.",
     "exercise-code": "Excercise Code",
-    "invalid-code": "Invalid code"
+    "invalid-code": "Invalid code",
+    "discover": "Discover Bitbloq"
   },
   "start": "Start",
   "tools": {
