@@ -261,8 +261,6 @@ class Document extends React.Component<IDocumentProps, IState> {
     isHeaderCollapsed: false
   };
 
-  private containerRef = React.createRef<HTMLDivElement>();
-
   public render() {
     const {
       menuOptions = [],
@@ -284,7 +282,7 @@ class Document extends React.Component<IDocumentProps, IState> {
     const { isHeaderCollapsed } = this.state;
 
     return (
-      <Container ref={this.containerRef}>
+      <Container>
         <HeaderWrap collapsed={isHeaderCollapsed}>
           <Header>
             <DocumentIcon
@@ -301,7 +299,11 @@ class Document extends React.Component<IDocumentProps, IState> {
               ) : (
                 ""
               )}
-              {backCallback ? <Icon className="back" name="arrow-left" /> : ""}
+              {!!backCallback ? (
+                <Icon className="back" name="arrow-left" />
+              ) : (
+                ""
+              )}
             </DocumentIcon>
             <Title canEdit={!!onEditTitle} onClick={onEditTitle}>
               <span>
@@ -375,12 +377,10 @@ class Document extends React.Component<IDocumentProps, IState> {
   };
 
   private onFullScreenClick = () => {
-    if (this.containerRef.current) {
-      if (document.fullscreenElement) {
-        document.exitFullscreen();
-      } else {
-        this.containerRef.current.requestFullscreen();
-      }
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      document.body.requestFullscreen();
     }
   };
 }

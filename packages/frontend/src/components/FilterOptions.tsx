@@ -16,25 +16,25 @@ const FilterOptions: FC<IFilterOptionsProps> = ({
   searchText,
   selectValue
 }) => {
+  const t = useTranslate();
   const orderOptions = [
     {
-      label: "Orden: Creación",
+      label: t("documents.sort-by") + ": " + t("documents.created-at"),
       value: OrderType.Creation
     },
     {
-      label: "Orden: Modificación",
+      label: t("documents.sort-by") + ": " + t("documents.modified-at"),
       value: OrderType.Modification
     },
     {
-      label: "Orden: Nombre A-Z",
+      label: t("documents.sort-by") + ": " + t("documents.name-a-z"),
       value: OrderType.NameAZ
     },
     {
-      label: "Orden: Nombre Z-A",
+      label: t("documents.sort-by") + ": " + t("documents.name-z-a"),
       value: OrderType.NameZA
     }
   ];
-  const t = useTranslate();
 
   return (
     <>

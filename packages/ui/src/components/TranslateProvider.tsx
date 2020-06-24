@@ -2,13 +2,20 @@ import React, { useContext } from "react";
 
 export type TranslateFn = (id: string, variables?: string[]) => string;
 
-export const TranslateContext = React.createContext<TranslateFn>(
-  (id: string) => id
-);
+export interface ITranslateContext {
+  translateFn: TranslateFn;
+  language: string;
+}
+
+export const TranslateContext = React.createContext<ITranslateContext>({
+  translateFn: (id: string) => id,
+  language: "en"
+});
 
 export interface ITranslateProviderProps {
   messages?: any;
   messagesFiles?: any;
+  language?: string;
   fallback?: React.ReactNode;
 }
 
@@ -63,7 +70,7 @@ class TranslateProvider extends React.Component<
   }
 
   public render() {
-    const { fallback } = this.props;
+    const { fallback, language = "en" } = this.props;
     const messages = this.state.messages || {};
 
     const translateFn = (id: string, variables?: string[]) => {
@@ -80,14 +87,18 @@ class TranslateProvider extends React.Component<
     };
 
     return (
-      <TranslateContext.Provider value={translateFn}>
+      <TranslateContext.Provider value={{ translateFn, language }}>
         {messages ? this.props.children : fallback}
       </TranslateContext.Provider>
     );
   }
 }
 
-export const Translate = TranslateContext.Consumer;
+export const Translate = props => (
+  <TranslateContext.Consumer>
+    {context => props.children(context.translateFn)}
+  </TranslateContext.Consumer>
+);
 
 export interface IWithTranslateProps {
   t: TranslateFn;
@@ -102,8 +113,12 @@ export const withTranslate = <P extends object>(
     }
   };
 
-export const useTranslate = () => {
-  return useContext(TranslateContext);
+export const useTranslate = (): TranslateFn => {
+  return useContext(TranslateContext).translateFn;
+};
+
+export const useLanguage = (): string => {
+  return useContext(TranslateContext).language;
 };
 
 export default TranslateProvider;

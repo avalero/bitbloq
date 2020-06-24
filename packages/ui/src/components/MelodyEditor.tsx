@@ -1,4 +1,5 @@
-import React, { FC, useState, useEffect, useRef } from "react";
+import React, { FC, useState, useEffect, useLayoutEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import Icon from "./Icon";
 import JuniorButton from "./junior/Button";
 import UpDownButton from "./junior/UpDownButton";
@@ -53,6 +54,9 @@ const durationIcons = [
 const MelodyEditor: FC<IMelodyEditor> = ({ notes, onChange, noteLabels }) => {
   const [playing, setPlaying] = useState(false);
   const [noteIndex, setNoteIndex] = useState(-1);
+  const [editDurationIndex, setEditDurationIndex] = useState(-1);
+  const durationElementRef = useRef<HTMLDivElement | null>(null);
+  const prevNoteIndex = useRef(-1);
   const toneRef = useRef<any | null>(null);
   const synthRef = useRef<any | null>(null);
   const playTimeout = useRef<number | null>(null);
@@ -63,10 +67,25 @@ const MelodyEditor: FC<IMelodyEditor> = ({ notes, onChange, noteLabels }) => {
   const [scrollPosition, setScrollPosition] = useState(0);
 
   useEffect(() => {
-    import("tone").then(module => (toneRef.current = module));
+    const loadTone = async () => {
+      const tone = await import("tone");
+      await tone.start();
+      toneRef.current = tone;
+      synthRef.current = new tone.Synth().toDestination();
+    };
+
+    loadTone();
+
+    return () => {
+      if (synthRef.current) {
+        synthRef.current.dispose();
+        synthRef.current = null;
+      }
+    };
   }, []);
 
   const updateWidth = () => {
+    setEditDurationIndex(-1);
     if (!notesRef.current || !notesWrapRef.current) {
       return;
     }
@@ -98,8 +117,6 @@ const MelodyEditor: FC<IMelodyEditor> = ({ notes, onChange, noteLabels }) => {
     if (!tone) {
       return;
     }
-    await tone.start();
-    synthRef.current = new tone.Synth().toDestination();
     setNoteIndex(0);
     setPlaying(true);
   };
@@ -110,10 +127,6 @@ const MelodyEditor: FC<IMelodyEditor> = ({ notes, onChange, noteLabels }) => {
     if (playTimeout.current) {
       window.clearTimeout(playTimeout.current);
       playTimeout.current = null;
-    }
-    if (synthRef.current) {
-      synthRef.current.dispose();
-      synthRef.current = null;
     }
   };
 
@@ -126,11 +139,30 @@ const MelodyEditor: FC<IMelodyEditor> = ({ notes, onChange, noteLabels }) => {
   };
 
   const onScrollLeft = () => {
-    setScrollPosition(Math.max(scrollPosition - 40, 0));
+    setScrollPosition(Math.max(scrollPosition - 168, 0));
   };
 
   const onScrollRight = () => {
-    setScrollPosition(Math.min(scrollPosition + 40, notesWidth - wrapWidth));
+    setScrollPosition(Math.min(scrollPosition + 168, notesWidth - wrapWidth));
+  };
+
+  const onSetNote = (note: string, duration: number, index: number) => {
+    if (onChange) {
+      onChange(
+        Object.assign(notes.slice(), {
+          [index]: {
+            note,
+            duration
+          }
+        })
+      );
+    }
+    if (synthRef.current && !playing && note) {
+      synthRef.current.triggerAttackRelease(
+        note.substring("NOTE_".length), // remove NOTE_ prefix
+        toneDurations[duration]
+      );
+    }
   };
 
   useEffect(() => {
@@ -143,26 +175,29 @@ const MelodyEditor: FC<IMelodyEditor> = ({ notes, onChange, noteLabels }) => {
     }
 
     if (noteIndex >= 0 && noteIndex < notes.length) {
-      const currentNote = notes[noteIndex];
-      const duration = toneDurations[currentNote.duration];
-      if (currentNote.note && currentNote.note.length > "NOTE_".length) {
-        synthRef.current.triggerAttackRelease(
-          currentNote.note.substring("NOTE_".length), // remove NOTE_ prefix
-          duration
-        );
-      }
+      if (noteIndex !== prevNoteIndex.current) {
+        const currentNote = notes[noteIndex];
+        const duration = toneDurations[currentNote.duration];
+        if (currentNote.note && currentNote.note.length > "NOTE_".length) {
+          synthRef.current.triggerAttackRelease(
+            currentNote.note.substring("NOTE_".length), // remove NOTE_ prefix
+            duration
+          );
+        }
 
-      playTimeout.current = window.setTimeout(() => {
-        setNoteIndex(noteIndex + 1);
-      }, toneRef.current.Time(duration).toSeconds() * 1000);
+        playTimeout.current = window.setTimeout(() => {
+          setNoteIndex(noteIndex + 1);
+        }, toneRef.current.Time(duration).toSeconds() * 1000);
 
-      if (noteIndex * 42 + 104 > wrapWidth + scrollPosition) {
-        setScrollPosition(
-          Math.min(noteIndex * 42 + 104 - wrapWidth, notesWidth - wrapWidth)
-        );
-      }
-      if (noteIndex * 42 - 104 < scrollPosition) {
-        setScrollPosition(Math.max(noteIndex * 42 - 104, 0));
+        if (noteIndex * 42 + 104 > wrapWidth + scrollPosition) {
+          setScrollPosition(
+            Math.min(noteIndex * 42 + 104 - wrapWidth, notesWidth - wrapWidth)
+          );
+        }
+        if (noteIndex * 42 - 104 < scrollPosition) {
+          setScrollPosition(Math.max(noteIndex * 42 - 104, 0));
+        }
+        prevNoteIndex.current = noteIndex;
       }
     } else {
       stop();
@@ -171,6 +206,45 @@ const MelodyEditor: FC<IMelodyEditor> = ({ notes, onChange, noteLabels }) => {
 
   const showScrollLeft = scrollPosition > 0;
   const showScrollRight = notesWidth - scrollPosition > wrapWidth;
+
+  useLayoutEffect(() => {
+    if ((notes.length - 1) * 42 + 104 > wrapWidth + scrollPosition) {
+      setScrollPosition(notesWidth - wrapWidth);
+    }
+  }, [notes.length, notesWidth, wrapWidth]);
+
+  let durationDropdown;
+  const durationElement = durationElementRef.current;
+  if (editDurationIndex >= 0 && durationElement) {
+    const {
+      left,
+      top,
+      width,
+      height
+    } = durationElement.getBoundingClientRect();
+    durationDropdown = createPortal(
+      <DurationDropdown left={left + width / 2} top={top}>
+        <CurrentDuration height={height}>
+          <CurrentDurationCell>
+            <Icon name={durationIcons[notes[editDurationIndex].duration]} />
+          </CurrentDurationCell>
+        </CurrentDuration>
+        <DropdownRow top={height}>
+          {durationIcons.map((icon, i) => (
+            <Cell
+              key={`duration-dropdown-${i}`}
+              onClick={() =>
+                onSetNote(notes[editDurationIndex].note, i, editDurationIndex)
+              }
+            >
+              <Icon name={icon} />
+            </Cell>
+          ))}
+        </DropdownRow>
+      </DurationDropdown>,
+      document.body
+    );
+  }
 
   return (
     <Container>
@@ -184,11 +258,11 @@ const MelodyEditor: FC<IMelodyEditor> = ({ notes, onChange, noteLabels }) => {
             <Icon name="column" />
           </ColumnBalloon>
           <UpDownButton
-            onUpClick={() =>
-              onChange &&
-              notes.length < 99 &&
-              onChange([...notes, { duration: 2, note: "" }])
-            }
+            onUpClick={() => {
+              if (onChange && notes.length < 99) {
+                onChange([...notes, { duration: 2, note: "" }]);
+              }
+            }}
             onDownClick={() =>
               onChange && notes.length > 0 && onChange(notes.slice(0, -1))
             }
@@ -215,17 +289,10 @@ const MelodyEditor: FC<IMelodyEditor> = ({ notes, onChange, noteLabels }) => {
             {notes.map((noteItem, i) => (
               <Cell
                 key={`duration-${i}`}
-                onClick={() =>
-                  onChange &&
-                  onChange(
-                    Object.assign(notes.slice(), {
-                      [i]: {
-                        ...noteItem,
-                        duration: (noteItem.duration + 1) % 5
-                      }
-                    })
-                  )
-                }
+                onClick={e => {
+                  durationElementRef.current = e.currentTarget;
+                  setEditDurationIndex(i);
+                }}
               >
                 <Icon name={durationIcons[noteItem.duration]} />
               </Cell>
@@ -240,14 +307,10 @@ const MelodyEditor: FC<IMelodyEditor> = ({ notes, onChange, noteLabels }) => {
                     noteItem.note === note ? noteColors[noteItem.note] : ""
                   }
                   onClick={() =>
-                    onChange &&
-                    onChange(
-                      Object.assign(notes.slice(), {
-                        [i]: {
-                          ...noteItem,
-                          note: noteItem.note === note ? "" : note
-                        }
-                      })
+                    onSetNote(
+                      noteItem.note === note ? "" : note,
+                      noteItem.duration,
+                      i
                     )
                   }
                 ></Cell>
@@ -271,6 +334,7 @@ const MelodyEditor: FC<IMelodyEditor> = ({ notes, onChange, noteLabels }) => {
           </ScrollRightButton>
         )}
       </NotesWrap>
+      {durationDropdown}
     </Container>
   );
 };
@@ -286,9 +350,9 @@ const Container = styled.div`
   user-select: none;
   box-sizing: border-box;
   max-height: 438px;
-  flex: 1;
   max-width: 100%;
   overflow: hidden;
+  flex: 1;
 `;
 
 const Controls = styled.div`
@@ -441,4 +505,40 @@ const ScrollRightButton = styled(ScrollButton)`
   svg {
     transform: rotate(-90deg);
   }
+`;
+
+const DurationDropdown = styled.div<{ top: number; left: number }>`
+  position: absolute;
+  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.5);
+  filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.5));
+  top: ${props => props.top}px;
+  left: ${props => props.left}px;
+`;
+
+const CurrentDuration = styled.div<{ height: number }>`
+  background-color: #eeeeee;
+  transform: translateX(-50%);
+  position: absolute;
+  left: 50%;
+  height: ${props => props.height}px;
+  top: -5px;
+  display: flex;
+  padding: 4px 4px 1px 4px;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  margin-top: 1px;
+`;
+
+const CurrentDurationCell = styled(Cell)`
+  background-color: #c0c3c9;
+`;
+
+const DropdownRow = styled(Row)<{ top: number }>`
+  height: 40px;
+  padding: 6px;
+  background-color: #eeeeee;
+  border-radius: 4px;
+  position: absolute;
+  top: ${props => props.top}px;
+  transform: translateX(-50%);
 `;

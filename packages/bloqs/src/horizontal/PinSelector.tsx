@@ -83,12 +83,16 @@ const PinSelector: FC<IPinSelectorProps> = ({
         >
           {board.ports.map((port, i) => (
             <React.Fragment key={port.name}>
-              <path
-                d={connectionPath(port)}
-                fill="none"
-                stroke="#c0c3c9"
-                strokeWidth={2}
-              />
+              {componentInstance &&
+                port.name ===
+                  Object.values(componentInstance.ports || {})[0] && (
+                  <path
+                    d={connectionPath(port)}
+                    fill="none"
+                    stroke="#c0c3c9"
+                    strokeWidth={2}
+                  />
+                )}
               <circle
                 fill="#c0c3c9"
                 r={6}

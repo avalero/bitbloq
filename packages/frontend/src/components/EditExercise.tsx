@@ -275,7 +275,11 @@ const EditExercise = ({ type, id }) => {
       {teamName && (
         <SessionWarningModal
           subscription={SUBMISSION_SESSION_EXPIRES_SUBSCRIPTION}
-          setActivteToFalse={setActiveToFalse}
+          onExpired={() => {
+            setToken("", "exercise-team");
+            setActiveToFalse();
+            Router.replace("/");
+          }}
         />
       )}
       {teamName && submission && (

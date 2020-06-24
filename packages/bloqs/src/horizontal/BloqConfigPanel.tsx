@@ -230,7 +230,7 @@ const CloseButton = styled.div`
   height: 40px;
   position: absolute;
   top: -40px;
-  right: 20px;
+  right: 10px;
   border-top-left-radius: 6px;
   border-top-right-radius: 6px;
 

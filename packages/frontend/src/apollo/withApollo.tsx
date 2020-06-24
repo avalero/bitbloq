@@ -61,10 +61,8 @@ const SessionWatcher: FC<ISessionWatcherProps> = ({
   useSessionEvent("error", ({ error }) => handleError(error), tempSession);
 
   useSessionEvent("logout", async () => {
-    setToken("");
     if (client) {
       await client.cache.reset();
-      await client.reFetchObservableQueries();
     }
     Router.replace("/");
   });
@@ -79,7 +77,10 @@ const SessionWatcher: FC<ISessionWatcherProps> = ({
     );
   }
   return tempSession ? null : (
-    <SessionWarningModal subscription={USER_SESSION_EXPIRES_SUBSCRIPTION} />
+    <SessionWarningModal
+      subscription={USER_SESSION_EXPIRES_SUBSCRIPTION}
+      onExpired={() => logout()}
+    />
   );
 };
 

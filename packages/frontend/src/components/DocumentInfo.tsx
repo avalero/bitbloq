@@ -1,6 +1,6 @@
 import React, { FC } from "react";
 import { IDocument, IDocImageIn } from "@bitbloq/api";
-import { colors, Button } from "@bitbloq/ui";
+import { colors, Button, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 
 interface IDocumentInfoProps {
@@ -11,6 +11,7 @@ interface IDocumentInfoProps {
 const DocumentInfo: FC<IDocumentInfoProps> = ({ document, onGotoDocument }) => {
   const { name, description, image } = document;
 
+  const t = useTranslate();
   return (
     <Container>
       <Left>
@@ -30,7 +31,9 @@ const DocumentInfo: FC<IDocumentInfoProps> = ({ document, onGotoDocument }) => {
           <p>{description}</p>
         </Description>
         <GotoDocument>
-          <Button onClick={onGotoDocument}>Ir al ejemplo</Button>
+          <Button onClick={onGotoDocument}>
+            {t("documents.go-to-example")}
+          </Button>
         </GotoDocument>
       </Right>
     </Container>

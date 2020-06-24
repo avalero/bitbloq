@@ -59,6 +59,7 @@ const MusicConfiguration: FC<IMusicConfigurationProps> = ({
       </SwitchWrap>
       {melodyIndex !== "stop" && (
         <MelodyEditor
+          key={melodyIndex}
           notes={melody}
           onChange={notes => {
             setMelody(notes);
@@ -95,6 +96,7 @@ const Container = styled.div`
   flex: 1;
   width: 100%;
   overflow: hidden;
+  justify-content: center;
 `;
 
 const SwitchWrap = styled.div`

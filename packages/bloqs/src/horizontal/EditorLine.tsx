@@ -144,16 +144,22 @@ const EditorLine: React.FunctionComponent<IEditorLineProps> = ({
           </Options>
         )}
       </Container>
-      {bloqs.length > 0 && !readOnly && (
-        <ShowOptionsButton
-          ref={showOptionsRef}
-          secondary
-          onClick={() => setShowOptions(!showOptions)}
-          active={showOptions}
-          type="button"
-        >
-          <Icon name="ellipsis" />
-        </ShowOptionsButton>
+      {bloqs.length > 0 &&
+        !readOnly &&
+        selectedPlaceholder < 0 &&
+        selectedBloq < 0 && (
+          <ShowOptionsButton
+            ref={showOptionsRef}
+            onClick={() => setShowOptions(!showOptions)}
+            active={showOptions}
+            tertiary
+            type="button"
+          >
+            <Icon name="ellipsis" />
+          </ShowOptionsButton>
+        )}
+      {(selectedPlaceholder >= 0 || selectedBloq >= 0) && (
+        <ShowOptionsPlaceholder />
       )}
     </Wrap>
   );
@@ -244,4 +250,9 @@ const ShowOptionsButton = styled(JuniorButton)`
   svg {
     width: 20px;
   }
+`;
+
+const ShowOptionsPlaceholder = styled.div`
+  margin-left: 10px;
+  width: 40px;
 `;

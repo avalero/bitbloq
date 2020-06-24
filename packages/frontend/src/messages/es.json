@@ -259,6 +259,7 @@
   "general-error-email": "Este correo no es válido",
   "account": {
     "title": "Mi cuenta",
+    "language": "Idioma",
     "user-data": {
       "delete": {
         "button": "Eliminar cuenta",
@@ -434,6 +435,15 @@
     "title": "Información del documento"
   },
   "exercises": {
+    "go-back": "Atrás",
+    "start": "Empezar",
+    "welcome-to-exercise": "Bienvenido al ejercicio",
+    "what-do-you-want-to-do": "¿Qué quieres hacer?",
+    "start-submission": "Empezar una entrega",
+    "resume-submission": "Continuar una entrega",
+    "leave-exercise": "Salir del ejercicio",
+    "team-name": "Nombre del equipo",
+    "optional": "Opcional",
     "rate": {
       "observations": {
         "placeholder": "Observaciones del ejercicio",
@@ -489,7 +499,22 @@
     }
   },
   "documents": {
-    "go-to-exercise": "Ir al ejercicio"
+    "sort-by": "Orden",
+    "created-at": "Creación",
+    "modified-at": "Modificación",
+    "name-a-z": "Nombre A-Z",
+    "name-z-a": "Nombre Z-A",
+    "go-to-exercise": "Ir al ejercicio",
+    "go-to-example": "Ir al ejemplo",
+    "my-documents": "Mis documentos",
+    "new-folder": "Nueva carpeta",
+    "no-results": "No hay resultados para tu búsqueda",
+    "no-documents": "No tienes ningún documento",
+    "create-or-upload": "Puedes crear un documento nuevo o subir uno desde tu ordenador",
+    "folder-no-name": "Carpeta sin nombre",
+    "create-folder": "Crear carpeta",
+    "folder-name": "Nombre de la carpeta",
+    "create": "Crear"
   },
   "legal": {
     "cookies-policy": "Política de cookies",
