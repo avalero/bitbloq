@@ -1,7 +1,7 @@
 import React, { FC, useState } from "react";
 import styled from "@emotion/styled";
 
-import { Button, Input, Icon, DropDown } from "@bitbloq/ui";
+import { Button, Input, Icon, DropDown, useTranslate } from "@bitbloq/ui";
 
 export interface INewExerciseDropDownProps {
   onOpenExercise: (exerciseCode: string) => any;
@@ -16,6 +16,7 @@ const NewExerciseButton: FC<INewExerciseDropDownProps> = ({
 }) => {
   const [exerciseCode, setExerciseCode] = useState("");
 
+  const t = useTranslate();
   return (
     <DropDown
       attachmentPosition={"top center"}
@@ -25,7 +26,7 @@ const NewExerciseButton: FC<INewExerciseDropDownProps> = ({
       {() => (
         <HeaderButton tertiary>
           <Icon name="airplane-document" />
-          Ir al ejercicio
+          {t("documents.go-to-exercise")}
         </HeaderButton>
       )}
       <ExerciseDropDown>
@@ -35,17 +36,17 @@ const NewExerciseButton: FC<INewExerciseDropDownProps> = ({
             onOpenExercise(exerciseCode);
           }}
         >
-          <label>Código del ejercicio</label>
+          <label>{t("home.exercise-code")}</label>
           <Input
             type="text"
-            placeholder="Código del ejercicio"
+            placeholder={t("home.exercise-code")}
             value={exerciseCode}
             error={exerciseError}
             onChange={e => setExerciseCode(e.target.value)}
           />
           {exerciseError && <Error>El código no es válido</Error>}
           <Button type="submit" disabled={loadingExercise}>
-            Ir al ejercicio
+            {t("documents.go-to-exercise")}
           </Button>
         </ExerciseForm>
       </ExerciseDropDown>

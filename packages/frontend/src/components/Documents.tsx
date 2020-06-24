@@ -3,7 +3,7 @@ import { DndProvider } from "react-dnd";
 import HTML5Backend from "react-dnd-html5-backend";
 import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
 import { IFolder, IResult as IDocsAndFols } from "@bitbloq/api";
-import { Button, Icon } from "@bitbloq/ui";
+import { Button, Icon, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import Router from "next/router";
 import { Subscription } from "react-apollo";
@@ -27,6 +27,7 @@ import NewDocumentButton from "./NewDocumentButton";
 import NewExerciseButton from "./NewExerciseButton";
 
 const Documents: FC<{ id?: string }> = ({ id }) => {
+  const t = useTranslate();
   const { userData } = useUserData();
   const client = useApolloClient();
 
@@ -184,7 +185,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
       <AppLayout
         header={
           currentLocation.id === (userData && userData.rootFolder) ? (
-            "Mis documentos"
+            t("documents.my-documents")
           ) : (
             <Breadcrumbs links={breadcrumbsLinks} />
           )
@@ -210,7 +211,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
               }}
             >
               <Icon name="new-folder" />
-              Nueva carpeta
+              {t("documents.new-folder")}
             </NewFolderButton>
             <NewExerciseButton
               onOpenExercise={onOpenExercise}
@@ -242,14 +243,12 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
           </DndProvider>
         ) : searchQuery ? (
           <NoDocuments>
-            <h1>No hay resultados para tu búsqueda</h1>
+            <h1>{t("documents.no-results")}</h1>
           </NoDocuments>
         ) : (
           <NoDocuments>
-            <h1>No tienes ningún documento</h1>
-            <p>
-              Puedes crear un documento nuevo o subir uno desde tu ordenador.
-            </p>
+            <h1>{t("documents.no-documents")}</h1>
+            <p>{t("documents.create-or-upload")}</p>
           </NoDocuments>
         )}
         <Subscription
@@ -267,13 +266,13 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
         />
         {folderTitleModal && (
           <EditInputModal
-            value="Carpeta sin título"
+            value={t("documents.folder-no-name")}
             onCancel={() => setFolderTitleModal(false)}
             onSave={onCreateFolder}
-            title="Crear carpeta"
-            label="Nombre de la carpeta"
-            placeholder="Carpeta sin título"
-            saveButton="Crear"
+            title={t("documents.create-folder")}
+            label={t("documents.folder-name")}
+            placeholder={t("documents.folder-no-name")}
+            saveButton={t("documents.create")}
           />
         )}
       </AppLayout>
