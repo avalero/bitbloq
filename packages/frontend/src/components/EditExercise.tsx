@@ -197,7 +197,9 @@ const EditExercise = ({ type, id }) => {
                 </TitleIcon>
                 <div>
                   <TitleText>{name}</TitleText>
-                  <TeacherName>Profesor: {teacherName}</TeacherName>
+                  <TeacherName>
+                    {t("roles.teacher")}: {teacherName}
+                  </TeacherName>
                 </div>
               </Title>
             }
@@ -233,14 +235,14 @@ const EditExercise = ({ type, id }) => {
       </EditorComponent>
       <Modal
         isOpen={isSubmissionSuccessOpen}
-        title="Entregar ejercicio"
+        title={t("exercises.submit")}
         onClose={() => setIsSubmissionSuccessOpen(false)}
       >
         <ModalContent>
-          <p>Ejercicio entregado con éxito</p>
+          <p>{t("exercises.submit-success")}</p>
           <ModalButtons>
             <ModalButton onClick={() => setIsSubmissionSuccessOpen(false)}>
-              Aceptar
+              {t("general-accept-button")}
             </ModalButton>
           </ModalButtons>
         </ModalContent>
@@ -265,10 +267,10 @@ const EditExercise = ({ type, id }) => {
       )}
       <DialogModal
         isOpen={isRestartModalVisible}
-        title="Aviso"
-        text="¿Seguro que quieres reiniciar el ejercicio? Si lo haces perderás todo lo que hayas hecho y el ejercicio volverá a su estado original."
-        okText="Aceptar"
-        cancelText="Cancelar"
+        title={t("general-warning")}
+        text={t("exercises.leave-warning")}
+        okText={t("general-accept-button")}
+        cancelText={t("general-cancel-button")}
         onOk={() => restart()}
         onCancel={() => setIsRestartModalVisible(false)}
       />

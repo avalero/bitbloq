@@ -2,7 +2,7 @@
 # import Document from "./document.graphql"
 # import Folder from "./folder.graphql"
 
-directive @authRequired(requires: [Role] = [ADMIN]) on QUERY | FIELD
+directive @authRequired(requires: [Role] = [ADMIN]) on QUERY | FIELD_DEFINITION
 
 type Query {
   users: [User] @authRequired(requires: [ADMIN])
