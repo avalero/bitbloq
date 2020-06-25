@@ -20,24 +20,7 @@ import building2Icon from "../../images/building-2.svg";
 import building3Icon from "../../images/building-3.svg";
 import building4Icon from "../../images/building-4.svg";
 
-import carSTL from "../../assets/stl/car.stl";
-import busSTL from "../../assets/stl/bus.stl";
-import pickupSTL from "../../assets/stl/pickup.stl";
-import vanSTL from "../../assets/stl/van.stl";
-import truckSTL from "../../assets/stl/truck.stl";
-import helicopterSTL from "../../assets/stl/helicopter.stl";
-import tree1STL from "../../assets/stl/tree-1.stl";
-import tree2STL from "../../assets/stl/tree-2.stl";
-import streetlightSTL from "../../assets/stl/streetlight.stl";
-import trafficlightSTL from "../../assets/stl/trafficlight.stl";
-import trafficSign1STL from "../../assets/stl/traffic-sign-1.stl";
-import trafficSign2STL from "../../assets/stl/traffic-sign-2.stl";
-import trafficSign3STL from "../../assets/stl/traffic-sign-3.stl";
-import windmillSTL from "../../assets/stl/windmill.stl";
-import building1STL from "../../assets/stl/building-1.stl";
-import building2STL from "../../assets/stl/building-2.stl";
-import building3STL from "../../assets/stl/building-3.stl";
-import building4STL from "../../assets/stl/building-4.stl";
+const STL_STORAGE_PATH = "https://storage.googleapis.com/bitbloq-prod/stl";
 
 export const addShapeGroups = [
   {
@@ -46,109 +29,109 @@ export const addShapeGroups = [
     shapes: [
       {
         type: "PredesignedObject",
-        parameters: { url: carSTL },
+        parameters: { url: `${STL_STORAGE_PATH}/car.stl` },
         label: "shape-car",
         icon: <img src={carIcon} />
       },
       {
         type: "PredesignedObject",
-        parameters: { url: busSTL },
+        parameters: { url: `${STL_STORAGE_PATH}/bus.stl` },
         label: "shape-bus",
         icon: <img src={busIcon} />
       },
       {
         type: "PredesignedObject",
-        parameters: { url: pickupSTL },
+        parameters: { url: `${STL_STORAGE_PATH}/pickup.stl` },
         label: "shape-pickup",
         icon: <img src={pickupIcon} />
       },
       {
         type: "PredesignedObject",
-        parameters: { url: vanSTL },
+        parameters: { url: `${STL_STORAGE_PATH}/van.stl` },
         label: "shape-van",
         icon: <img src={vanIcon} />
       },
       {
         type: "PredesignedObject",
-        parameters: { url: truckSTL },
+        parameters: { url: `${STL_STORAGE_PATH}/truck.stl` },
         label: "shape-truck",
         icon: <img src={truckIcon} />
       },
       {
         type: "PredesignedObject",
-        parameters: { url: helicopterSTL },
+        parameters: { url: `${STL_STORAGE_PATH}/helicopter.stl` },
         label: "shape-helicopter",
         icon: <img src={helicopterIcon} />
       },
       {
         type: "PredesignedObject",
-        parameters: { url: tree1STL },
+        parameters: { url: `${STL_STORAGE_PATH}/tree-1.stl` },
         label: "shape-tree-1",
         icon: <img src={tree1Icon} />
       },
       {
         type: "PredesignedObject",
-        parameters: { url: tree2STL },
+        parameters: { url: `${STL_STORAGE_PATH}/tree-2.stl` },
         label: "shape-tree-2",
         icon: <img src={tree2Icon} />
       },
       {
         type: "PredesignedObject",
-        parameters: { url: streetlightSTL },
+        parameters: { url: `${STL_STORAGE_PATH}/streetlight.stl` },
         label: "shape-streetlight",
         icon: <img src={streetlightIcon} />
       },
       {
         type: "PredesignedObject",
-        parameters: { url: trafficlightSTL },
+        parameters: { url: `${STL_STORAGE_PATH}/trafficlight.stl` },
         label: "shape-trafficlight",
         icon: <img src={trafficlightIcon} />
       },
       {
         type: "PredesignedObject",
-        parameters: { url: trafficSign1STL },
+        parameters: { url: `${STL_STORAGE_PATH}/traffic-sign-1.stl` },
         label: "shape-traffic-sign-1",
         icon: <img src={trafficSign1Icon} />
       },
       {
         type: "PredesignedObject",
-        parameters: { url: trafficSign2STL },
+        parameters: { url: `${STL_STORAGE_PATH}/traffic-sign-2.stl` },
         label: "shape-traffic-sign-2",
         icon: <img src={trafficSign2Icon} />
       },
       {
         type: "PredesignedObject",
-        parameters: { url: trafficSign3STL },
+        parameters: { url: `${STL_STORAGE_PATH}/traffic-sign-3.stl` },
         label: "shape-traffic-sign-3",
         icon: <img src={trafficSign3Icon} />
       },
       {
         type: "PredesignedObject",
-        parameters: { url: windmillSTL },
+        parameters: { url: `${STL_STORAGE_PATH}/windmill.stl` },
         label: "shape-windmill",
         icon: <img src={windmillIcon} />
       },
       {
         type: "PredesignedObject",
-        parameters: { url: building1STL },
+        parameters: { url: `${STL_STORAGE_PATH}/building-1.stl` },
         label: "shape-building-1",
         icon: <img src={building1Icon} />
       },
       {
         type: "PredesignedObject",
-        parameters: { url: building2STL },
+        parameters: { url: `${STL_STORAGE_PATH}/building-2.stl` },
         label: "shape-building-2",
         icon: <img src={building2Icon} />
       },
       {
         type: "PredesignedObject",
-        parameters: { url: building3STL },
+        parameters: { url: `${STL_STORAGE_PATH}/building-3.stl` },
         label: "shape-building-3",
         icon: <img src={building3Icon} />
       },
       {
         type: "PredesignedObject",
-        parameters: { url: building4STL },
+        parameters: { url: `${STL_STORAGE_PATH}/building-4.stl` },
         label: "shape-building-4",
         icon: <img src={building4Icon} />
       }

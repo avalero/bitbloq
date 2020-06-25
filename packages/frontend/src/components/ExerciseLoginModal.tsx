@@ -176,7 +176,7 @@ const ExerciseLoginModal: FC<IExerciseLoginModalProps> = ({
             </FormGroup>
             <FormGroup>
               <label>
-                {t("placeholders.password")}{" "}
+                {t("login.placeholders.password")}{" "}
                 {step === Steps.Start && t("exercises.optional")}
               </label>
               <Input
@@ -186,7 +186,7 @@ const ExerciseLoginModal: FC<IExerciseLoginModalProps> = ({
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setPassword(e.target.value)
                 }
-                placeholder={t("placeholders.password")}
+                placeholder={t("login.placeholders.password")}
               />
             </FormGroup>
           </LoginForm>
