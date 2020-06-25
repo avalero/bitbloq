@@ -41,13 +41,13 @@ const ExerciseInfo: React.FunctionComponent<IExerciseInfoProps> = ({
             selected={currentTab === TabType.Description}
             onClick={() => setCurrentTab(TabType.Description)}
           >
-            Descripción
+            {t("exercises.description")}
           </Tab>
           <Tab
             selected={currentTab === TabType.Score}
             onClick={() => setCurrentTab(TabType.Score)}
           >
-            Calificación
+            {t("exercises.grade")}
           </Tab>
         </Tabs>
         {currentTab === TabType.Description && (

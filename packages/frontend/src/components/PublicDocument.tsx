@@ -156,10 +156,10 @@ const PublicDocument: FC<IPublicDocumentProps> = ({ id, type }) => {
       )}
       <DialogModal
         isOpen={isRestartModalVisible}
-        title="Aviso"
-        text="¿Seguro que quieres reiniciar el ejercicio? Si lo haces perderás todo lo que hayas hecho y el ejercicio volverá a su estado original."
-        okText="Aceptar"
-        cancelText="Cancelar"
+        title={t("general-warning")}
+        text={t("exercises.leave-warning")}
+        okText={t("general-accept-button")}
+        cancelText={t("general-cancel-button")}
         onOk={() => restart()}
         onCancel={() => setIsRestartModalVisible(false)}
       />

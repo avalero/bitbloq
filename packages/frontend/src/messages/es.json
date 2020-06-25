@@ -47,6 +47,7 @@
   "menu-basic-mode": "Modo básico",
   "menu-download-document": "Descargar documento",
   "menu-download-stl": "Descargar .STL",
+  "menu-move-to": "Mover a",
   "menu-new-document": "Nuevo documento",
   "menu-open-document": "Abrir documento",
   "menu-change-name": "Cambiar nombre",
@@ -57,6 +58,7 @@
   "menu-change-language": "Cambiar idioma",
   "menu-delete-document": "Eliminar documento",
   "menu-delete-exercise": "Eliminar ejercicio",
+  "menu-delete-folder": "Eliminar carpeta",
   "menu-submission-delete": "Eliminar entrega y equipo",
   "menu-submission-password": "Añadir/cambiar contraseña del equipo",
   "menu-submission-see": "Ver entrega",
@@ -257,6 +259,7 @@
   "general-accept-button": "Aceptar",
   "general-add-button": "Añadir",
   "general-error-email": "Este correo no es válido",
+  "general-warning": "Aviso",
   "account": {
     "title": "Mi cuenta",
     "language": "Idioma",
@@ -435,11 +438,16 @@
     "title": "Información del documento"
   },
   "exercises": {
+    "description": "Descripción",
     "go-back": "Atrás",
+    "grade": "Calificación",
+    "leave-warning": "¿Seguro que quieres reiniciar el ejercicio? Si lo haces perderás todo lo que hayas hecho y el ejercicio volverá a su estado original.",
     "start": "Empezar",
     "welcome-to-exercise": "Bienvenido al ejercicio",
     "what-do-you-want-to-do": "¿Qué quieres hacer?",
     "start-submission": "Empezar una entrega",
+    "submit": "Entregar ejercicio",
+    "submit-success": "Ejercicio entregado con éxito",
     "resume-submission": "Continuar una entrega",
     "leave-exercise": "Salir del ejercicio",
     "team-name": "Nombre del equipo",
@@ -499,6 +507,18 @@
     }
   },
   "documents": {
+    "edit-folder-modal": {
+      "label": "Nombre de la carpeta",
+      "placeholder": "Carpeta sin título",
+      "save": "Cambiar",
+      "title": "Cambiar nombre de la carpeta"
+    },
+    "edit-document-modal": {
+      "label": "Nombre del documento",
+      "placeholder": "Documento sin título",
+      "save": "Cambiar",
+      "title": "Cambiar nombre del documento"
+    },
     "sort-by": "Orden",
     "created-at": "Creación",
     "modified-at": "Modificación",
@@ -767,6 +787,9 @@
     "drag-board-here": "Arrastra una placa o un robot aquí",
     "hardware": "Hardware",
     "robots": "Robots"
+  },
+  "roles": {
+    "teacher": "Profesor"
   },
   "home": {
     "discover": "Descubre todo lo que puedes crear",

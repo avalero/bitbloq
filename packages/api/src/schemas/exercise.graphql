@@ -2,7 +2,7 @@
 # import Submission from "./submission.graphql"
 # import Resource from "./upload.graphql"
 
-directive @authRequired(requires: [Role] = [ADMIN]) on QUERY | FIELD
+directive @authRequired(requires: [Role] = [ADMIN]) on QUERY | FIELD_DEFINITION
 
 type Query {
   exercises: [Exercise] @authRequired(requires: [TEACHER])

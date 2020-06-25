@@ -1,7 +1,7 @@
 import React, { FC, useState } from "react";
 import { useMutation, useLazyQuery } from "@apollo/react-hooks";
 import { IDocument, IFolder, IResult as IDocsAndFols } from "@bitbloq/api";
-import { DialogModal, DropDown } from "@bitbloq/ui";
+import { DialogModal, DropDown, useTranslate } from "@bitbloq/ui";
 import { css } from "@emotion/core";
 import styled from "@emotion/styled";
 import { useDrop } from "react-dnd";
@@ -57,6 +57,8 @@ const DocumentList: FC<IDocumentListProps> = ({
     parentFolder?: string;
     type?: string;
   }
+
+  const t = useTranslate();
 
   const [deleteDoc, setDeleteDoc] = useState<IState>({ id: "" });
   const [deleteFol, setDeleteFol] = useState<IState>({ id: "" });
@@ -393,7 +395,7 @@ const DocumentList: FC<IDocumentListProps> = ({
                         options={[
                           {
                             iconName: "pencil",
-                            label: "Cambiar nombre",
+                            label: t("menu-change-name"),
                             onClick(
                               e: React.MouseEvent<HTMLDivElement, MouseEvent>
                             ) {
@@ -409,7 +411,7 @@ const DocumentList: FC<IDocumentListProps> = ({
                           document.type !== "folder"
                             ? {
                                 iconName: "duplicate",
-                                label: "Crear una copia",
+                                label: t("menu-duplicate-document"),
                                 disabled: document.type === "folder",
                                 onClick(
                                   e: React.MouseEvent<
@@ -434,7 +436,7 @@ const DocumentList: FC<IDocumentListProps> = ({
                                   nFolders === 0)) &&
                               parentsPath.length === 1,
                             iconName: "move-document",
-                            label: "Mover a",
+                            label: t("menu-move-to"),
                             onClick(
                               e: React.MouseEvent<HTMLDivElement, MouseEvent>
                             ) {
@@ -447,8 +449,8 @@ const DocumentList: FC<IDocumentListProps> = ({
                             iconName: "trash",
                             label:
                               document.type !== "folder"
-                                ? "Eliminar documento"
-                                : "Eliminar carpeta",
+                                ? t("menu-delete-document")
+                                : t("menu-delete-folder"),
                             onClick(
                               e: React.MouseEvent<HTMLDivElement, MouseEvent>
                             ) {
@@ -547,10 +549,10 @@ const DocumentList: FC<IDocumentListProps> = ({
           value={editDocNameModal.name || undefined}
           onCancel={() => setEditDocNameModal({ id: "", name: undefined })}
           onSave={onUpdateDocName}
-          title="Cambiar nombre del documento"
-          label="Nombre del documento"
-          placeholder="Documento sin título"
-          saveButton="Cambiar"
+          title={t("documents.edit-document-modal.title")}
+          label={t("documents.edit-document-modal.label")}
+          placeholder={t("documents.edit-document-modal.placeholder")}
+          saveButton={t("document.edit-document-modal.save")}
         />
       )}
       {editFolderNameModal.id && (
@@ -558,10 +560,10 @@ const DocumentList: FC<IDocumentListProps> = ({
           value={editFolderNameModal.name || undefined}
           onCancel={() => setEditFolderNameModal({ id: "", name: undefined })}
           onSave={onUpdateFolderName}
-          title="Cambiar nombre de la carpeta"
-          label="Nombre de la carpeta"
-          placeholder="Carpeta sin título"
-          saveButton="Cambiar"
+          title={t("documents.edit-folder-modal.title")}
+          label={t("documents.edit-folder-modal.label")}
+          placeholder={t("documents.edit-folder-modal.placeholder")}
+          saveButton={t("document.edit-folder-modal.save")}
         />
       )}
     </>
