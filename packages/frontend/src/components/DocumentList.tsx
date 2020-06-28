@@ -496,10 +496,10 @@ const DocumentList: FC<IDocumentListProps> = ({
       </DocumentsAndPaginator>
       <DialogModal
         isOpen={!!deleteDoc.id}
-        title="Eliminar"
-        text="¿Seguro que quieres eliminar este documento?"
-        okText="Aceptar"
-        cancelText="Cancelar"
+        title={t("documents.remove-document-modal.title")}
+        text={t("documents.remove-document-modal.text")}
+        okText={t("general-accept-button")}
+        cancelText={t("general-cancel-button")}
         onOk={confirmDeleteDoc}
         onCancel={() => {
           setDeleteDoc({ id: "" });
@@ -552,7 +552,7 @@ const DocumentList: FC<IDocumentListProps> = ({
           title={t("documents.edit-document-modal.title")}
           label={t("documents.edit-document-modal.label")}
           placeholder={t("documents.edit-document-modal.placeholder")}
-          saveButton={t("document.edit-document-modal.save")}
+          saveButton={t("documents.edit-document-modal.save")}
         />
       )}
       {editFolderNameModal.id && (
