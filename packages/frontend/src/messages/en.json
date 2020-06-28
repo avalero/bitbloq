@@ -46,7 +46,6 @@
   "menu-basic-mode": "Basic mode",
   "menu-download-document": "Download document",
   "menu-download-stl": "Download .STL",
-  "menu-move-to": "Move to",
   "menu-new-document": "New document",
   "menu-open-document": "Open document",
   "menu-change-name": "Change name",
@@ -56,7 +55,6 @@
   "menu-duplicate-document": "Create a copy",
   "menu-delete-exercise": "Delete exercise",
   "menu-delete-document": "Delete document",
-  "menu-delete-folder": "Delete folder",
   "menu-submission-see": "See submission",
   "menu-submission-password": "Add/change team's password",
   "document-header-button": "Edit document",
@@ -283,7 +281,6 @@
   "submission-error-not-accepted-submission": "No more submissions allowed",
   "general-add-button": "Add",
   "general-error-email": "Invalid e-mail",
-  "general-warning": "Warning",
   "account": {
     "title": "My account",
     "user-data": {
@@ -462,9 +459,6 @@
     "title": "Document information"
   },
   "exercises": {
-    "description": "Description",
-    "grade": "Grade",
-    "leave-warning": "Are you sure you want to reset the exercise? If you do so, you will lose all your work and the exercise will get back to its original state.",
     "rate": {
       "observations": {
         "title": "Notes",
@@ -480,8 +474,6 @@
       "title": "Exercise resources"
     },
     "start-submission": "Start an exercise",
-    "submit": "Submit exercise",
-    "submit-success": "Exercise successfully submitted",
     "go-back": "Go back",
     "welcome-to-exercise": "Welcome",
     "team-name": "Team name",
@@ -489,7 +481,12 @@
     "what-do-you-want-to-do": "What do you want to do?",
     "resume-submission": "Resume an exercise",
     "start": "Start",
-    "optional": "Optional"
+    "optional": "Optional",
+    "grade": "Grade",
+    "description": "Description",
+    "leave-warning": "Are you sure you want to reset the exercise? If you do so, you will lose all your work and the exercise will get back to its original state.",
+    "submit-success": "Exercise successfully submitted",
+    "submit": "Submit exercise"
   },
   "filter": {
     "text": {
@@ -516,18 +513,6 @@
     "privacy-policy": "Privacy policy"
   },
   "documents": {
-    "edit-folder-modal": {
-      "label": "Folder name",
-      "placeholder": "Untitled folder",
-      "save": "Edit",
-      "title": "Edit folder name"
-    },
-    "edit-document-modal": {
-      "label": "Document name",
-      "placeholder": "Untitled document",
-      "save": "Edit",
-      "title": "Edit document name"
-    },
     "go-to-exercise": "Go to exercise",
     "sort-by": "Sort by",
     "modified-at": "Modification",
@@ -543,7 +528,23 @@
     "create-or-upload": "You can create a new document or update one from your computer",
     "create-folder": "Create folder",
     "create": "Create",
-    "folder-name": "Folder name"
+    "folder-name": "Folder name",
+    "edit-folder-modal": {
+      "label": "Folder name",
+      "placeholder": "Untitled folder",
+      "save": "Edit",
+      "title": "Edit folder name"
+    },
+    "edit-document-modal": {
+      "label": "Document name",
+      "placeholder": "Untitled document",
+      "title": "Edit document name",
+      "save": "Edit"
+    },
+    "remove-document-modal": {
+      "title": "Remove",
+      "text": "Are you sure you want to delete this document?"
+    }
   },
   "login": {
     "divider": "or",
@@ -803,9 +804,6 @@
     "hardware": "Hardware",
     "robots": "Robots"
   },
-  "roles": {
-    "teacher": "Teacher"
-  },
   "home": {
     "sign-up": "Sign up",
     "sign-in": "Log in",
@@ -841,5 +839,16 @@
     "apps-label": "Apps",
     "apps-landing-text": "Start designing and programming your own apps for Android®, iOS® or PC. ",
     "apps-short-label": "Apps"
+  },
+  "menu-move-to": "Move to",
+  "menu-delete-folder": "Delete folder",
+  "general-warning": "Warning",
+  "roles": {
+    "teacher": "Teacher"
+  },
+  "general-download-button": "Download",
+  "3d": {
+    "download-single-object": "Download everything in a single STL object",
+    "download-multi-object": "Download each object on its own STL file"
   }
 }

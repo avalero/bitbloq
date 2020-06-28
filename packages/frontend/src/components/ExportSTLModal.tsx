@@ -1,6 +1,6 @@
 import React, { FC, useState } from "react";
 import styled from "@emotion/styled";
-import { Button, Input, Modal, Option } from "@bitbloq/ui";
+import { Button, Input, Modal, Option, useTranslate } from "@bitbloq/ui";
 
 interface IExportSTLModalProps {
   onSave: (name: string, separate: boolean) => any;
@@ -11,34 +11,34 @@ const ExportSTLModal: FC<IExportSTLModalProps> = ({ onSave, onCancel }) => {
   const [name, setName] = useState("");
   const [separate, setSeparate] = useState(false);
 
+  const t = useTranslate();
+
   return (
-    <Modal
-      isOpen={true}
-      title="Exportar la escena en formato STL"
-      onClose={onCancel}
-    >
+    <Modal isOpen={true} title={t("menu-export-stl")} onClose={onCancel}>
       <Content>
         <FormGroup>
-          <label>Nombre del archivo</label>
+          <label>{t("code.file-name")}</label>
           <Input
             value={name}
             onChange={e => setName(e.target.value)}
-            placeholder="Nombre del archivo"
+            placeholder={t("code.file-name")}
           />
         </FormGroup>
         <OptionWrap onClick={() => setSeparate(false)}>
           <Option checked={separate === false} />
-          <span>Descargar todo como un solo objeto</span>
+          <span>{t("3d.download-single-object")}</span>
         </OptionWrap>
         <OptionWrap onClick={() => setSeparate(true)}>
           <Option checked={separate === true} />
-          <span>Descargar cada objeto por separado</span>
+          <span>{t("3d.download-multi-object")}</span>
         </OptionWrap>
         <Buttons>
           <Button tertiary onClick={() => onCancel()}>
-            Cancelar
+            {t("general-cancel-button")}
           </Button>
-          <Button onClick={() => onSave(name, separate)}>Descargar</Button>
+          <Button onClick={() => onSave(name, separate)}>
+            {t("general-download-button")}
+          </Button>
         </Buttons>
       </Content>
     </Modal>
