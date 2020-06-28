@@ -1,4 +1,5 @@
 {
+  "general-download-button": "Descargar",
   "start": "Empezar",
   "basic-shapes": "Formas básicas",
   "other-shapes": "Otras formas",
@@ -519,6 +520,10 @@
       "save": "Cambiar",
       "title": "Cambiar nombre del documento"
     },
+    "remove-document-modal": {
+      "text": "¿Seguro que quieres eliminar este documento?",
+      "title": "Eliminar"
+    },
     "sort-by": "Orden",
     "created-at": "Creación",
     "modified-at": "Modificación",
@@ -738,6 +743,10 @@
     "403": "Lo sentimos, no tienes permisos para poder ver este contenido.",
     "404": "¡Vaya! La página web a la que intentas acceder no existe.",
     "500": "¡Uy! Ha ocurrido un error inesperado, vuelve a intentarlo más tarde."
+  },
+  "3d": {
+    "download-single-object": "Descargar todo como un solo objeto",
+    "download-multi-object": "Descargar cada objeto por separado"
   },
   "code": {
     "add-new": "Añadir nuevo",
