@@ -336,7 +336,7 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
           })}
           {!readOnly &&
             bloqs.length > 0 &&
-            selectedPlaceholder < bloqs.length &&
+            selectedPlaceholder !== bloqs.length &&
             (selectedBloq !== bloqs.length - 1 ||
               bloqs[bloqs.length - 1].type === "end-loop") && (
               <BloqPlaceholder
