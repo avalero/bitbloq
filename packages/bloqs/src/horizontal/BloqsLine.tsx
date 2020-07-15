@@ -107,6 +107,31 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
   }, [bloqs, selectedPlaceholder, selectedBloq]);
 
   useEffect(() => {
+    if (bloqsRef.current && containerRef.current && editInPlace) {
+      const selectedElement = bloqsRef.current.querySelector(
+        "[data-selected],[data-active=true]"
+      );
+      if (selectedElement) {
+        const sl = scrollLeft.current || 0;
+        const bloqsWidth = bloqsRef.current.clientWidth;
+        const containerWidth = containerRef.current.clientWidth;
+        const {
+          x: selectedX,
+          width: selectedWidth
+        } = (selectedElement as HTMLElement).getBoundingClientRect();
+        const { x: bloqsX } = bloqsRef.current.getBoundingClientRect();
+        const offsetLeft = selectedX - bloqsX;
+
+        if (offsetLeft + selectedWidth - sl > containerWidth) {
+          updateScrollLeft(offsetLeft + selectedWidth - containerWidth + 80);
+          setShowScrollLeft(true);
+          setShowScrollRight(false);
+        }
+      }
+    }
+  }, [selectedPlaceholder]);
+
+  useEffect(() => {
     setBloqsLeft(scrollLeft.current || 0);
   }, [scrollLeft.current]);
 
@@ -308,7 +333,7 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
                       )}
                       {selectedPlaceholder === i + 1 &&
                         (editInPlace ? (
-                          <SelectedWrap>
+                          <SelectedWrap data-selected={true}>
                             <BloqPlaceholder
                               selected={true}
                               category={BloqCategory.Action}
