@@ -129,7 +129,7 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
         }
       }
     }
-  }, [selectedPlaceholder]);
+  }, [activeBloq, selectedPlaceholder]);
 
   useEffect(() => {
     setBloqsLeft(scrollLeft.current || 0);
