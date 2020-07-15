@@ -341,7 +341,7 @@ const Container = styled.div`
 
 const Content = styled.div`
   align-items: stretch;
-  justify-content: center;
+  justify-content: flex-start;
   display: flex;
   padding: 10px 10px 0px 10px;
   @media screen and (min-width: ${breakpoints.tablet}px) {
