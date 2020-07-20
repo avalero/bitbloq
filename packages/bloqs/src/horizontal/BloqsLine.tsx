@@ -332,6 +332,7 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
                         <EmptyBloq data-selected={true} />
                       )}
                       {selectedPlaceholder === i + 1 &&
+                        !readOnly &&
                         (editInPlace ? (
                           <SelectedWrap data-selected={true}>
                             <BloqPlaceholder
