@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { Checkbox, Switch } from "@bitbloq/ui";
+import { Checkbox, Switch, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 
 interface IPublishBarProps {
@@ -17,25 +17,27 @@ const PublishBar: FC<IPublishBarProps> = ({
   url,
   error
 }) => {
+  const t = useTranslate();
+
   return (
     <Container>
       <SwitchWrap>
-        <span>Privado</span>
+        <span>{t("publish-bar.private")}</span>
         <Switch
           value={isPublic}
           onChange={() => onChange(!isPublic, !isPublic && isExample)}
         />
-        <span>Público</span>
+        <span>{t("publish-bar.public")}</span>
       </SwitchWrap>
       <UrlBar>
-        <UrlLabel>URL para compartir:</UrlLabel>
+        <UrlLabel>{t("publish-bar.url-to-share")}</UrlLabel>
         <Url value={error || url || "-"} disabled hasError={!!error} />
       </UrlBar>
       <SampleCheckbox
         onClick={() => isPublic && onChange(isPublic, isPublic && !isExample)}
       >
         <Checkbox checked={isExample} />
-        <span>Ejemplo</span>
+        <span>{t("publish-bar.example")}</span>
       </SampleCheckbox>
     </Container>
   );
