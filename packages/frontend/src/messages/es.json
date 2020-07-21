@@ -788,6 +788,12 @@
     "NOTE_C5": "Do'",
     "NOTE_D5": "Re'"
   },
+  "publish-bar": {
+    "example": "Ejemplo",
+    "private": "Privado",
+    "public": "Público",
+    "url-to-share": "URL para compartir"
+  },
   "robotics": {
     "bloqs": "Bloques",
     "boards": "Placas",

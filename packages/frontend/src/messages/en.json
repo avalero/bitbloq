@@ -519,7 +519,7 @@
     "name-a-z": "A-Z",
     "created-at": "Creation",
     "name-z-a": "Z-A",
-    "go-to-example": "Go to the example",
+    "go-to-example": "Go to example",
     "my-documents": "My documents",
     "new-folder": "New folder",
     "no-results": "No search results",
@@ -794,6 +794,12 @@
     "NOTE_A4": "A4",
     "NOTE_C5": "C5",
     "NOTE_D5": "D5"
+  },
+  "publish-bar": {
+    "example": "Example",
+    "private": "Private",
+    "public": "Public",
+    "url-to-share": "URL to share"
   },
   "robotics": {
     "bloqs": "Blocks",
