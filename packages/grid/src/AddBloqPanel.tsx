@@ -24,11 +24,12 @@ const AddBloqPanel: FC<IAddBloqPanelProps> = ({
     <Container>
       <BloqsWrap>
         <Bloqs>
-          {Object.keys(availableBloqs).map(typeName => {
+          {Object.keys(availableBloqs).map((typeName, index) => {
             const type = bloqTypes.find(t => t.name === typeName)!;
             const canAdd = availableBloqs[typeName] !== 0;
             return (
               <Bloq
+                key={index}
                 transparent={!canAdd && !disabled}
                 type={type}
                 gray={disabled}

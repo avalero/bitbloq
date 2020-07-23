@@ -284,11 +284,11 @@ const GridExercise: FC<IGridExerciseProps> = ({
         {onChange && filteredListBloqs && (
           <AvailableBloqsWrap>
             <AvailableBloqs>
-              {Object.keys(filteredListBloqs).map(typeName => {
+              {Object.keys(filteredListBloqs).map((typeName, index) => {
                 const type = bloqTypes.find(t => t.name === typeName)!;
                 const count = filteredListBloqs[typeName];
                 return (
-                  <AvailableBloq>
+                  <AvailableBloq key={index}>
                     <img src={type.icon} />
                     <span>{count >= 0 ? count : <>&#8734;</>}</span>
                   </AvailableBloq>
