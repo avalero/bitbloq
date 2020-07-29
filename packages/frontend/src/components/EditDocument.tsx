@@ -433,10 +433,10 @@ const EditDocument: FC<IEditDocumentProps> = ({
           value={name}
           onCancel={() => setIsEditTitleVisible(false)}
           onSave={onSaveTitle}
-          title="Cambiar nombre del documento"
-          label="Nombre del documento"
-          placeholder="Documento sin título"
-          saveButton="Cambiar"
+          title={t("documents.edit-document-modal.title")}
+          label={t("documents.edit-document-modal.label")}
+          placeholder={t("documents.edit-document-modal.placeholder")}
+          saveButton={t("documents.edit-document-modal.save")}
         />
       )}
       <DocumentLoginModal
