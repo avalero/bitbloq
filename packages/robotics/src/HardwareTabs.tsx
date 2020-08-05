@@ -1,9 +1,13 @@
-import React, { FC, useMemo } from "react";
+import React, { FC } from "react";
 import styled from "@emotion/styled";
 import { IBoard, IComponent, IComponentInstance } from "@bitbloq/bloqs";
 import { breakpoints, Draggable, Icon, Tabs, useTranslate } from "@bitbloq/ui";
 import { useSetRecoilState } from "recoil";
-import { draggingInstanceState } from "./state";
+import {
+  draggingBoardState,
+  draggingInstanceState,
+  IDraggingBoard
+} from "./state";
 import useHardwareDefinition from "./useHardwareDefinition";
 
 export interface IHardwareTabsProps {
@@ -17,86 +21,99 @@ const HardwareTabs: FC<IHardwareTabsProps> = ({ selectedBoard }) => {
     draggingInstanceState
   );
 
-  const compatibleComponents = useMemo(
-    () =>
-      selectedBoard
-        ? components.filter(component =>
-            component.connectors.some(connector =>
-              selectedBoard.ports.some(port =>
-                port.connectorTypes.includes(connector.type)
-              )
-            )
+  const setDraggingBoard = useSetRecoilState<IDraggingBoard>(
+    draggingBoardState
+  );
+
+  console.log("Render hardware TABS");
+
+  const compatibleComponents = selectedBoard
+    ? components.filter(component =>
+        component.connectors.some(connector =>
+          selectedBoard.ports.some(port =>
+            port.connectorTypes.includes(connector.type)
           )
-        : [],
-    [selectedBoard, components]
+        )
+      )
+    : [];
+
+  const componentsContent = (
+    <Content>
+      <Header>{t("robotics.components")}</Header>
+      <Items>
+        {compatibleComponents.map(component => (
+          <ComponentWrap key={component.name}>
+            <Draggable
+              data={{ component }}
+              onDragStart={params =>
+                setDraggingInstance({
+                  component: component.name,
+                  x: params.x,
+                  y: params.y
+                })
+              }
+              onDrag={params =>
+                setDraggingInstance({
+                  component: component.name,
+                  x: params.x,
+                  y: params.y
+                })
+              }
+              onDragEnd={() => setDraggingInstance({ component: "" })}
+            >
+              {props => (
+                <Component {...props}>
+                  <img
+                    src={component.image.url}
+                    width={component.image.width}
+                    height={component.image.height}
+                    alt={component.label}
+                  />
+                </Component>
+              )}
+            </Draggable>
+            <p>{t(component.label || "")}</p>
+          </ComponentWrap>
+        ))}
+      </Items>
+    </Content>
   );
 
-  const componentsContent = useMemo(
-    () => (
-      <Content>
-        <Header>{t("robotics.components")}</Header>
-        <Items>
-          {compatibleComponents.map(component => (
-            <ComponentWrap key={component.name}>
-              <Draggable
-                data={{ component }}
-                onDragStart={params =>
-                  setDraggingInstance({
-                    component: component.name,
-                    x: params.x,
-                    y: params.y
-                  })
-                }
-                onDrag={params =>
-                  setDraggingInstance({
-                    component: component.name,
-                    x: params.x,
-                    y: params.y
-                  })
-                }
-                onDragEnd={() => setDraggingInstance({ component: "" })}
-              >
-                {props => (
-                  <Component {...props}>
-                    <img
-                      src={component.image.url}
-                      width={component.image.width}
-                      height={component.image.height}
-                      alt={component.label}
-                    />
-                  </Component>
-                )}
-              </Draggable>
-              <p>{t(component.label || "")}</p>
-            </ComponentWrap>
-          ))}
-        </Items>
-      </Content>
-    ),
-    [compatibleComponents]
-  );
-
-  const boardsContent = useMemo(
-    () => (
-      <Content>
-        <Header>{t("robotics.boards")}</Header>
-        <Items>
-          {boards.map(board => (
-            <Board key={board.name}>
-              <Draggable data={{ board }}>
-                {props => (
-                  <div {...props}>
-                    <BoardImage src={board.image.url} />
-                  </div>
-                )}
-              </Draggable>
-              <p>{board.label}</p>
-            </Board>
-          ))}
-        </Items>
-      </Content>
-    ),
-    [boards]
+  const boardsContent = (
+    <Content>
+      <Header>{t("robotics.boards")}</Header>
+      <Items>
+        {boards.map(board => (
+          <Board key={board.name}>
+            <Draggable
+              data={{ board }}
+              onDragStart={params =>
+                setDraggingBoard({
+                  board: board.name,
+                  x: params.x,
+                  y: params.y
+                })
+              }
+              onDrag={params => {
+                setDraggingBoard({
+                  board: board.name,
+                  x: params.x,
+                  y: params.y
+                });
+              }}
+              onDragEnd={() => setDraggingBoard({ board: "" })}
+            >
+              {props => (
+                <div {...props}>
+                  <BoardImage src={board.image.url} />
+                </div>
+              )}
+            </Draggable>
+            <p>{board.label}</p>
+          </Board>
+        ))}
+      </Items>
+    </Content>
   );
 
   return (

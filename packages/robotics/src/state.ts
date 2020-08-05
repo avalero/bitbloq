@@ -1,5 +1,5 @@
 import { atom, atomFamily, selector } from "recoil";
-import { IComponentInstance, IConnector } from "@bitbloq/bloqs";
+import { IBoard, IComponentInstance, IConnector } from "@bitbloq/bloqs";
 
 export const componentListState = atom<string[]>({
   key: "componentList",
@@ -20,7 +20,18 @@ export const componentsState = selector({
     get(componentListState).map(id => get(componentWithIdState(id)))
 });
 
-interface IDraggingConnector {
+export interface IDraggingBoard {
+  x: number;
+  y: number;
+  board: string;
+}
+
+export const draggingBoardState = atom<IDraggingBoard>({
+  key: "draggingBoard",
+  default: { board: "", x: 0, y: 0 }
+});
+
+export interface IDraggingConnector {
   x: number;
   y: number;
   connector: IConnector;

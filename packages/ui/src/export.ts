@@ -36,8 +36,10 @@ import JuniorButton from "./components/junior/Button";
 import JuniorSwitch from "./components/junior/Switch";
 import JuniorNumberInput from "./components/junior/NumberInput";
 import JuniorUpDownButton from "./components/junior/UpDownButton";
+import useClickOutside from "./hooks/useClickOutside";
 import useDraggable from "./hooks/useDraggable";
 import useKeyPressed from "./hooks/useKeyPressed";
+import useResizeObserver from "./hooks/useResizeObserver";
 import baseStyles from "./base-styles";
 import colors from "./colors";
 import breakpoints from "./breakpoints";
@@ -75,8 +77,10 @@ export {
   useLanguage,
   useTranslate,
   Layout,
+  useClickOutside,
   useDraggable,
   useKeyPressed,
+  useResizeObserver,
   baseStyles,
   colors,
   breakpoints,

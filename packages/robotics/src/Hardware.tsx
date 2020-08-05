@@ -17,6 +17,9 @@ import {
   Droppable,
   DragAndDropProvider,
   Icon,
+  useClickOutside,
+  useKeyPressed,
+  useResizeObserver,
   useTranslate
 } from "@bitbloq/ui";
 import useHardwareDefinition from "./useHardwareDefinition";
@@ -29,6 +32,7 @@ import {
 
 import Connections from "./Connections";
 import Component from "./Component";
+import DraggingBoard from "./DraggingBoard";
 import DraggingComponent from "./DraggingComponent";
 import HardwareTabs from "./HardwareTabs";
 
@@ -79,8 +83,6 @@ const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
     }
   );
 
-  console.log("RENDER!!!");
-
   const addConnection = useRecoilCallback(
     ({ set }, instance, connector, port) => {
       set(componentWithIdState(instance.id), {
@@ -93,38 +95,20 @@ const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
     }
   );
 
-  useEffect(() => {
-    const onResize = () => {
-      const {
-        width: canvasWidth,
-        height: canvasHeight
-      } = canvasRef.current!.getBoundingClientRect();
-
-      setWidth(canvasWidth);
-      setHeight(canvasHeight);
-    };
-
-    onResize();
-
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
-
-  useEffect(() => {
-    const onBodyClick = (e: MouseEvent) => {
-      if (
-        boardRef.current &&
-        !boardRef.current.contains(e.target as HTMLElement)
-      ) {
-        setBoardSelected(false);
+  useClickOutside(boardRef, () => setBoardSelected(false));
+  useResizeObserver(canvasRef, (canvasWidth, canvasHeight) => {
+    setWidth(canvasWidth);
+    setHeight(canvasHeight);
+  });
+  useKeyPressed(
+    "Delete",
+    () => {
+      if (boardSelected) {
+        onChange({ ...hardware, board: undefined });
       }
-    };
-
-    document.addEventListener("click", onBodyClick);
-    return () => {
-      document.removeEventListener("click", onBodyClick);
-    };
-  }, []);
+    },
+    [boardSelected]
+  );
 
   const onDrop = ({
     draggableData,
@@ -217,6 +201,7 @@ const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
         </CanvasWrap>
         <HardwareTabs selectedBoard={boardObject} />
       </Container>
+      <DraggingBoard />
       <DraggingComponent />
     </DragAndDropProvider>
   );
