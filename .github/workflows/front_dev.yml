@@ -38,6 +38,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
+          ref: develop
           submodules: recursive
 
         # Setup gcloud CLI
