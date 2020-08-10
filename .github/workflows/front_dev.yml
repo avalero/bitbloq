@@ -28,6 +28,7 @@ env:
   REGISTRY_HOSTNAME: eu.gcr.io
   DEPLOYMENT_NAME: front
   NAMESPACE: bitbloq3-dev
+  SLACK_HOOK: ${{ secrets.SLACK_HOOK }}
 
 jobs:
   front-app:
