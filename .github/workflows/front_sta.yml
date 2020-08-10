@@ -1,10 +1,10 @@
-name: front at dev
+name: front at sta
 
 on:
   workflow_dispatch:
   push:
     branches:
-      - develop
+      - master
     paths:
       - "packages/frontend/**"
       - "packages/3d/**"
@@ -27,12 +27,12 @@ env:
   IMAGE: bitbloq-develop
   REGISTRY_HOSTNAME: eu.gcr.io
   DEPLOYMENT_NAME: front
-  NAMESPACE: bitbloq3-dev
+  NAMESPACE: bitbloq3-sta
   SLACK_HOOK: ${{ secrets.SLACK_HOOK }}
 
 jobs:
   frontend:
-    name: Setup, Build, Publish, and Deploy frontend at dev
+    name: Setup, Build, Publish, and Deploy frontend at sta
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -88,6 +88,6 @@ jobs:
 
       # Slack notification
       - name: Slack notification
-        run: 'curl -X POST -H ''Content-type: application/json'' --data ''{"attachments":[{"color":"#36a64f","text":"Bitbloq front deployed at dev"}]}'' https://hooks.slack.com/services/$SLACK_HOOK'
+        run: 'curl -X POST -H ''Content-type: application/json'' --data ''{"attachments":[{"color":"#36a64f","text":"Bitbloq front deployed at sta"}]}'' https://hooks.slack.com/services/$SLACK_HOOK'
         shell: bash
         continue-on-error: true
