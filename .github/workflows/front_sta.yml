@@ -1,0 +1,93 @@
+name: front at sta
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - "packages/frontend/**"
+      - "packages/3d/**"
+      - "packages/bloqs/**"
+      - "packages/code/**"
+      - "packages/junior/**"
+      - "packages/lib3d/**"
+      - "packages/robotics/**"
+      - "packages/stories/**"
+      - "packages/ui/**"
+
+# Environment variables available to all jobs and steps in this workflow
+env:
+  GKE_PROJECT: ${{ secrets.GKE_PROJECT }}
+  GKE_EMAIL: ${{ secrets.GKE_EMAIL }}
+  GKE_KEY: ${{ secrets.GKE_KEY }}
+  GITHUB_SHA: ${{ github.sha }}
+  GKE_ZONE: europe-west1-d
+  GKE_CLUSTER: bitbloq
+  IMAGE: bitbloq-master
+  REGISTRY_HOSTNAME: eu.gcr.io
+  DEPLOYMENT_NAME: front
+  NAMESPACE: bitbloq3-sta
+  SLACK_HOOK: ${{ secrets.SLACK_HOOK }}
+
+jobs:
+  frontend:
+    name: Setup, Build, Publish, and Deploy frontend at sta
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+        # Setup gcloud CLI
+      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          version: "270.0.0"
+          service_account_email: ${{ secrets.GKE_EMAIL }}
+          service_account_key: ${{ secrets.GKE_KEY }}
+
+      # Configure docker to use the gcloud command-line tool as a credential helper
+      - name: Configure docker
+        run: |
+          # Set up docker to authenticate
+          # via gcloud command-line tool.
+          gcloud auth configure-docker
+
+      #Copy env.dev
+      - name: Copy env.dev -> .env
+        run: cp ./packages/frontend/.env.$NAMESPACE ./packages/frontend/.env
+        shell: bash
+        continue-on-error: true
+
+      # Build the Docker image
+      - name: Build Frontend App
+        run: |
+          docker build -f ./packages/frontend/Dockerfile -t $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:$DEPLOYMENT_NAME \
+            --build-arg GITHUB_SHA=$GITHUB_SHA \
+            --build-arg GITHUB_REF=$GITHUB_REF .
+
+      # Delete previous existing docker images
+      - name: Detele previous images
+        run: gcloud container images delete $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:$DEPLOYMENT_NAME --force-delete-tags
+        continue-on-error: true
+
+      # Push the Docker image to Google Container Registry
+      - name: Publish
+        run: |
+          gcloud container clusters get-credentials $GKE_CLUSTER --zone $GKE_ZONE --project $GKE_PROJECT
+          docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:$DEPLOYMENT_NAME
+
+      # Deploy the Docker image to the GKE cluster
+      - name: Deploy
+        run: |
+          gcloud container clusters get-credentials $GKE_CLUSTER --zone $GKE_ZONE --project $GKE_PROJECT
+          kubectl --namespace=$NAMESPACE set image deployment/$DEPLOYMENT_NAME $DEPLOYMENT_NAME=$REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:$DEPLOYMENT_NAME
+          kubectl --namespace=$NAMESPACE delete pod --selector=name=$DEPLOYMENT_NAME
+          kubectl get services -o wide
+
+      # Slack notification
+      - name: Slack notification
+        run: 'curl -X POST -H ''Content-type: application/json'' --data ''{"attachments":[{"color":"#36a64f","text":"Bitbloq front deployed at sta"}]}'' https://hooks.slack.com/services/$SLACK_HOOK'
+        shell: bash
+        continue-on-error: true
