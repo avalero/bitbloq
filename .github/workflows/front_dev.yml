@@ -87,6 +87,6 @@ jobs:
 
       # Slack notification
       - name: Slack notification
-        run: 'curl -X POST -H ''Content-type: application/json'' --data ''{"attachments":[{"color":"#36a64f","text":"Bitbloq front deployed at dev"}]}'' https://hooks.slack.com/services/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'
+        run: 'curl -X POST -H ''Content-type: application/json'' --data ''{"attachments":[{"color":"#36a64f","text":"Bitbloq front deployed at dev"}]}'' https://hooks.slack.com/services/$SLACK_HOOK'
         shell: bash
         continue-on-error: true
