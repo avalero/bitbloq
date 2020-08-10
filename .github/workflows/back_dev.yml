@@ -53,7 +53,7 @@ jobs:
         continue-on-error: true
 
       # Build the Docker image
-      - name: Build Frontend App
+      - name: Build Backend
         run: |
           cd ./packages/api && docker build -f Dockerfile -t $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:$DEPLOYMENT_NAME \
             --build-arg GITHUB_SHA=$GITHUB_SHA \
