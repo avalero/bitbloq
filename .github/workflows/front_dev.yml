@@ -1,7 +1,4 @@
-# This workflow will build a docker container, publish it to Google Container Registry, and deploy it to GKE when a release is created
-# Deploys
-
-name: front app at develop
+name: front at develop
 
 on:
   workflow_dispatch:
@@ -34,7 +31,7 @@ env:
 
 jobs:
   front-app:
-    name: Setup, Build, Publish, and Deploy front-app
+    name: Setup, Build, Publish, and Deploy frontend
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
