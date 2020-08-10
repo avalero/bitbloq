@@ -30,7 +30,7 @@ env:
   IMAGE: bitbloq-develop
   REGISTRY_HOSTNAME: eu.gcr.io
   DEPLOYMENT_NAME: front
-  NAMESPACE: dev
+  NAMESPACE: bitbloq3-dev
 
 jobs:
   front-app:
