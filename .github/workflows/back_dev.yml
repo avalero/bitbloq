@@ -23,7 +23,7 @@ env:
   SLACK_HOOK: ${{ secrets.SLACK_HOOK }}
 
 jobs:
-  frontend:
+  backend:
     name: Setup, Build, Publish, and Deploy backend at dev
     runs-on: ubuntu-latest
     steps:

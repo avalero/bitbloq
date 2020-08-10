@@ -1,4 +1,4 @@
-name: back at dev
+name: back at sta
 
 on:
   workflow_dispatch:
@@ -23,8 +23,8 @@ env:
   SLACK_HOOK: ${{ secrets.SLACK_HOOK }}
 
 jobs:
-  frontend:
-    name: Setup, Build, Publish, and Deploy backend at dev
+  backend:
+    name: Setup, Build, Publish, and Deploy backend at sta
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
