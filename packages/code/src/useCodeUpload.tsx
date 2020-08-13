@@ -133,6 +133,8 @@ class Uploader {
 
           const enc = new TextEncoder();
           avrgirl.protocol.chip.verifyPage = (_a, _b, _c, _d, cb) => cb();
+          avrgirl.protocol.chip.verify = (_a, _b, _c, _d, cb) => cb();
+
           (avrgirl as Avrgirl).flash(enc.encode(hex as string), error => {
             if (error) {
               avrgirl.connection.serialPort.reader.cancel();
