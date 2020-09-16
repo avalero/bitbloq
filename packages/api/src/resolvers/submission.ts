@@ -29,9 +29,9 @@ import { CONTENT_VERSION } from "../config";
 
 const saltRounds = 7;
 
-const SUBMISSION_UPDATED: string = "SUBMISSION_UPDATED";
-export const SUBMISSION_ACTIVE: string = "SUBMISSION_ACTIVE";
-export const SUBMISSION_SESSION_EXPIRES: string = "SUBMISSION_SESSION_EXPIRES";
+const SUBMISSION_UPDATED = "SUBMISSION_UPDATED";
+export const SUBMISSION_ACTIVE = "SUBMISSION_ACTIVE";
+export const SUBMISSION_SESSION_EXPIRES = "SUBMISSION_SESSION_EXPIRES";
 
 const submissionResolver = {
   Subscription: {
@@ -156,7 +156,7 @@ const submissionResolver = {
           submissionID: newSub.id,
           role: "stu-"
         },
-        process.env.JWT_SECRET
+        process.env.JWT_SECRET || ""
         // { expiresIn: "3h" }
       );
       await SubmissionModel.findOneAndUpdate(
@@ -230,7 +230,7 @@ const submissionResolver = {
             submissionID: existSubmission.id,
             role: "stu-"
           },
-          process.env.JWT_SECRET
+          process.env.JWT_SECRET || ""
           // { expiresIn: "3h" }
         );
         await SubmissionModel.findOneAndUpdate(
@@ -289,7 +289,7 @@ const submissionResolver = {
         }
         const updatedSubmission: ISubmission | null = await SubmissionModel.findOneAndUpdate(
           { _id: existSubmission.id },
-          { $set: args.input },
+          { $set: (args.input as unknown) as ISubmission },
           { new: true }
         );
         pubsub.publish(SUBMISSION_UPDATED, {
@@ -388,8 +388,8 @@ const submissionResolver = {
         {
           $set: {
             finished: true,
-            content: args.content,
-            cache: args.cache,
+            content: args.content || "",
+            cache: args.cache || "",
             studentComment: args.studentComment,
             finishedAt: Date.now()
           }

@@ -248,7 +248,7 @@ export interface IDocumentProps {
   icon?: JSX.Element;
   preMenuContent?: JSX.Element;
   postMenuContent?: JSX.Element;
-  backCallback: () => any;
+  backCallback?: () => any;
   tabs: IDocumentTab[];
 }
 
@@ -261,7 +261,7 @@ class Document extends React.Component<IDocumentProps, IState> {
     isHeaderCollapsed: false
   };
 
-  public render() {
+  public render(): React.ReactNode {
     const {
       menuOptions = [],
       menuRightContent,
@@ -299,11 +299,7 @@ class Document extends React.Component<IDocumentProps, IState> {
               ) : (
                 ""
               )}
-              {!!backCallback ? (
-                <Icon className="back" name="arrow-left" />
-              ) : (
-                ""
-              )}
+              {backCallback ? <Icon className="back" name="arrow-left" /> : ""}
             </DocumentIcon>
             <Title canEdit={!!onEditTitle} onClick={onEditTitle}>
               <span>

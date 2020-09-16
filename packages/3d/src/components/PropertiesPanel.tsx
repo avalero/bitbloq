@@ -175,7 +175,10 @@ const PropertiesPanel: FC<IPropertiesPanelProps> = ({
     onUpdateObject(
       update(object, {
         operations: {
-          $splice: [[source.index, 1], [destination.index, 0, operation]]
+          $splice: [
+            [source.index, 1],
+            [destination.index, 0, operation]
+          ]
         }
       })
     );

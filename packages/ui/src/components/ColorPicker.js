@@ -54,7 +54,7 @@ export default class ColorPicker extends React.Component {
   };
 
   render() {
-    const { color, className, position } = this.props;
+    const { color, className } = this.props;
     const colorHex = chroma(color).hex();
 
     return (

@@ -20,7 +20,7 @@ import {
 import { cloneDeep } from "lodash";
 
 export default class Cone extends PrimitiveObject {
-  public static typeName: string = "Cone";
+  public static typeName = "Cone";
 
   public static newFromJSON(object: IConeJSON): Cone {
     if (object.type !== Cone.typeName) {

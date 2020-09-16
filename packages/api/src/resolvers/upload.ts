@@ -21,7 +21,7 @@ const bucket: Bucket = new Bucket(
   storage,
   String(process.env.GCLOUD_STORAGE_BUCKET)
 ); // bucket name
-const bucketName: string = String(process.env.GCLOUD_STORAGE_BUCKET);
+const bucketName = String(process.env.GCLOUD_STORAGE_BUCKET);
 
 let publicUrl: string;
 let thumbnailUrl: string | undefined;
@@ -48,7 +48,7 @@ const normalize = (() => {
     const ret: string[] = [];
     for (let i = 0, j = str.length; i < j; i++) {
       const c = str.charAt(i);
-      if (mapping.hasOwnProperty(str.charAt(i))) {
+      if (mapping[str.charAt(i)] !== undefined) {
         ret.push(mapping[c]);
       } else {
         ret.push(c);
@@ -150,7 +150,7 @@ const processUpload = async (input: {
                 storageName: input.gcsName,
                 size: fileSize,
                 publicUrl,
-                image: input.type === "image" ? publicUrl : null,
+                image: input.type === "image" ? publicUrl : "",
                 preview: publicUrl,
                 thumbnail: input.thumbnailUrl ? input.thumbnailUrl : publicUrl,
                 type: input.type,
@@ -205,7 +205,7 @@ export const createExerciseImage = async (docFatherImg, newCode, userID) => {
   if (!imgData) {
     return "";
   }
-  const filename: string = `${userID}/exercise-${newCode}`;
+  const filename = `${userID}/exercise-${newCode}`;
   try {
     await storage
       .bucket(bucketName)
@@ -272,7 +272,7 @@ export async function uploadDocumentUserImage(
         files.map(async file => {
           await file.delete();
         });
-        // tslint:disable-next-line: no-empty
+        // eslint:disable-next-line
       } catch (e) {}
     }
     uniqueName = "docImage" + documentID + Date.now() + normalize(filename);
@@ -302,7 +302,7 @@ export async function uploadDocumentUserImage(
     }
     uniqueName = "profilePhoto" + normalize(filename);
   }
-  const gcsName: string = `${userID}/${encodeURIComponent(uniqueName)}`;
+  const gcsName = `${userID}/${encodeURIComponent(uniqueName)}`;
   return new Promise((resolve, reject) => {
     processUpload({
       resolve,
@@ -327,7 +327,7 @@ const uploadResolver = {
       args: IQueryCloudResourcesArgs,
       context: { user: IUserInToken }
     ) => {
-      const itemsPerPage: number = 8;
+      const itemsPerPage = 8;
       const skipN: number = (args.currentPage! - 1) * itemsPerPage;
       const limit: number = skipN + itemsPerPage;
       const text: string | null | undefined = args.searchTitle;
@@ -376,7 +376,7 @@ const uploadResolver = {
         throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR");
       }
       const uniqueName: string = Date.now() + normalize(filename);
-      const gcsName: string = `${userID}/${encodeURIComponent(uniqueName)}`;
+      const gcsName = `${userID}/${encodeURIComponent(uniqueName)}`;
       return new Promise((resolve, reject) => {
         processUpload({
           resolve,
@@ -417,9 +417,9 @@ const uploadResolver = {
         }
         const uniqueNameUploadRsc: string =
           "thumbnail" + Date.now() + normalize(filenameUploadRsc);
-        const gcsNameUloadRsc: string = `${
-          context.user.userID
-        }/${encodeURIComponent(uniqueNameUploadRsc)}`;
+        const gcsNameUloadRsc = `${context.user.userID}/${encodeURIComponent(
+          uniqueNameUploadRsc
+        )}`;
         thumbnailUrl = (await uploadThumbnail(
           createReadStreamUploadRsc,
           gcsNameUloadRsc
@@ -434,14 +434,12 @@ const uploadResolver = {
       if (!createReadStream || !filename || !mimetype || !encoding) {
         throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR");
       }
-      let fileType: string = "";
+      let fileType = "";
       for (const type in acceptedFiles) {
-        if (acceptedFiles.hasOwnProperty(type)) {
-          for (const item of acceptedFiles[type]) {
-            if (filename.indexOf(item) > -1) {
-              fileType = type;
-              break;
-            }
+        for (const item of acceptedFiles[type]) {
+          if (filename.indexOf(item) > -1) {
+            fileType = type;
+            break;
           }
         }
       }
@@ -452,10 +450,11 @@ const uploadResolver = {
         );
       }
       const uniqueName: string = Date.now() + normalize(filename);
-      const gcsName: string = `${context.user.userID}/${encodeURIComponent(
+      const gcsName = `${context.user.userID}/${encodeURIComponent(
         uniqueName
       )}`;
-      return new Promise(async (resolve, reject) => {
+      const thumbnailUrlResult = await thumbnailUrl;
+      return new Promise((resolve, reject) => {
         processUpload({
           resolve,
           reject,
@@ -466,7 +465,7 @@ const uploadResolver = {
           mimetype,
           encoding,
           userID: context.user.userID,
-          thumbnailUrl: await thumbnailUrl,
+          thumbnailUrl: thumbnailUrlResult,
           type: fileType
         });
       });
@@ -489,7 +488,7 @@ const uploadResolver = {
         );
       }
       const uniqueName: string = Date.now() + normalize(filename);
-      const gcsName: string = `${context.user.userID}/${encodeURIComponent(
+      const gcsName = `${context.user.userID}/${encodeURIComponent(
         uniqueName
       )}`;
       return new Promise((resolve, reject) => {
@@ -561,7 +560,7 @@ const uploadResolver = {
         throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR");
       }
       const uniqueName: string = Date.now() + normalize(filename);
-      const gcsName: string = `${context.user.userID}/${encodeURIComponent(
+      const gcsName = `${context.user.userID}/${encodeURIComponent(
         uniqueName
       )}`;
       return new Promise((resolve, reject) => {

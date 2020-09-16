@@ -18,7 +18,7 @@ import ObjectsCommon from "./ObjectsCommon";
 import PrimitiveObject from "./PrimitiveObject";
 
 export default class TruncatedCone extends PrimitiveObject {
-  public static typeName: string = "TruncatedCone";
+  public static typeName = "TruncatedCone";
 
   public static newFromJSON(object: ITruncatedConeJSON): TruncatedCone {
     if (object.type !== TruncatedCone.typeName) {

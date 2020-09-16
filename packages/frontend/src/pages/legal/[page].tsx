@@ -22,7 +22,7 @@ const LegalPage: NextPage<ILegalPageProps> = ({ page }) => {
 
 LegalPage.getInitialProps = async ({ query }) => {
   return {
-    page: query.page.toString()
+    page: query.page?.toString() || ""
   };
 };
 

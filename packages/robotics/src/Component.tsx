@@ -3,19 +3,26 @@ import styled from "@emotion/styled";
 import { IComponent, IComponentInstance } from "@bitbloq/bloqs";
 import { colors, Draggable, useDraggable } from "@bitbloq/ui";
 import { useRecoilState, useSetRecoilState } from "recoil";
-import { componentWithIdState, draggingConnectorState } from "./state";
+import {
+  componentWithIdState,
+  draggingConnectorState,
+  selectedComponentState
+} from "./state";
 import useHardwareDefinition from "./useHardwareDefinition";
+import useUpdateContent from "./useUpdateContent";
 
 export interface IComponentProps {
   id: string;
 }
 
 const Component: FC<IComponentProps> = ({ id }) => {
-  const [instance, setInstance] = useRecoilState<IComponentInstance>(
-    componentWithIdState(id)
+  const [instance, setInstance] = useRecoilState(componentWithIdState(id));
+  const [selectedComponent, setSelectedComponent] = useRecoilState(
+    selectedComponentState
   );
   const setDraggingConnector = useSetRecoilState(draggingConnectorState);
   const { getComponent } = useHardwareDefinition();
+  const updateContent = useUpdateContent();
   const component = getComponent(instance.component);
 
   const containerProps = useDraggable({
@@ -30,7 +37,8 @@ const Component: FC<IComponentProps> = ({ id }) => {
         width,
         height
       });
-    }
+    },
+    onDragEnd: () => updateContent()
   });
 
   if (!instance || !instance.position) {
@@ -40,8 +48,12 @@ const Component: FC<IComponentProps> = ({ id }) => {
   return (
     <Container
       {...containerProps}
-      left={instance.position.x}
-      top={instance.position.y}
+      onClick={() => setSelectedComponent(id)}
+      selected={selectedComponent === id}
+      style={{
+        left: instance.position.x,
+        top: instance.position.y
+      }}
     >
       <NameInput
         value={instance.name}
@@ -58,20 +70,36 @@ const Component: FC<IComponentProps> = ({ id }) => {
         <Draggable
           key={connector.name}
           data={{ type: "connector", connector, instance }}
+          draggableWidth={0}
+          draggableHeight={0}
+          offsetX={10}
+          offsetY={10}
           onDragStart={params =>
-            setDraggingConnector({ x: params.x, y: params.y, connector })
+            setDraggingConnector({
+              x: params.x,
+              y: params.y,
+              connector,
+              instance
+            })
           }
           onDrag={params =>
-            setDraggingConnector({ x: params.x, y: params.y, connector })
+            setDraggingConnector({
+              x: params.x,
+              y: params.y,
+              connector,
+              instance
+            })
           }
           onDragEnd={() => setDraggingConnector(null)}
         >
           {(props, dragging) => (
             <Connector
               {...props}
-              dragging={dragging}
-              top={connector.position.y}
-              left={connector.position.x}
+              style={{
+                display: dragging ? "none" : "block",
+                left: `${((connector.position.x + 1) / 2) * 100}%`,
+                top: `${((connector.position.y + 1) / 2) * 100}%`
+              }}
             />
           )}
         </Draggable>
@@ -82,10 +110,8 @@ const Component: FC<IComponentProps> = ({ id }) => {
 
 export default Component;
 
-const Container = styled.div<{ top: number; left: number }>`
+const Container = styled.div<{ selected: boolean }>`
   position: absolute;
-  top: ${props => props.top}px;
-  left: ${props => props.left}px;
   transform: translate(-50%, -50%);
   display: inline-flex;
   flex-direction: column;
@@ -93,6 +119,9 @@ const Container = styled.div<{ top: number; left: number }>`
   background: #d7d7d7;
   border-radius: 4px;
   padding: 10px;
+  border-color: ${colors.black};
+  border-style: solid;
+  border-width: ${props => (props.selected ? 2 : 0)}px;
 `;
 
 const NameInput = styled.input`
@@ -111,14 +140,11 @@ const Image = styled.img`
   margin: 10px;
 `;
 
-const Connector = styled.div<{ dragging: boolean; top: number; left: number }>`
+const Connector = styled.div`
   position: absolute;
-  top: ${props => ((props.top + 1) / 2) * 100}%;
-  left: ${props => ((props.left + 1) / 2) * 100}%;
   transform: translate(-50%, -50%);
   background-color: ${colors.black};
   width: 20px;
   height: 20px;
   border-radius: 10px;
-  display: ${props => (props.dragging ? "none" : "block")};
 `;

@@ -19,6 +19,7 @@ export interface IDroppableHandler {
   width: number;
   height: number;
   data: any;
+  priority?: number;
   onDragOver: (draggableData: any) => void;
   onDragOut: () => void;
 }
@@ -41,10 +42,9 @@ const createController = ({
   onDragEnd,
   onDrop
 }: IControllerParms): IDragAndDropController => {
-  let dragging = false;
   let draggingData: any = null;
-  let draggableWidth: number = 0;
-  let draggableHeight: number = 0;
+  let draggableWidth = 0;
+  let draggableHeight = 0;
   let activeHandler: IDroppableHandler | undefined;
   let lastX = 0;
   let lastY = 0;
@@ -53,13 +53,15 @@ const createController = ({
   return {
     registerDroppableHandler: (handler: IDroppableHandler) => {
       droppableHandlers.push(handler);
+      droppableHandlers.sort(
+        ({ priority: a = 0 }, { priority: b = 0 }) => b - a
+      );
 
       return () => {
         droppableHandlers.splice(droppableHandlers.indexOf(handler), 1);
       };
     },
     startDrag: (data: any, width: number, height: number) => {
-      dragging = true;
       draggingData = data;
       draggableWidth = width;
       draggableHeight = height;
@@ -71,7 +73,10 @@ const createController = ({
     drag: (dragX: number, dragY: number) => {
       const handler = droppableHandlers.find(
         ({ x, y, width, height }) =>
-          dragX >= x && dragX <= x + width && dragY >= y && dragY <= y + height
+          dragX >= x &&
+          dragX + draggableWidth <= x + width &&
+          dragY >= y &&
+          dragY + draggableHeight <= y + height
       );
 
       if (activeHandler && handler !== activeHandler) {
@@ -104,7 +109,6 @@ const createController = ({
       }
       activeHandler = undefined;
       draggingData = null;
-      dragging = false;
     }
   };
 };

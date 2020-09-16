@@ -1,7 +1,7 @@
 import React, { FC } from "react";
 
 const Diagram: FC = () => {
- return <div>Diagram</div>;
+  return <div>Diagram</div>;
 };
 
 export default Diagram;

@@ -11,4 +11,3 @@ const SvgRobot = props => (
 );
 
 export default SvgRobot;
-

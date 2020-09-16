@@ -18,7 +18,7 @@ import ObjectsCommon from "./ObjectsCommon";
 import PrimitiveObject from "./PrimitiveObject";
 
 export default class SemiCylinder extends PrimitiveObject {
-  public static typeName: string = "SemiCylinder";
+  public static typeName = "SemiCylinder";
 
   public static newFromJSON(object: ICylinderJSON): SemiCylinder {
     if (object.type !== SemiCylinder.typeName) {

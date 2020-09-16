@@ -18,7 +18,7 @@ import ObjectsCommon from "./ObjectsCommon";
 import PrimitiveObject from "./PrimitiveObject";
 
 export default class Tube extends PrimitiveObject {
-  public static typeName: string = "Tube";
+  public static typeName = "Tube";
 
   public static newFromJSON(object: ITubeJSON): Tube {
     if (object.type !== Tube.typeName) {

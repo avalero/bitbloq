@@ -8,7 +8,7 @@ import { IObjectsCommonJSON } from "@bitbloq/lib3d";
 
 export interface IToolbarProps {
   objects: IObjectsCommonJSON[];
-  onCreateObject: (object: object) => any;
+  onCreateObject: (object: any) => any;
   selectedObjects: IObjectsCommonJSON[];
   advancedMode: boolean;
   canUndo: boolean;
@@ -52,8 +52,7 @@ const Toolbar: FC<IToolbarProps> = ({
           const numObjects = selectedObjects.length;
           const topObjects = selectedObjects.every(o => objects.includes(o));
           const canApply =
-            topObjects &&
-            (numObjects >= minObjects && numObjects <= maxObjects);
+            topObjects && numObjects >= minObjects && numObjects <= maxObjects;
 
           let tooltipContent: React.ReactChild = "";
           if (canApply) {

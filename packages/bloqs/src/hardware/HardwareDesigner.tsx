@@ -64,7 +64,7 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
   const selectedPort = board.ports[selectedPortIndex];
   const selectedComponentInstance = getInstanceInPort(selectedPort);
 
-  const getInstanceName = (baseName: string, count: number = 0): string => {
+  const getInstanceName = (baseName: string, count = 0): string => {
     const name = `${baseName}${count || ""}`;
     const exist = hardware.components.some(c => c.name === name);
     return exist ? getInstanceName(baseName, count ? count + 1 : 2) : name;
@@ -221,7 +221,7 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
                       selectedPortIndex === i ? colors.brandOrange : "#bbb"
                     }
                     strokeWidth={2}
-                    strokeDasharray={!!componentInstance ? "0" : "7 3"}
+                    strokeDasharray={componentInstance ? "0" : "7 3"}
                   />
                   {connectionCircle(port, selectedPortIndex === i)}
                 </g>

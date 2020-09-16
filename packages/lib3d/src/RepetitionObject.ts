@@ -61,7 +61,7 @@ export default class RepetitionObject extends ObjectsCommon {
     this._viewOptionsUpdateRequired = a;
   }
 
-  public static typeName: string = "RepetitionObject";
+  public static typeName = "RepetitionObject";
 
   /**
    *
@@ -245,8 +245,8 @@ export default class RepetitionObject extends ObjectsCommon {
    */
   public updateFromJSON(
     object: IRepetitionObjectJSON,
-    fromParent: boolean = false,
-    forceUpdate: boolean = false
+    fromParent = false,
+    forceUpdate = false
   ) {
     if (object.id !== this.id) {
       throw new Error(`ids do not match ${object.id}, ${this.id}`);
@@ -475,7 +475,7 @@ export default class RepetitionObject extends ObjectsCommon {
       await this.originalObject.computeMeshAsync();
     }
 
-    for (let i: number = 0; i < num; i += 1) {
+    for (let i = 0; i < num; i += 1) {
       if (this.originalObject instanceof ObjectsCommon) {
         const objectClone: ObjectsCommon = this.originalObject.clone();
         const json = objectClone.toJSON();
@@ -513,7 +513,7 @@ export default class RepetitionObject extends ObjectsCommon {
     const baseMesh = await this.originalObject.getMeshAsync();
     const initialMatrix: THREE.Matrix4 = baseMesh.matrix;
 
-    for (let i: number = 0; i < num; i += 1) {
+    for (let i = 0; i < num; i += 1) {
       const newObject = this.originalObject.clone();
       // rotate newObject around axis.
       const rotationAxis: THREE.Vector3 = new THREE.Vector3();

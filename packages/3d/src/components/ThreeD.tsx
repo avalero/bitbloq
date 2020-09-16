@@ -27,7 +27,7 @@ import { getRandomColor, createObjectName, findObject } from "../util";
 import { IShapeGroup } from "../types";
 
 export interface IThreeDRef {
-  createObject: (type: string, paramaterers: object, name: string) => void;
+  createObject: (type: string, paramaterers: any, name: string) => void;
   exportToSTL: (name: string, separate: boolean) => void;
 }
 

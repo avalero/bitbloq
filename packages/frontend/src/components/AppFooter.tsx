@@ -14,7 +14,7 @@ const AppFooter: FC = ({ children }) => {
           {t("legal.general-conditions")}
         </a>
         |
-        <a target="_blank" href={privacyPolicyUrl}>
+        <a target="_blank" href={privacyPolicyUrl} rel="noreferrer">
           {t("legal.privacy-policy")}
         </a>
         |

@@ -215,8 +215,8 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
         readOnly={readOnly}
       />
     ),
-    software: (isActive: boolean) =>
-      isActive ? (
+    software: function JuniorSoftware(isActive: boolean) {
+      return isActive ? (
         <>
           <HorizontalBloqEditor
             lines={program}
@@ -239,7 +239,8 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
           />
           {!externalUpload && uploadContent}
         </>
-      ) : null,
+      ) : null;
+    },
     upload: onUpload,
     cancel,
     undo,

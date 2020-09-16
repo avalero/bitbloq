@@ -159,8 +159,8 @@ export function compareObjectsJSONArray(
   }
 
   // compare children one by one
-  let equalChildren: boolean = true;
-  for (let i: number = 0; i < array1.length; i += 1) {
+  let equalChildren = true;
+  for (let i = 0; i < array1.length; i += 1) {
     equalChildren = equalChildren && equalJSON(array1[i], array2[i]);
     if (!equalChildren) {
       return false;

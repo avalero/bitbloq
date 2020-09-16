@@ -18,7 +18,7 @@ import {
 } from "./Interfaces";
 
 export default class Heart extends PrimitiveObject {
-  public static typeName: string = "Heart";
+  public static typeName = "Heart";
 
   public static newFromJSON(object: IHeartJSON): Heart {
     if (object.type !== Heart.typeName) {

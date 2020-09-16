@@ -34,19 +34,19 @@ class DropDown extends Component<IDropDownProps, IState> {
   private toggleEl: HTMLElement | null;
   private attachmentEl: HTMLElement | null;
 
-  public componentDidMount() {
+  public componentDidMount(): void {
     document.addEventListener("click", this.onBodyClick, false);
   }
 
-  public componentWillUnmount() {
+  public componentWillUnmount(): void {
     document.removeEventListener("click", this.onBodyClick, false);
   }
 
-  public close() {
+  public close(): void {
     this.setState({ isOpen: false });
   }
 
-  public render() {
+  public render(): React.ReactNode {
     const { isOpen } = this.state;
     const {
       className,

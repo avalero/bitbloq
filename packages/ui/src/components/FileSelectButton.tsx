@@ -10,7 +10,7 @@ class FileSelectButton extends React.Component<
 > {
   private input = React.createRef<HTMLInputElement>();
 
-  public render() {
+  public render(): React.ReactNode {
     const { onFileSelected, accept, ...restProps } = this.props;
     return (
       <>

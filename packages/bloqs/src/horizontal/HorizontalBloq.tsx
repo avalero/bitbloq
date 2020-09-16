@@ -102,7 +102,7 @@ const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
   const missingComponent = port === "?";
   const showDisabled = disabled || missingComponent;
 
-  const isSmall: boolean = !!IS_SMALL[type.category];
+  const isSmall = !!IS_SMALL[type.category];
 
   const lightColor = gray ? colors.gray7 : COLORS[type.category].light;
   const darkColor = gray ? colors.gray7 : COLORS[type.category].dark;

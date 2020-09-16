@@ -158,11 +158,11 @@ const program2code = (
 ): IArduinoCode => {
   const arduinoCode: IArduinoCode = initializeArduinoCode();
 
-  let functionNameIndex: number = 0;
-  let functionName: string = "";
-  let timelineFunctionName: string = ""; // first function name of a timeline
+  let functionNameIndex = 0;
+  let functionName = "";
+  let timelineFunctionName = ""; // first function name of a timeline
   let timelineFlagName: string; // flag to avoid a timeline to run simultaneously
-  let onStartEvent: boolean = false;
+  let onStartEvent = false;
 
   for (let index = 0; index < program.length; index++) {
     const timeline = program[index];

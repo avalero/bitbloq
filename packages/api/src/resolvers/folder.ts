@@ -14,7 +14,7 @@ import {
   IQueryFolderArgs
 } from "../api-types";
 
-const FOLDER_UPDATED: string = "FOLDER_UPDATED";
+const FOLDER_UPDATED = "FOLDER_UPDATED";
 
 const folderResolver = {
   Subscription: {
@@ -171,7 +171,7 @@ const folderResolver = {
             await FolderModel.updateOne(
               // quito la carpeta de la carpeta en la que estuviera
               { _id: fol.parentFolder },
-              { $pull: { foldersID: folder } },
+              { $pull: { foldersID: folder || "" } },
               { new: true }
             );
             await FolderModel.updateOne(
@@ -181,7 +181,7 @@ const folderResolver = {
             );
             await FolderModel.updateOne(
               { _id: existFolder._id },
-              { $push: { foldersID: folder } }, // añado la nueva carpeta a los hijos de la carpeta
+              { $push: { foldersID: folder || "" } }, // añado la nueva carpeta a los hijos de la carpeta
               { new: true }
             );
           }
@@ -201,7 +201,7 @@ const folderResolver = {
             await FolderModel.updateOne(
               // quito el documento de la carpeta en la que estuviera
               { _id: doc.parentFolder },
-              { $pull: { documentsID: document } },
+              { $pull: { documentsID: document || "" } },
               { new: true }
             );
             await DocumentModel.updateOne(
@@ -211,7 +211,7 @@ const folderResolver = {
             );
             await FolderModel.updateOne(
               { _id: existFolder._id },
-              { $push: { documentsID: document } }, // añado el nuevo document a los hijos de la carpeta
+              { $push: { documentsID: document || "" } }, // añado el nuevo document a los hijos de la carpeta
               { new: true }
             );
           }

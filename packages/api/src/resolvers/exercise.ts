@@ -147,10 +147,10 @@ const exerciseResolver = {
         _id: args.id,
         user: context.user.userID
       });
-      if (existExercise) {
+      if (existExercise && args.input) {
         return ExerciseModel.findOneAndUpdate(
           { _id: existExercise._id },
-          { $set: args.input },
+          { $set: (args.input as unknown) as IExercise },
           { new: true }
         );
       } else {
@@ -228,9 +228,11 @@ const exerciseResolver = {
     submissions: async (exercise: IExercise) =>
       SubmissionModel.find({ exercise: exercise._id }),
     resources: async (exercise: IExercise) => {
-      const result: IResource[] | any = (await UploadModel.find({
-        _id: { $in: exercise.resourcesID }
-      })).map(resource => ({
+      const result: IResource[] | any = (
+        await UploadModel.find({
+          _id: { $in: exercise.resourcesID }
+        })
+      ).map(resource => ({
         id: resource._id,
         title: resource.filename,
         type: resource.type,
