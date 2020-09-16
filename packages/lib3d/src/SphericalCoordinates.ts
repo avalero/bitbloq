@@ -29,7 +29,7 @@ export class SphericalCoords {
   public phi: number;
   public theta: number;
 
-  constructor(r: number = 0, phi: number = 0, theta: number = 0) {
+  constructor(r = 0, phi = 0, theta = 0) {
     this.radius = r;
     this.phi = phi;
     this.theta = theta;
@@ -67,7 +67,7 @@ export class SphericalCoords {
   }
 
   public makeSafe(): SphericalCoords {
-    const EPS: number = 0.000001;
+    const EPS = 0.000001;
     this.phi = Math.max(EPS, Math.min(Math.PI - EPS, this.phi));
     return this;
   }

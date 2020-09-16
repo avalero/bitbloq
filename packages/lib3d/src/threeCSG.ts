@@ -14,11 +14,11 @@
 
 import * as THREE from "three";
 
-const EPSILON: number = 1e-5,
-  COPLANAR: number = 0,
-  FRONT: number = 1,
-  BACK: number = 2,
-  SPANNING: number = 3;
+const EPSILON = 1e-5,
+  COPLANAR = 0,
+  FRONT = 1,
+  BACK = 2,
+  SPANNING = 3;
 
 export default class ThreeBSP {
   private Polygon: object;

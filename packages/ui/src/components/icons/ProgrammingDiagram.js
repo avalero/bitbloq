@@ -12,4 +12,3 @@ const SvgProgramingDiagram = props => (
 );
 
 export default SvgProgramingDiagram;
-

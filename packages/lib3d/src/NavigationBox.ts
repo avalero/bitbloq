@@ -373,7 +373,7 @@ export default class NavigationBox {
     }
   };
 
-  private getTextureForText(text: string, rotation: number = 0): THREE.Texture {
+  private getTextureForText(text: string, rotation = 0): THREE.Texture {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
 

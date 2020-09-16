@@ -17,11 +17,11 @@ export interface IObjectTreeProps {
   advancedMode: boolean;
   objects: IObjectsCommonJSON[];
   selectedObjects: IObjectsCommonJSON[];
-  onCreateObject: (object: IObjectsCommonJSON) => any;
-  onDeleteObject: (object: IObjectsCommonJSON) => any;
-  onUpdateObject: (object: IObjectsCommonJSON | ICompoundObjectJSON) => any;
-  onObjectClick: (object?: IObjectsCommonJSON) => any;
-  onUpdateObjectsOrder: (orderedObjectIds: string[]) => any;
+  onCreateObject: (object: IObjectsCommonJSON) => void;
+  onDeleteObject: (object: IObjectsCommonJSON) => void;
+  onUpdateObject: (object: IObjectsCommonJSON | ICompoundObjectJSON) => void;
+  onObjectClick: (object?: IObjectsCommonJSON) => void;
+  onUpdateObjectsOrder: (orderedObjectIds: string[]) => void;
   shapeGroups: IShapeGroup[];
 }
 

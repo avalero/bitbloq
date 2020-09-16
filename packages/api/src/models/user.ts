@@ -20,11 +20,11 @@ export interface IUser extends Document {
   authToken?: string;
   notifications?: boolean;
   imTeacherCheck: boolean;
-  centerName: string;
-  educationalStage: string;
-  city: string;
-  postCode: string;
-  country: string;
+  centerName?: string;
+  educationalStage?: string;
+  city?: string;
+  postCode?: string;
+  country?: string;
   rootFolder?: string;
   lastLogin?: Date;
   finishedSignUp?: boolean;
@@ -140,7 +140,7 @@ export const contactSchema: Schema = new Schema({
 });
 
 contactSchema.plugin(timestamps);
-export const UserModel: Model<IUser> = model<IUser>(
+export const UserModel: Model<IUser> = model<Omit<IUser, "id">>(
   "UserModels",
   contactSchema
 );

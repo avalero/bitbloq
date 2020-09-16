@@ -1,6 +1,6 @@
 import React, { FC, useState } from "react";
 import styled from "@emotion/styled";
-import { Button, Icon, useTranslate } from "@bitbloq/ui";
+import { Icon } from "@bitbloq/ui";
 import PropertyInput from "./PropertyInput";
 
 import { IObjectParameter, IOperationParameter } from "../types";
@@ -9,8 +9,8 @@ type Parameter = IObjectParameter | IOperationParameter;
 
 export interface IProportionalGroupProps {
   parameters: Parameter[];
-  object: object;
-  onObjectChange: (object: object) => any;
+  object: any;
+  onObjectChange: (object: any) => any;
 }
 
 const ProportionalGroup: FC<IProportionalGroupProps> = ({
@@ -21,15 +21,15 @@ const ProportionalGroup: FC<IProportionalGroupProps> = ({
   const [isLocked, setIsLocked] = useState(true);
 
   const onParameterChange = (parameter: Parameter, value: any) => {
-    const oldValue = object[parameter.name!];
+    const oldValue = object[parameter.name] as number;
     const ratio = value / oldValue;
 
     const newObject = parameters.reduce((o, p) => {
       if (p === parameter) {
-        return { ...o, [p.name!]: value };
+        return { ...o, [p.name]: value };
       } else if (isLocked) {
-        const newValue = Math.round(o[p.name!] * ratio * 100) / 100;
-        return { ...o, [p.name!]: newValue };
+        const newValue = Math.round((o[p.name] as number) * ratio * 100) / 100;
+        return { ...o, [p.name]: newValue };
       } else {
         return o;
       }

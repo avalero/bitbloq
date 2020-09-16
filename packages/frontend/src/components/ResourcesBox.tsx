@@ -24,7 +24,7 @@ const ResourceItem: FC<IResourceItemProps> = ({
   useEffect(() => {
     const titleExt = title!.split(".").pop();
     const titleName = title!
-      .replace(new RegExp(`\.${titleExt}$`), "")
+      .replace(new RegExp(`.${titleExt}$`), "")
       .substring(0, 64);
     setFirsTitle(titleName.substring(0, titleName.length - 3));
     setSecondTitle(`${titleName.substring(titleName.length - 3)}.${titleExt}`);

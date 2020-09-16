@@ -1,50 +1,56 @@
 import React, { FC, useState, useRef, useEffect, useMemo } from "react";
 import styled from "@emotion/styled";
-import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
+import {
+  useRecoilCallback,
+  useRecoilState,
+  useRecoilValue,
+  useSetRecoilState
+} from "recoil";
 import update from "immutability-helper";
 import { v1 as uuid } from "uuid";
 import {
+  IComponent,
   IComponentInstance,
   IHardware,
   IPosition,
   IConnector,
+  IPort,
   IPortDirection
 } from "@bitbloq/bloqs";
 import {
   breakpoints,
   colors,
-  Draggable,
   Droppable,
   DragAndDropProvider,
-  Icon,
-  useClickOutside,
   useKeyPressed,
   useResizeObserver,
   useTranslate
 } from "@bitbloq/ui";
 import useHardwareDefinition from "./useHardwareDefinition";
+import useUpdateContent from "./useUpdateContent";
 import {
+  boardState,
   componentListState,
+  componentsState,
   componentWithIdState,
   draggingConnectorState,
-  draggingInstanceState
+  draggingInstanceState,
+  selectedComponentState,
+  ICanvasComponentInstance
 } from "./state";
 
+import Board from "./Board";
 import Connections from "./Connections";
 import Component from "./Component";
 import DraggingBoard from "./DraggingBoard";
 import DraggingComponent from "./DraggingComponent";
+import DraggingConnector from "./DraggingConnector";
 import HardwareTabs from "./HardwareTabs";
 
-export interface IHardwareProps {
-  hardware: Partial<IHardware>;
-  onChange: (newHardware: Partial<IHardware>) => void;
-}
-
-const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
+const Hardware: FC = () => {
   const t = useTranslate();
-
   const { getBoard, getComponent } = useHardwareDefinition();
+  const updateContent = useUpdateContent();
 
   const componentRefs = useRef<{
     [id: string]: React.RefObject<HTMLDivElement>;
@@ -53,61 +59,76 @@ const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
 
-  const boardRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
 
-  const [boardSelected, setBoardSelected] = useState(false);
-
-  const boardObject = getBoard(hardware.board || "");
-
-  const getInstanceName = (baseName: string, count: number = 0): string => {
-    const name = `${baseName}${count || ""}`;
-    const exist =
-      hardware.components && hardware.components.some(c => c.name === name);
-    return exist ? getInstanceName(baseName, count ? count + 1 : 2) : name;
-  };
-
+  const [board, setBoard] = useRecoilState(boardState);
   const [componentList, setComponentList] = useRecoilState(componentListState);
   const draggingConnector = useRecoilValue(draggingConnectorState);
+  const selectedComponent = useRecoilValue(selectedComponentState);
 
-  const addComponentInstance = useRecoilCallback(
-    ({ set }, component, position) => {
+  const addComponentInstance = useRecoilCallback<[IComponent, IPosition], void>(
+    ({ set, snapshot }) => async (component, position) => {
       const id = uuid();
+
+      const componentNames = (await snapshot.getPromise(componentsState)).map(
+        c => c.name
+      );
+      const baseName = t(component.instanceName);
+      let name = baseName;
+      let nameIndex = 1;
+      while (componentNames.includes(name)) {
+        nameIndex++;
+        name = baseName + nameIndex;
+      }
+
       setComponentList([...componentList, id]);
       set(componentWithIdState(id), {
         id,
         component: component.name,
         position,
-        name: getInstanceName(t(component.instanceName))
+        name,
+        width: 0,
+        height: 0
       });
+      updateContent();
     }
   );
 
-  const addConnection = useRecoilCallback(
-    ({ set }, instance, connector, port) => {
-      set(componentWithIdState(instance.id), {
-        ...instance,
-        ports: {
-          ...instance.ports,
-          [connector.name]: port.name
-        }
-      });
-    }
+  const deleteComponentInstance = useRecoilCallback<[string], void>(
+    ({ reset }) => id => {
+      setComponentList(componentList.filter(c => c !== id));
+      reset(componentWithIdState(id));
+      updateContent();
+    },
+    [componentList]
   );
 
-  useClickOutside(boardRef, () => setBoardSelected(false));
+  const addConnection = useRecoilCallback<
+    [ICanvasComponentInstance, IConnector, IPort],
+    void
+  >(({ set }) => (instance, connector, port) => {
+    set(componentWithIdState(instance.id || ""), {
+      ...instance,
+      ports: {
+        ...instance.ports,
+        [connector.name]: port.name
+      }
+    });
+  });
+
   useResizeObserver(canvasRef, (canvasWidth, canvasHeight) => {
     setWidth(canvasWidth);
     setHeight(canvasHeight);
   });
+
   useKeyPressed(
     "Delete",
     () => {
-      if (boardSelected) {
-        onChange({ ...hardware, board: undefined });
+      if (selectedComponent) {
+        deleteComponentInstance(selectedComponent);
       }
     },
-    [boardSelected]
+    [selectedComponent]
   );
 
   const onDrop = ({
@@ -121,9 +142,12 @@ const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
     const { type } = droppableData || {};
 
     if (type === "board-placeholder") {
-      const { board } = draggableData;
-      if (board) {
-        onChange({ ...hardware, board: board.name });
+      if (draggableData.board) {
+        setBoard({
+          name: draggableData.board.name,
+          width: 0,
+          height: 0
+        });
       }
     }
 
@@ -150,59 +174,19 @@ const Hardware: FC<IHardwareProps> = ({ hardware, onChange }) => {
     <DragAndDropProvider onDrop={onDrop}>
       <Container>
         <CanvasWrap data={{ type: "canvas" }} active={!draggingConnector}>
-          {hardware.board && (
-            <Connections width={width} height={height} board={hardware.board} />
-          )}
+          <Connections width={width} height={height} />
           <Canvas ref={canvasRef}>
-            {boardObject ? (
-              <Board
-                ref={boardRef}
-                image={boardObject.image.url}
-                selected={boardSelected}
-                dragging={!!draggingConnector}
-                onClick={e => {
-                  setBoardSelected(true);
-                }}
-              />
-            ) : (
-              <BoardPlaceholderWrap data={{ type: "board-placeholder" }}>
-                {draggableData => (
-                  <BoardPlaceholder active={!!draggableData}>
-                    {t("robotics.drag-board-here")}
-                  </BoardPlaceholder>
-                )}
-              </BoardPlaceholderWrap>
-            )}
+            <Board />
             {componentList.map(id => (
               <Component key={id} id={id} />
             ))}
-            {boardObject && (
-              <Connectors visible={!!draggingConnector}>
-                {boardObject.ports.map(port => (
-                  <PortDroppable
-                    active={!!draggingConnector}
-                    key={port.name}
-                    data={{ type: "port", port }}
-                    top={port.position.y}
-                    left={port.position.x}
-                  >
-                    {connector => (
-                      <Port
-                        dragging={!!connector}
-                        width={port.width || 0}
-                        height={port.height || 0}
-                      />
-                    )}
-                  </PortDroppable>
-                ))}
-              </Connectors>
-            )}
           </Canvas>
         </CanvasWrap>
-        <HardwareTabs selectedBoard={boardObject} />
+        <HardwareTabs />
       </Container>
       <DraggingBoard />
       <DraggingComponent />
+      <DraggingConnector />
     </DragAndDropProvider>
   );
 };
@@ -224,86 +208,4 @@ const Canvas = styled.div`
   position: relative;
   flex: 1;
   transform: translate(50%, 50%);
-`;
-
-const CanvasItem = styled.div`
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  transform: translate(-50%, -50%);
-`;
-
-const Board = styled(CanvasItem)<{
-  image: string;
-  selected: boolean;
-  dragging: boolean;
-}>`
-  cursor: pointer;
-  background-image: url(${props => props.image});
-  background-position: center;
-  background-size: contain;
-  background-repeat: no-repeat;
-  width: 300px;
-  height: 224px;
-  border-radius: 10px;
-  border: ${props => (props.selected ? "solid 2px" : "none")};
-  opacity: ${props => (props.dragging ? 0.3 : 1)};
-
-  @media screen and (min-width: ${breakpoints.desktop}px) {
-    width: 355px;
-    height: 265px;
-  }
-`;
-
-const BoardPlaceholderWrap = styled(Droppable)`
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  transform: translate(-50%, -50%);
-  width: 300px;
-  height: 224px;
-  display: flex;
-
-  @media screen and (min-width: ${breakpoints.desktop}px) {
-    width: 355px;
-    height: 265px;
-  }
-`;
-
-const BoardPlaceholder = styled.div<{ active: boolean }>`
-  flex: 1;
-  background-color: ${colors.gray1};
-  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23bbb' stroke-width='4' stroke-dasharray='6%2c 10' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
-  color: #bbb;
-  font-size: 14px;
-  font-style: italic;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const Connectors = styled.div<{ visible: boolean }>`
-  visibility: ${props => (props.visible ? "visible" : "hidden")};
-`;
-
-const PortDroppable = styled(Droppable)<{
-  top: number;
-  left: number;
-}>`
-  position: absolute;
-  top: ${props => props.top}px;
-  left: ${props => props.left}px;
-`;
-
-const Port = styled.div<{
-  width: number;
-  height: number;
-  dragging?: boolean;
-}>`
-  width: ${props => props.width}px;
-  height: ${props => props.height}px;
-  border-radius: 2px;
-  border: solid 1px #373b44;
-  background-color: ${props =>
-    props.dragging ? "#373b44" : "rgba(55, 59, 68, 0.3)"};
 `;

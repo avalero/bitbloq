@@ -1,36 +1,25 @@
 import React, { FC } from "react";
 import styled from "@emotion/styled";
-import { IBoard, IComponent, IComponentInstance } from "@bitbloq/bloqs";
 import { breakpoints, Draggable, Icon, Tabs, useTranslate } from "@bitbloq/ui";
-import { useSetRecoilState } from "recoil";
-import {
-  draggingBoardState,
-  draggingInstanceState,
-  IDraggingBoard
-} from "./state";
+import { useRecoilValue, useSetRecoilState, useResetRecoilState } from "recoil";
+import { boardState, draggingBoardState, draggingInstanceState } from "./state";
 import useHardwareDefinition from "./useHardwareDefinition";
 
-export interface IHardwareTabsProps {
-  selectedBoard?: IBoard;
-}
-
-const HardwareTabs: FC<IHardwareTabsProps> = ({ selectedBoard }) => {
+const HardwareTabs: FC = () => {
   const t = useTranslate();
-  const { boards, components } = useHardwareDefinition();
-  const setDraggingInstance = useSetRecoilState<IComponentInstance>(
-    draggingInstanceState
-  );
+  const { boards, components, getBoard } = useHardwareDefinition();
+  const board = useRecoilValue(boardState);
+  const setDraggingInstance = useSetRecoilState(draggingInstanceState);
+  const resetDraggingInstance = useResetRecoilState(draggingInstanceState);
 
-  const setDraggingBoard = useSetRecoilState<IDraggingBoard>(
-    draggingBoardState
-  );
+  const setDraggingBoard = useSetRecoilState(draggingBoardState);
 
-  console.log("Render hardware TABS");
+  const boardObject = board && getBoard(board.name);
 
-  const compatibleComponents = selectedBoard
+  const compatibleComponents = boardObject
     ? components.filter(component =>
         component.connectors.some(connector =>
-          selectedBoard.ports.some(port =>
+          boardObject.ports.some(port =>
             port.connectorTypes.includes(connector.type)
           )
         )
@@ -47,19 +36,29 @@ const HardwareTabs: FC<IHardwareTabsProps> = ({ selectedBoard }) => {
               data={{ component }}
               onDragStart={params =>
                 setDraggingInstance({
+                  name: "",
+                  width: 0,
+                  height: 0,
                   component: component.name,
-                  x: params.x,
-                  y: params.y
+                  position: {
+                    x: params.x,
+                    y: params.y
+                  }
                 })
               }
               onDrag={params =>
                 setDraggingInstance({
+                  name: "",
+                  width: 0,
+                  height: 0,
                   component: component.name,
-                  x: params.x,
-                  y: params.y
+                  position: {
+                    x: params.x,
+                    y: params.y
+                  }
                 })
               }
-              onDragEnd={() => setDraggingInstance({ component: "" })}
+              onDragEnd={() => resetDraggingInstance()}
             >
               {props => (
                 <Component {...props}>
@@ -101,7 +100,7 @@ const HardwareTabs: FC<IHardwareTabsProps> = ({ selectedBoard }) => {
                   y: params.y
                 });
               }}
-              onDragEnd={() => setDraggingBoard({ board: "" })}
+              onDragEnd={() => setDraggingBoard({ board: "", x: 0, y: 0 })}
             >
               {props => (
                 <div {...props}>

@@ -4,7 +4,7 @@ const useKeyPressed = (
   key: string,
   onPress?: () => void,
   effects: any[] = []
-) => {
+): boolean => {
   const [pressed, setPressed] = useState(false);
 
   const onBodyKeyDown = (e: KeyboardEvent) => {

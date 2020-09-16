@@ -1,19 +1,18 @@
-import React, { FC, useState, useEffect, useRef } from "react";
+import React, { FC, useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import { IBoard, IComponent } from "@bitbloq/bloqs";
 import { useTranslate } from "@bitbloq/ui";
-import { RecoilRoot } from "recoil";
+import { RecoilRoot, useRecoilCallback } from "recoil";
 import Hardware from "./Hardware";
 import Bloqs from "./Bloqs";
 import Diagram from "./Diagram";
 import { IRoboticsContent } from "./index";
 import { HardwareDefinitionProvider } from "./useHardwareDefinition";
+import { UpdateContentProvider } from "./useUpdateContent";
+import { boardState } from "./state";
 
 import boardsJSON from "./boards";
 import componentsJSON from "./components";
-
-const boards = boardsJSON as IBoard[];
-const components = componentsJSON as IComponent[];
 
 export interface IRoboticsCallbackProps {
   hardware: React.ReactElement;
@@ -23,7 +22,7 @@ export interface IRoboticsCallbackProps {
 
 export interface IRoboticsProps {
   initialContent?: Partial<IRoboticsContent>;
-  onContentChange: (content: any) => any;
+  onContentChange: (content: IRoboticsContent) => any;
   children: (props: IRoboticsCallbackProps) => React.ReactElement;
 }
 
@@ -33,48 +32,34 @@ const Robotics: FC<IRoboticsProps> = ({
   onContentChange
 }) => {
   const t = useTranslate();
-  const [content, setContent] = useState(initialContent);
 
-  const [undoPast, setUndoPast] = useState<any[]>([]);
-  const [undoFuture, setUndoFuture] = useState<any[]>([]);
-
-  const updateContent = (newContent: IRoboticsContent) => {
-    setUndoPast([content, ...undoPast]);
-    setUndoFuture([]);
-    setContent(newContent);
-  };
-
-  const undo = () => {
-    setUndoPast(undoPast.slice(1));
-    setUndoFuture([content, ...undoFuture]);
-    setContent(undoPast[0]);
-  };
-
-  const redo = () => {
-    setUndoPast([content, ...undoPast]);
-    setUndoFuture(undoFuture.slice(1));
-    setContent(undoFuture[0]);
-  };
-
-  useEffect(() => {
-    if (content !== initialContent) {
-      onContentChange(content);
+  const initState = useRecoilCallback(({ set }) => () => {
+    if (initialContent) {
+      if (initialContent.hardware) {
+        set(boardState, {
+          name: initialContent.hardware.board || "",
+          width: 0,
+          height: 0
+        });
+      }
     }
-  }, [content]);
+  });
+
+  useEffect(() => initState(), []);
 
   return (
-    <HardwareDefinitionProvider boards={boards} components={components}>
-      {children({
-        hardware: (
-          <Hardware
-            hardware={content && content.hardware ? content.hardware : {}}
-            onChange={hardware => updateContent({ ...content, hardware })}
-          />
-        ),
-        bloqs: <Bloqs />,
-        diagram: <Diagram />
-      })}
-    </HardwareDefinitionProvider>
+    <UpdateContentProvider onContentChange={onContentChange}>
+      <HardwareDefinitionProvider
+        boards={boardsJSON as IBoard[]}
+        components={componentsJSON as IComponent[]}
+      >
+        {children({
+          hardware: <Hardware />,
+          bloqs: <Bloqs />,
+          diagram: <Diagram />
+        })}
+      </HardwareDefinitionProvider>
+    </UpdateContentProvider>
   );
 };
 

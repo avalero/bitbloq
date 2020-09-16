@@ -16,7 +16,7 @@ import { educationalStages, privacyPolicyUrl } from "../config";
 import { isValidDate, isValidEmail, getAge } from "../util";
 
 interface ISignupUserDataProps {
-  defaultValues: {};
+  defaultValues: IUserIn;
   error?: ApolloError;
   loading: boolean;
   onCancel: () => void;
@@ -329,6 +329,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
           {t("signup.user-data.labels.accept-terms-2")}{" "}
           <a
             target="_blank"
+            rel="noreferrer"
             href={privacyPolicyUrl}
             onClick={e => e.stopPropagation()}
           >

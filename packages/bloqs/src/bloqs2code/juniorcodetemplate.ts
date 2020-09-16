@@ -7,7 +7,7 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-const juniorcodetemplate: string = `
+const juniorcodetemplate = `
 /** 
  * Bitbloq generated code for Junior Bloqs. 
  * For more info please visit https://bitbloq.cc 

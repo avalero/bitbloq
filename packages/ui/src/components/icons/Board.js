@@ -11,4 +11,3 @@ const SvgBoard = props => (
 );
 
 export default SvgBoard;
-

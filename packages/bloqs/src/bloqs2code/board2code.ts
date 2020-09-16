@@ -43,13 +43,9 @@ const boardCodes = (board: IBoard, section: string): string[] => {
  */
 const board2code = (board: IBoard): IArduinoCode => {
   const arduinoCode: IArduinoCode = initializeArduinoCode();
-  try {
-    Object.keys(arduinoCode).forEach(section => {
-      (arduinoCode[section] as string[]).push(...boardCodes(board, section));
-    });
-  } catch (e) {
-    throw e;
-  }
+  Object.keys(arduinoCode).forEach(section => {
+    (arduinoCode[section] as string[]).push(...boardCodes(board, section));
+  });
   return arduinoCode;
 };
 

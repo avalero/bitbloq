@@ -18,7 +18,7 @@ import {
 } from "./Interfaces";
 
 export default class Difference extends CompoundObject {
-  public static typeName: string = "Difference";
+  public static typeName = "Difference";
 
   public static newFromJSON(
     object: ICompoundObjectJSON,
@@ -86,7 +86,7 @@ export default class Difference extends CompoundObject {
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
     mesh?: THREE.Mesh | undefined,
-    applyOperations: boolean = false
+    applyOperations = false
   ) {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),

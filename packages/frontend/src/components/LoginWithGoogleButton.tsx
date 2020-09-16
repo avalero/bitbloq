@@ -10,7 +10,7 @@ import env from "../lib/env";
 
 const uuid = v1;
 
-const appID: string = String(env.GOOGLE_CLIENT_ID);
+const appID = String(env.GOOGLE_CLIENT_ID);
 
 const LoginWithGoogleButton: FC = () => {
   const router = useRouter();

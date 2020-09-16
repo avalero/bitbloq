@@ -1,4 +1,5 @@
 import React, { FC } from "react";
+import { breakpoints } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import { useRecoilValue } from "recoil";
 import { draggingBoardState } from "./state";
@@ -19,7 +20,7 @@ const DraggingBoard: FC = () => {
   } = boardObject;
 
   return (
-    <Container left={x} top={y}>
+    <Container style={{ left: x, top: y }}>
       <img src={url} width={width} height={height} alt={label} />
     </Container>
   );
@@ -27,20 +28,15 @@ const DraggingBoard: FC = () => {
 
 export default DraggingBoard;
 
-const Container = styled.div<{ top: number; left: number }>`
+const Container = styled.div`
   position: fixed;
-  top: ${props => props.top}px;
-  left: ${props => props.left}px;
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  border-radius: 4px;
-  padding: 10px;
+  opacity: 0.5;
 
   img {
-    margin: 10px;
     pointer-events: none;
-    width: 300px;
-    height: 224px;
+    width: 180px;
+    @media screen and (min-width: ${breakpoints.desktop}px) {
+      width: 210px;
+    }
   }
 `;

@@ -213,7 +213,7 @@ export default class Renderer {
   }
 
   public getCanvasImage(): string {
-    const strMime: string = "image/jpeg";
+    const strMime = "image/jpeg";
     const imgData: string = this.threeRenderer.domElement.toDataURL(strMime);
     return imgData;
   }

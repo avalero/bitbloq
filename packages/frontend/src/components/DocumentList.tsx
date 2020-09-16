@@ -227,7 +227,7 @@ const DocumentList: FC<IDocumentListProps> = ({
     document: IDocument
   ) => {
     e.stopPropagation();
-    let newName: string = `${document.name} copia`;
+    let newName = `${document.name} copia`;
 
     if (newName.length >= 64) {
       newName = newName.slice(0, 63);
@@ -334,7 +334,6 @@ const DocumentList: FC<IDocumentListProps> = ({
           {docsAndFols &&
             docsAndFols.map(document => (
               <StyledDocumentCard
-                isOpen={true}
                 beginFunction={() => setDraggingItemId(document.id!)}
                 endFunction={() => setDraggingItemId("")}
                 draggable={

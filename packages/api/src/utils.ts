@@ -41,8 +41,8 @@ export const sortByUpdatedAt = (a, b) => {
 
 export const sortByTitleAZ = (a, b) => {
   try {
-    let aTitle: string = "";
-    let bTitle: string = "";
+    let aTitle = "";
+    let bTitle = "";
     if (a && a.name && b && b.name) {
       aTitle = a.name.toLowerCase();
       bTitle = b.name.toLowerCase();
@@ -59,8 +59,8 @@ export const sortByTitleAZ = (a, b) => {
 
 export const sortByTitleZA = (a, b) => {
   try {
-    let aTitle: string = "";
-    let bTitle: string = "";
+    let aTitle = "";
+    let bTitle = "";
     if (a && a.name && b && b.name) {
       aTitle = a.name.toLowerCase();
       bTitle = b.name.toLowerCase();

@@ -19,7 +19,7 @@ const ScrollableTabs: React.FunctionComponent<IScrollableTabsProps> = ({
     if (!contentEl.current) {
       return;
     }
-    const el = contentEl.current!;
+    const el = contentEl.current;
     const scrollTop = el.scrollTop;
     const visibleTab = Array.from(el.children).reduce(
       (tab, child: HTMLDivElement, i) =>
@@ -30,7 +30,10 @@ const ScrollableTabs: React.FunctionComponent<IScrollableTabsProps> = ({
   };
 
   const onSelectTab = (tab: number) => {
-    const el = contentEl.current!;
+    if (!contentEl.current) {
+      return;
+    }
+    const el = contentEl.current;
     const scrollTop = (el.children[tab] as HTMLDivElement).offsetTop;
     el.scrollTop = scrollTop;
     setActiveTab(tab);

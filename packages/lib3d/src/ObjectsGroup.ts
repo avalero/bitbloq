@@ -12,7 +12,7 @@ import {
 } from "./Interfaces";
 
 export default class ObjectsGroup extends ObjectsCommon {
-  public static typeName: string = "ObjectsGroup";
+  public static typeName = "ObjectsGroup";
 
   /**
    *
@@ -176,10 +176,7 @@ export default class ObjectsGroup extends ObjectsCommon {
    * If group members do not match an Error is thrown
    * @param object ObjectGroup descriptor object
    */
-  public updateFromJSON(
-    object: IObjectsGroupJSON,
-    fromParent: boolean = false
-  ) {
+  public updateFromJSON(object: IObjectsGroupJSON, fromParent = false) {
     if (object.id !== this.id) {
       throw new Error(`ids do not match ${object.id}, ${this.id}`);
     }

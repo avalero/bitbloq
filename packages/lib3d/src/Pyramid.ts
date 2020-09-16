@@ -22,7 +22,7 @@ import {
 } from "./Interfaces";
 
 export default class Pyramid extends PrimitiveObject {
-  public static typeName: string = "Pyramid";
+  public static typeName = "Pyramid";
 
   public static newFromJSON(object: IPyramidJSON): Pyramid {
     if (object.type !== Pyramid.typeName) {

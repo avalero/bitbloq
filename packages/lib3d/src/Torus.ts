@@ -18,7 +18,7 @@ import ObjectsCommon from "./ObjectsCommon";
 import PrimitiveObject from "./PrimitiveObject";
 
 export default class Torus extends PrimitiveObject {
-  public static typeName: string = "Torus";
+  public static typeName = "Torus";
 
   public static newFromJSON(object: ITorusJSON): Torus {
     if (object.type !== Torus.typeName) {

@@ -24,7 +24,7 @@ import {
 } from "./Interfaces";
 
 export default class Prism extends PrimitiveObject {
-  public static typeName: string = "Prism";
+  public static typeName = "Prism";
 
   public static newFromJSON(object: IPrismJSON): Prism {
     if (object.type !== Prism.typeName) {

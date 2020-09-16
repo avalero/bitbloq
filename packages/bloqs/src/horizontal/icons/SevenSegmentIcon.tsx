@@ -1,3 +1,4 @@
+/*eslint react/jsx-key:0*/
 import React, { FC } from "react";
 import { IBloq, IBloqType } from "../../index";
 

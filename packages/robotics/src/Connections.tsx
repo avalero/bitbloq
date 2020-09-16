@@ -1,9 +1,14 @@
 import React, { FC } from "react";
 import styled from "@emotion/styled";
-import { IPortDirection } from "@bitbloq/bloqs";
+import { IConnector, IPortDirection } from "@bitbloq/bloqs";
 import { colors } from "@bitbloq/ui";
 import { useRecoilValue } from "recoil";
-import { componentsState } from "./state";
+import {
+  boardState,
+  componentsState,
+  ICanvasComponentInstance,
+  draggingConnectorState
+} from "./state";
 import useHardwareDefinition from "./useHardwareDefinition";
 
 const getConnectionPath = (
@@ -26,16 +31,65 @@ const getConnectionPath = (
 };
 
 export interface IConnectionsProps {
-  board: string;
   height: number;
   width: number;
 }
 
-const Connections: FC<IConnectionsProps> = ({ board, height, width }) => {
+const Connections: FC<IConnectionsProps> = ({ height, width }) => {
+  const board = useRecoilValue(boardState);
   const components = useRecoilValue(componentsState);
+  const draggingConnector = useRecoilValue(draggingConnectorState);
   const { getBoard, getComponent } = useHardwareDefinition();
 
-  const boardObject = getBoard(board);
+  const boardObject = board && getBoard(board.name);
+
+  if (!boardObject) {
+    return null;
+  }
+
+  const renderConnection = (
+    instance: ICanvasComponentInstance,
+    connector: IConnector,
+    endX: number,
+    endY: number,
+    portDirection?: IPortDirection
+  ) => {
+    const { width: componentWidth, height: componentHeight } = instance;
+
+    const connectorX =
+      instance.position.x + (connector.position.x / 2) * componentWidth;
+    const connectorY =
+      instance.position.y + (connector.position.y / 2) * componentHeight;
+
+    const path = getConnectionPath(
+      connectorX,
+      connectorY,
+      connector.direction || IPortDirection.South,
+      endX,
+      endY,
+      portDirection || IPortDirection.North
+    );
+
+    return (
+      <Connection
+        d={path}
+        key={`${instance.name}-connector-${connector.name}`}
+      />
+    );
+  };
+
+  const renderDraggingConnection = () => {
+    if (draggingConnector) {
+      return renderConnection(
+        draggingConnector.instance,
+        draggingConnector.connector,
+        draggingConnector.x,
+        draggingConnector.y
+      );
+    }
+
+    return null;
+  };
 
   return (
     <Container>
@@ -55,30 +109,19 @@ const Connections: FC<IConnectionsProps> = ({ board, height, width }) => {
               return;
             }
 
-            const { width: componentWidth, height: componentHeight } = instance;
-
-            const connectorX =
-              instance.position.x +
-              (connectorObject.position.x / 2) * componentWidth;
-            const connectorY =
-              instance.position.y +
-              (connectorObject.position.y / 2) * componentHeight;
-
             const portX = portObject.position.x + (portObject.width || 0) / 2;
             const portY = portObject.position.y + (portObject.height || 0) / 2;
 
-            const path = getConnectionPath(
-              connectorX,
-              connectorY,
-              connectorObject.direction || IPortDirection.South,
+            return renderConnection(
+              instance,
+              connectorObject,
               portX,
               portY,
               portObject.direction
             );
-
-            return <Connection d={path} key={port.name} />;
           });
         })}
+        {renderDraggingConnection()}
       </g>
     </Container>
   );

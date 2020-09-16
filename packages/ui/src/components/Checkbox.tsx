@@ -59,7 +59,7 @@ export interface ICheckboxProps {
  * Component that displays a checkbox component
  */
 export default class Checkbox extends React.Component<ICheckboxProps> {
-  public render() {
+  public render(): React.ReactNode {
     const { className, checked, error, onChange } = this.props;
     return (
       <Container

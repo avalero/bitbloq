@@ -13,7 +13,7 @@ const ActivatePage: NextPage<IActivatePageProps> = ({ token }) => {
 
 ActivatePage.getInitialProps = async ({ query }) => {
   return {
-    token: query.token.toString()
+    token: query.token?.toString() || ""
   };
 };
 

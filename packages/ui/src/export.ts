@@ -27,7 +27,6 @@ import LoadingBarOverlay from "./components/LoadingBarOverlay";
 import Tabs from "./components/Tabs";
 import TranslateProvider, {
   Translate,
-  withTranslate,
   useLanguage,
   useTranslate
 } from "./components/TranslateProvider";
@@ -73,7 +72,6 @@ export {
   Modal,
   Spinner,
   ScrollableTabs,
-  withTranslate,
   useLanguage,
   useTranslate,
   Layout,
@@ -86,7 +84,8 @@ export {
   breakpoints,
   JuniorButton,
   JuniorSwitch,
-  JuniorNumberInput
+  JuniorNumberInput,
+  JuniorUpDownButton
 };
 
 export type IDialogModalProps = DialogModalModule.IDialogModalProps;

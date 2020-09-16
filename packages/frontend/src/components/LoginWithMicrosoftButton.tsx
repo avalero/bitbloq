@@ -4,7 +4,7 @@ import { Button } from "@bitbloq/ui";
 import logoMicrosoftImage from "../images/logo-microsoft.svg";
 import env from "../lib/env";
 
-const appID: string = String(env.MICROSOFT_APP_ID);
+const appID = String(env.MICROSOFT_APP_ID);
 
 const LoginWithMicrosoftButton: FC = () => {
   const onClick = (e: React.MouseEvent) => {

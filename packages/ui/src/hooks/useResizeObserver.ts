@@ -1,9 +1,10 @@
-import React, { FC, RefObject, useEffect } from "react";
+import { RefObject, useEffect } from "react";
 
 const useResizeObserver = (
   ref: RefObject<HTMLElement>,
-  callback: (width: number, height: number) => void
-) => {
+  callback: (width: number, height: number) => void,
+  effects: any[] = []
+): void => {
   useEffect(() => {
     const resizeObserver = new ResizeObserver(() => {
       if (ref.current) {
@@ -19,7 +20,7 @@ const useResizeObserver = (
     return () => {
       resizeObserver.disconnect();
     };
-  }, []);
+  }, effects);
 };
 
 export default useResizeObserver;

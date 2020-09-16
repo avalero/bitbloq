@@ -164,7 +164,7 @@ export default class OperationHelper {
     operations: OperationsArray
   ): Promise<THREE.Group> {
     const afterOperations: OperationsArray = [];
-    let found: boolean = false;
+    let found = false;
 
     // add operations that will be applied after operationID to afterOperations Array
     operations.forEach(op => {
@@ -230,14 +230,14 @@ export default class OperationHelper {
   private buildRotationHelper(mesh: THREE.Mesh): THREE.Group {
     const boundingBoxDims: THREE.Vector3 = new THREE.Vector3();
     new THREE.Box3().setFromObject(mesh).getSize(boundingBoxDims);
-    const radius: number = 0.5;
+    const radius = 0.5;
     let color: number;
-    const separation: number = 10;
+    const separation = 10;
     let length: number;
-    const extraLength: number = 30;
+    const extraLength = 30;
     let toroidRadius: number;
     const toroidArc: number = 2 * Math.PI;
-    const toroidInnerRadius: number = 0.7;
+    const toroidInnerRadius = 0.7;
 
     if (this.axis === HelperAxis.X) {
       color = 0xff0000;
@@ -286,11 +286,11 @@ export default class OperationHelper {
   private buildTranslationHelper(mesh: THREE.Mesh) {
     const boundingBoxDims: THREE.Vector3 = new THREE.Vector3();
     new THREE.Box3().setFromObject(mesh).getSize(boundingBoxDims);
-    const radius: number = 0.3;
+    const radius = 0.3;
     let color: number;
-    const separation: number = 3;
-    const length: number = 20;
-    const arrowLength: number = 5;
+    const separation = 3;
+    const length = 20;
+    const arrowLength = 5;
     let offset: number;
     let offsetArrow: number;
 

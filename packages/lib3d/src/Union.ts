@@ -20,7 +20,7 @@ import {
 import Scene from "./Scene";
 
 export default class Union extends CompoundObject {
-  public static typeName: string = "Union";
+  public static typeName = "Union";
 
   public static newFromJSON(object: ICompoundObjectJSON, scene: Scene): Union {
     if (object.type !== Union.typeName) {
@@ -77,7 +77,7 @@ export default class Union extends CompoundObject {
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
     mesh?: THREE.Mesh | undefined,
-    applyOperations: boolean = false
+    applyOperations = false
   ) {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),

@@ -39,7 +39,7 @@ export default class STLObject extends PrimitiveObject {
   set meshUpdateRequired(a: boolean) {
     this._meshUpdateRequired = a;
   }
-  public static typeName: string = "STLObject";
+  public static typeName = "STLObject";
 
   public static newFromJSON(object: ISTLJSON): STLObject {
     if (object.type !== STLObject.typeName) {
@@ -347,7 +347,7 @@ export default class STLObject extends PrimitiveObject {
     return cube;
   }
 
-  private getTextureForText(text: string, rotation: number = 0): THREE.Texture {
+  private getTextureForText(text: string, rotation = 0): THREE.Texture {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
 

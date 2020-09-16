@@ -82,11 +82,11 @@ const PropertyInput: FC<IPropertyInputProps> = ({
     onFocus
   };
 
-  const inputComponent = inputComponents[parameter.type!];
-  if (!inputComponent) {
+  const InputComponent = inputComponents[parameter.type!];
+  if (!InputComponent) {
     return null;
   }
-  const input = inputComponent(commonProps, parameter);
+  const input = <InputComponent {...commonProps} {...parameter} />;
 
   return (
     <Tooltip
@@ -211,29 +211,14 @@ const ColorProperty: FC<ICommonProps> = React.memo(
   )
 );
 
-interface IInputComponents {
-  [key: string]: (
-    commonProps: ICommonProps,
-    parameter: IOperationParameter | IObjectParameter
-  ) => JSX.Element;
-}
+ColorProperty.displayName = "ColorProperty";
 
-const inputComponents: IInputComponents = {
-  integer: (commonProps, { fineStep, minValue, maxValue, unit }) => (
-    <IntegerProperty
-      {...commonProps}
-      fineStep={fineStep}
-      minValue={minValue}
-      maxValue={maxValue}
-      unit={unit}
-    />
-  ),
-  string: commonProps => <StringProperty {...commonProps} />,
-  select: (commonProps, { options }) => (
-    <SelectProperty {...commonProps} options={options} />
-  ),
-  boolean: commonProps => <BooleanProperty {...commonProps} />,
-  color: commonProps => <ColorProperty {...commonProps} />
+const inputComponents = {
+  integer: IntegerProperty,
+  string: StringProperty,
+  select: SelectProperty,
+  boolean: BooleanProperty,
+  color: ColorProperty
 };
 
 /* styled components */

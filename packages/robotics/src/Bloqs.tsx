@@ -7,8 +7,7 @@ const Bloqs: FC = () => {
 
   return (
     <Container>
-      <Canvas>
-      </Canvas>
+      <Canvas></Canvas>
       <Tabs
         tabs={[
           {
