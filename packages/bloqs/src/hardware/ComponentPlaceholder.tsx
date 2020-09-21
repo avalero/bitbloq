@@ -9,9 +9,12 @@ export interface IComponentPlaceholderProps {
   onClick?: React.MouseEventHandler;
 }
 
-const ComponentPlaceholder: React.FunctionComponent<
-  IComponentPlaceholderProps
-> = ({ selected, top, left, onClick }) => {
+const ComponentPlaceholder: React.FunctionComponent<IComponentPlaceholderProps> = ({
+  selected,
+  top,
+  left,
+  onClick
+}) => {
   return (
     <Container selected={selected} top={top} left={left} onClick={onClick}>
       <SVG viewBox="0 0 64 64">

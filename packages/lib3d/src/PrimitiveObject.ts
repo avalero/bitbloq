@@ -46,10 +46,7 @@ export default class PrimitiveObject extends Object3D {
    * For CompoundObjects find function in CompoundObjects Class
    */
 
-  public updateFromJSON(
-    object: IPrimitiveObjectJSON,
-    fromParent: boolean = false
-  ) {
+  public updateFromJSON(object: IPrimitiveObjectJSON, fromParent = false) {
     if (this.id !== object.id) {
       throw new Error("Object id does not match with JSON id");
     }

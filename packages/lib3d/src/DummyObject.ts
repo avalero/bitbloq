@@ -18,7 +18,7 @@ import ObjectsCommon from "./ObjectsCommon";
 import Object3D from "./Object3D";
 
 export default class DummyObject extends Object3D {
-  public static typeName: string = "Dummy";
+  public static typeName = "Dummy";
 
   /**
    * Creates a new Cube instance from json

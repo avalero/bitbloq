@@ -29,9 +29,6 @@ const customStyles = height => ({
     boxShadow: "none",
     cursor: "pointer",
     borderRadius: state.selectProps.menuIsOpen ? "4px 4px 0px 0px" : "4px",
-    "&:hover": {
-      borderColor: "#cfcfcf"
-    },
     paddingLeft: "12px",
     "&:hover": {
       borderColor: "#cfcfcf"

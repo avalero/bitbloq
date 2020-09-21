@@ -125,9 +125,9 @@ const checksSessionExpires = async () => {
         const result: IDataInRedis = await redisClient.hgetallAsync(key);
         if (result && result.expiresAt) {
           const expiresAt: Date = new Date(result.expiresAt);
-          let secondsRemaining: number = 0;
-          let topic: string = "";
-          let type: string = "";
+          let secondsRemaining = 0;
+          let topic = "";
+          let type = "";
           if (result.authToken) {
             topic = USER_SESSION_EXPIRES;
             type = "userSessionExpires";
@@ -197,7 +197,10 @@ const contextController = {
       if (justToken) {
         let user: IUserInToken;
         try {
-          user = await jwtVerify(justToken, process.env.JWT_SECRET);
+          user = ((await jwtVerify(
+            justToken,
+            process.env.JWT_SECRET || ""
+          )) as unknown) as IUserInToken;
         } catch (e) {
           return undefined;
         }
@@ -236,11 +239,12 @@ const contextController = {
   getDataInToken: async inToken => {
     if (inToken) {
       try {
-        return jwtVerify(inToken, process.env.JWT_SECRET);
+        return jwtVerify(inToken, process.env.JWT_SECRET || "");
       } catch (e) {
         throw new AuthenticationError("Token not value.");
       }
     }
+    return undefined;
   },
 
   getDataInBasicAuth: async inToken => {
@@ -256,9 +260,8 @@ const contextController = {
   },
 
   generateLoginToken: async user => {
-    let token: string;
     let role: string;
-    let rolePerm: string = "usr-";
+    let rolePerm = "usr-";
     if (user.admin) {
       rolePerm = rolePerm.concat("admin-");
     }
@@ -274,23 +277,23 @@ const contextController = {
     if (user.family) {
       rolePerm = rolePerm.concat("fam-");
     }
-    token = await jwtSign(
+    const token = await jwtSign(
       {
         email: user.email,
         userID: user._id,
         role: rolePerm
       },
-      process.env.JWT_SECRET
+      process.env.JWT_SECRET || ""
     );
-    role = rolePerm;
-    return { token, role };
+    return { token, role: rolePerm };
   },
 
   generateNewToken: async oldToken => {
-    const data = await contextController.getDataInToken(oldToken);
+    const data = ((await contextController.getDataInToken(
+      oldToken
+    )) as unknown) as IUserInToken;
     await checkOtherSessionOpen(data, oldToken);
-    delete data.exp;
-    const token = await jwtSign(data, process.env.JWT_SECRET);
+    const token = await jwtSign(data, process.env.JWT_SECRET || "");
     return { data, token };
   }
 };

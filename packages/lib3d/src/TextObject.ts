@@ -28,7 +28,7 @@ import pressstart2p_regular from "./assets/fonts/pressstart2p_regular.json";
 import roboto_regular from "./assets/fonts/roboto_regular.json";
 
 export default class TextObject extends PrimitiveObject {
-  public static typeName: string = "TextObject";
+  public static typeName = "TextObject";
 
   public static newFromJSON(object: ITextObjectJSON): TextObject {
     if (object.type !== TextObject.typeName) {

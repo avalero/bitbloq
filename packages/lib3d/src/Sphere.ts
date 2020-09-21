@@ -25,7 +25,7 @@ import {
 } from "./Interfaces";
 
 export default class Sphere extends PrimitiveObject {
-  public static typeName: string = "Sphere";
+  public static typeName = "Sphere";
 
   public static newFromJSON(object: ISphereJSON): Sphere {
     if (object.type !== Sphere.typeName) {

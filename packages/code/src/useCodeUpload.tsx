@@ -4,7 +4,7 @@ import { DialogModal, useTranslate } from "@bitbloq/ui";
 import Avrgirl from "avrgirl-arduino";
 import UploadSpinner from "./UploadSpinner";
 import { knownBoards } from "./config";
-declare var chrome: any;
+declare let chrome: any;
 
 export enum UploadErrorType {
   CHROME_APP_MISSING = "chrome-app-missing",
@@ -55,8 +55,7 @@ class Uploader {
         connection.serialPort.requestOptions = {
           filters: [
             {
-              usbVendorId: boardConfig.vendorId,
-              usbProductId: boardConfig.productId
+              usbVendorId: boardConfig.vendorId
             }
           ]
         };

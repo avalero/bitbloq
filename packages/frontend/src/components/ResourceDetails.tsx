@@ -23,7 +23,7 @@ const ResourceDetails: FC<IResourceDetailsProps> = ({
   const t = useTranslate();
   const titleExt = title!.split(".").pop();
   const titleName = title!
-    .replace(new RegExp(`\.${titleExt}$`), "")
+    .replace(new RegExp(`.${titleExt}$`), "")
     .substring(0, 64);
   const canvasRef = useRef<STLViewer>(null);
   const [cameraY, setCameraY] = useState<number>(0);
@@ -81,7 +81,11 @@ const ResourceDetails: FC<IResourceDetailsProps> = ({
                 cameraY={cameraY}
                 cameraZ={cameraZ}
                 height={311}
-                lights={[[0, 1, 0], [-1, -1, -1], [1, 1, 1]]}
+                lights={[
+                  [0, 1, 0],
+                  [-1, -1, -1],
+                  [1, 1, 1]
+                ]}
                 model={preview}
                 ref={canvasRef}
                 rotate={true}

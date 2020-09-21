@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { SphericalCoordsXYZ } from "./SphericalCoordsXYZ";
 
-const EPSILON: number = 0.001;
+const EPSILON = 0.001;
 const STATE = {
   NONE: -1,
   ROTATE: 0,
@@ -520,7 +520,7 @@ export default class OrbitCamera {
     );
   }
 
-  private dolly(distance: number, enableTransition: boolean = false): void {
+  private dolly(distance: number, enableTransition = false): void {
     this.dollyTo(this._sphericalEnd.radius + distance, enableTransition);
   }
 

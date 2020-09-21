@@ -5,7 +5,7 @@ import { Draggable } from "react-beautiful-dnd";
 import ProportionalGroup from "./ProportionalGroup";
 import PropertyInput from "./PropertyInput";
 import config from "../config";
-import { Icon, Tooltip, useTranslate } from "@bitbloq/ui";
+import { Icon, useTranslate } from "@bitbloq/ui";
 import { Operation as Lib3DOperation } from "@bitbloq/lib3d";
 import { IOperationParameter } from "../types";
 

@@ -2,7 +2,7 @@ import { IPrimitiveObjectJSON } from "@bitbloq/lib3d";
 
 export interface IShape {
   type: string;
-  parameters: object;
+  parameters: Record<string, unknown>;
   label: string;
   icon: JSX.Element;
 }
@@ -52,7 +52,7 @@ export interface ISelectOption {
 }
 
 export interface IOperationParameter {
-  name?: string;
+  name: string;
   label?: string;
   type?: string;
   unit?: string;

@@ -116,7 +116,7 @@ class Tooltip extends React.Component<ITooltipProps, IState> {
     isVisible: this.props.isVisible !== undefined ? this.props.isVisible : false
   };
 
-  public componentDidUpdate(prevProps: ITooltipProps) {
+  public componentDidUpdate(prevProps: ITooltipProps): void {
     if (
       this.props.isVisible !== undefined &&
       prevProps.isVisible !== this.props.isVisible
@@ -125,7 +125,7 @@ class Tooltip extends React.Component<ITooltipProps, IState> {
     }
   }
 
-  public render() {
+  public render(): React.ReactNode {
     const { isVisible } = this.state;
     const { className, children, content, position = "bottom" } = this.props;
 

@@ -928,6 +928,7 @@ const config: IConfig = {
       create: () => Object3D.createScaleOperation(1, 1, 1),
       parameters: [
         {
+          name: "",
           type: "proportional-group",
           parameters: [
             {

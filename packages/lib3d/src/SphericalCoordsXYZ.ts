@@ -13,7 +13,7 @@ export class SphericalCoordsXYZ extends SphericalCoords {
     const z: number = r * Math.cos(phi);
     return { x, y, z };
   }
-  constructor(r: number = 0, phi: number = 0, theta: number = 0) {
+  constructor(r = 0, phi = 0, theta = 0) {
     super(r, phi, theta);
   }
   public setFromCartesianCoords(

@@ -1,13 +1,16 @@
-import React, { FC, useRef, useState, useContext, ReactElement } from "react";
+import { FC, useState, useContext, ReactElement } from "react";
 import { DragAndDropContext } from "./DragAndDropProvider";
 import useDraggable, {
   IUseDragParams,
   IUseDragElementProps
 } from "../hooks/useDraggable";
-import { createPortal } from "react-dom";
 
 export interface IDraggableProps extends IUseDragParams {
   data?: any;
+  draggableWidth?: number;
+  draggableHeight?: number;
+  offsetX?: number;
+  offsetY?: number;
   children: (
     elementProps: IUseDragElementProps,
     dragging: boolean
@@ -17,6 +20,10 @@ export interface IDraggableProps extends IUseDragParams {
 const Draggable: FC<IDraggableProps> = ({
   children,
   data = {},
+  draggableWidth,
+  draggableHeight,
+  offsetX,
+  offsetY,
   onDragStart,
   onDrag,
   onDragEnd
@@ -26,7 +33,11 @@ const Draggable: FC<IDraggableProps> = ({
 
   const elementProps = useDraggable({
     onDragStart: params => {
-      dragAndDropController.startDrag(data, params.width, params.height);
+      dragAndDropController.startDrag(
+        data,
+        draggableWidth !== undefined ? draggableWidth : params.width,
+        draggableHeight !== undefined ? draggableHeight : params.height
+      );
       setDragging(true);
       if (onDragStart) {
         onDragStart(params);
@@ -44,7 +55,9 @@ const Draggable: FC<IDraggableProps> = ({
       if (onDragEnd) {
         onDragEnd(params);
       }
-    }
+    },
+    offsetX,
+    offsetY
   });
 
   return children(elementProps, dragging);

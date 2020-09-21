@@ -25,7 +25,7 @@ import { saveAs } from "file-saver";
 
 export default async function meshArray2STLAsync(
   meshes: THREE.Mesh[],
-  name: string = ""
+  name = ""
 ): Promise<void> {
   const vector = new THREE.Vector3();
   const normalMatrixWorld = new THREE.Matrix3();

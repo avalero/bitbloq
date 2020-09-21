@@ -20,7 +20,7 @@ import {
 } from "./Interfaces";
 
 export default class Cube extends PrimitiveObject {
-  public static typeName: string = "Cube";
+  public static typeName = "Cube";
 
   /**
    * Creates a new Cube instance from json

@@ -35,9 +35,7 @@ interface IHorizontalBloqEditorProps {
   onExtraDataChange?: (extraData: IExtraData) => void;
 }
 
-const HorizontalBloqEditor: React.FunctionComponent<
-  IHorizontalBloqEditorProps
-> = ({
+const HorizontalBloqEditor: React.FunctionComponent<IHorizontalBloqEditorProps> = ({
   lines,
   bloqTypes,
   availableBloqs = [],
@@ -190,14 +188,24 @@ const HorizontalBloqEditor: React.FunctionComponent<
   const onMoveLineUp = (line: IBloqLine) => {
     const index = lines.indexOf(line);
     onLinesChange(
-      update(lines, { $splice: [[index, 1], [index - 1, 0, line]] })
+      update(lines, {
+        $splice: [
+          [index, 1],
+          [index - 1, 0, line]
+        ]
+      })
     );
   };
 
   const onMoveLineDown = (line: IBloqLine) => {
     const index = lines.indexOf(line);
     onLinesChange(
-      update(lines, { $splice: [[index, 1], [index + 1, 0, line]] })
+      update(lines, {
+        $splice: [
+          [index, 1],
+          [index + 1, 0, line]
+        ]
+      })
     );
   };
 

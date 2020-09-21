@@ -176,8 +176,8 @@ export default class Scene {
   }
 
   public async exportToSTLAsync(
-    name: string = "scene",
-    separateSTL: boolean = true
+    name = "scene",
+    separateSTL = true
   ): Promise<void> {
     // update secene objectsGroup if required
     if (this.sceneUpdated) {
@@ -397,7 +397,7 @@ export default class Scene {
    */
   public addNewObjectFromJSON(
     json: IObjectsCommonJSON,
-    createNew: boolean = false
+    createNew = false
   ): ISceneJSON {
     // if createNew children of objects do not exist on scene
     if (createNew) {
@@ -576,7 +576,7 @@ export default class Scene {
    */
   public updateObject(
     objJSON: IObjectsCommonJSON,
-    updateHistory: boolean = true
+    updateHistory = true
   ): ISceneJSON {
     try {
       const object = this.getObject(objJSON);
@@ -624,7 +624,7 @@ export default class Scene {
    */
   public async getPositionAsync(
     json: IObjectsCommonJSON,
-    waitScene: boolean = false
+    waitScene = false
   ): Promise<IObjectPosition> {
     try {
       const obj = this.getObject(json);

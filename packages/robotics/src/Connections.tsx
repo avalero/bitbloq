@@ -1,9 +1,15 @@
-import React, { FC } from "react";
+import React, { FC, useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { IPortDirection } from "@bitbloq/bloqs";
-import { colors } from "@bitbloq/ui";
+import { IConnector, IPortDirection } from "@bitbloq/bloqs";
+import { colors, useResizeObserver } from "@bitbloq/ui";
 import { useRecoilValue } from "recoil";
-import { componentsState } from "./state";
+import {
+  boardState,
+  componentsState,
+  ICanvasComponentInstance,
+  draggingConnectorState,
+  selectedComponentState
+} from "./state";
 import useHardwareDefinition from "./useHardwareDefinition";
 
 const getConnectionPath = (
@@ -25,68 +31,125 @@ const getConnectionPath = (
   return path;
 };
 
-export interface IConnectionsProps {
-  board: string;
-  height: number;
-  width: number;
-}
-
-const Connections: FC<IConnectionsProps> = ({ board, height, width }) => {
+const Connections: FC = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [x, setX] = useState(0);
+  const [y, setY] = useState(0);
+  const [width, setWidth] = useState(0);
+  const [height, setHeight] = useState(0);
+  const board = useRecoilValue(boardState);
   const components = useRecoilValue(componentsState);
+  const draggingConnector = useRecoilValue(draggingConnectorState);
+  const selectedComponent = useRecoilValue(selectedComponentState);
   const { getBoard, getComponent } = useHardwareDefinition();
 
-  const boardObject = getBoard(board);
+  useResizeObserver(
+    containerRef,
+    ({ x, y, width: canvasWidth, height: canvasHeight }) => {
+      setX(x);
+      setY(y);
+      setWidth(canvasWidth);
+      setHeight(canvasHeight);
+    },
+    [containerRef.current]
+  );
+
+  const boardObject = board && getBoard(board.name);
+
+  if (!boardObject) {
+    return null;
+  }
+  const renderConnection = (
+    instance: ICanvasComponentInstance,
+    connector: IConnector,
+    endX: number,
+    endY: number,
+    isSelected: boolean,
+    portDirection?: IPortDirection
+  ) => {
+    const { width: componentWidth, height: componentHeight } = instance;
+
+    const connectorX =
+      instance.position.x + (connector.position.x / 2) * componentWidth;
+    const connectorY =
+      instance.position.y + (connector.position.y / 2) * componentHeight;
+
+    const path = getConnectionPath(
+      connectorX,
+      connectorY,
+      connector.direction || IPortDirection.South,
+      endX,
+      endY,
+      portDirection || IPortDirection.North
+    );
+
+    return (
+      <Connection
+        d={path}
+        key={`${instance.name}-connector-${connector.name}`}
+        stroke={isSelected ? colors.black : colors.green}
+      />
+    );
+  };
+
+  const renderDraggingConnection = () => {
+    if (draggingConnector) {
+      return renderConnection(
+        draggingConnector.instance,
+        draggingConnector.connector,
+        draggingConnector.x - width / 2 - x,
+        draggingConnector.y - height / 2 - y,
+        true
+      );
+    }
+
+    return null;
+  };
 
   return (
-    <Container>
-      <g transform={`translate(${width / 2},${height / 2})`}>
-        {components.map(instance => {
-          const component = getComponent(instance.component);
-          const ports = instance.ports || {};
+    <Container ref={containerRef}>
+      <svg>
+        <g transform={`translate(${width / 2},${height / 2})`}>
+          {components.map(instance => {
+            const component = getComponent(instance.component);
+            const ports = instance.ports || {};
+            const isSelected = instance.id === selectedComponent;
 
-          return Object.keys(ports).map(connector => {
-            const port = ports[connector];
-            const connectorObject = component.connectors.find(
-              c => c.name === connector
-            );
-            const portObject = boardObject.ports.find(p => p.name === port);
+            return Object.keys(ports).map(connector => {
+              const port = ports[connector];
+              const connectorObject = component.connectors.find(
+                c => c.name === connector
+              );
+              const portObject = boardObject.ports.find(p => p.name === port);
 
-            if (!connectorObject || !portObject || !instance.position) {
-              return;
-            }
+              if (!connectorObject || !portObject || !instance.position) {
+                return;
+              }
 
-            const { width: componentWidth, height: componentHeight } = instance;
+              const portX = portObject.position.x + (portObject.width || 0) / 2;
+              const portY =
+                portObject.position.y + (portObject.height || 0) / 2;
 
-            const connectorX =
-              instance.position.x +
-              (connectorObject.position.x / 2) * componentWidth;
-            const connectorY =
-              instance.position.y +
-              (connectorObject.position.y / 2) * componentHeight;
-
-            const portX = portObject.position.x + (portObject.width || 0) / 2;
-            const portY = portObject.position.y + (portObject.height || 0) / 2;
-
-            const path = getConnectionPath(
-              connectorX,
-              connectorY,
-              connectorObject.direction || IPortDirection.South,
-              portX,
-              portY,
-              portObject.direction
-            );
-
-            return <Connection d={path} key={port.name} />;
-          });
-        })}
-      </g>
+              return renderConnection(
+                instance,
+                connectorObject,
+                portX,
+                portY,
+                isSelected,
+                portObject.direction
+              );
+            });
+          })}
+          {renderDraggingConnection()}
+        </g>
+      </svg>
     </Container>
   );
 };
 
 export default Connections;
 
-const Container = styled.svg`
+const Container = styled.div`
   position: absolute;
   top: 0px;
   left: 0px;
@@ -94,10 +157,17 @@ const Container = styled.svg`
   height: 100%;
   pointer-events: none;
   z-index: 2;
+
+  svg {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+  }
 `;
 
 const Connection = styled.path`
-  stroke: ${colors.black};
   stroke-width: 3px;
   fill: none;
 `;

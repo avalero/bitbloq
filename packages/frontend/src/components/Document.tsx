@@ -468,12 +468,6 @@ class Document extends React.Component<any, DocumentState> {
   }
 }
 
-const withCreateExercise = Component => props => (
-  <Mutation mutation={CREATE_EXERCISE_MUTATION}>
-    {mutate => <Component createExercise={mutate} {...props} />}
-  </Mutation>
-);
-
 export default Document;
 
 /* styled components */

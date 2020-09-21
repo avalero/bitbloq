@@ -14,7 +14,7 @@ const DraggingComponent: FC = () => {
   }
 
   return (
-    <Container left={instance.x} top={instance.y}>
+    <Container style={{ left: instance.position.x, top: instance.position.y }}>
       <img
         src={component.image.url}
         width={component.image.width}
@@ -27,16 +27,15 @@ const DraggingComponent: FC = () => {
 
 export default DraggingComponent;
 
-const Container = styled.div<{ top: number; left: number }>`
+const Container = styled.div`
   position: fixed;
-  top: ${props => props.top}px;
-  left: ${props => props.left}px;
   display: inline-flex;
   flex-direction: column;
   align-items: center;
   background: #d7d7d7;
   border-radius: 4px;
   padding: 10px;
+  z-index: 20;
 
   img {
     margin: 10px;

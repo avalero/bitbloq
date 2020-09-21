@@ -18,7 +18,7 @@ import ObjectsCommon from "./ObjectsCommon";
 import PrimitiveObject from "./PrimitiveObject";
 
 export default class Star extends PrimitiveObject {
-  public static typeName: string = "Star";
+  public static typeName = "Star";
 
   public static newFromJSON(object: IStarJSON): Star {
     if (object.type !== Star.typeName) {
@@ -95,7 +95,7 @@ export default class Star extends PrimitiveObject {
     starShape.moveTo(r0, 0);
 
     const angleStep: number = Math.PI / peaks;
-    let angle: number = 0;
+    let angle = 0;
 
     for (let i = 1; i <= peaks; i += 1) {
       angle += angleStep;

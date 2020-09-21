@@ -131,7 +131,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
       setError(Errors.sizeError);
     } else {
       setNameFile(
-        newFile.name.replace(new RegExp(`\.${extFile}$`), "").substring(0, 64)
+        newFile.name.replace(new RegExp(`.${extFile}$`), "").substring(0, 64)
       );
       if (extFile === "stl") {
         const reader = new FileReader();
@@ -223,7 +223,11 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
                 cameraY={cameraY}
                 cameraZ={cameraZ}
                 height={190}
-                lights={[[0, 1, 0], [-1, -1, -1], [1, 1, 1]]}
+                lights={[
+                  [0, 1, 0],
+                  [-1, -1, -1],
+                  [1, 1, 1]
+                ]}
                 model={fileArray}
                 ref={canvasRef}
                 rotate={false}

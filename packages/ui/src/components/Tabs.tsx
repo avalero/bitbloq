@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import styled from "@emotion/styled";
-import { css } from "@emotion/core";
 import colors from "../colors";
 import breakpoints from "../breakpoints";
 
@@ -29,14 +28,6 @@ const ScrollableTabs: React.FunctionComponent<ITabsProps> = ({
       setActiveTab(currentTab);
     }
   }, [currentTab, onTabChange]);
-
-  const onSelectTab = (tab: number) => {
-    if (onTabChange) {
-      onTabChange(tab);
-    } else {
-      setActiveTab(tab);
-    }
-  };
 
   return (
     <Container className={className}>

@@ -38,8 +38,8 @@ export default class STLLoader {
 
   public static toLines(array: any) {
     const lines: string[] = [];
-    let h: number = 0;
-    for (let i: number = 0; i < array.length; i += 1) {
+    let h = 0;
+    for (let i = 0; i < array.length; i += 1) {
       if (array[i] === 10) {
         const line: string = String.fromCharCode.apply(
           null,
@@ -58,8 +58,8 @@ export default class STLLoader {
     const view = new DataView(buffer);
     const size = view.getUint32(80, true);
     const geom = new THREE.Geometry();
-    let offset: number = 84;
-    for (let i: number = 0; i < size; i += 1) {
+    let offset = 84;
+    for (let i = 0; i < size; i += 1) {
       const normal = STLLoader.binaryVector3(view, offset);
       geom.vertices.push(STLLoader.binaryVector3(view, offset + 12));
       geom.vertices.push(STLLoader.binaryVector3(view, offset + 24));
@@ -72,7 +72,7 @@ export default class STLLoader {
 
   public static loadTextStl(buffer: any) {
     const lines = STLLoader.toLines(new Uint8Array(buffer));
-    let index: number = 0;
+    let index = 0;
 
     const scan = (regexp: RegExp) => {
       while (lines[index].match(/^\s*$/)) {

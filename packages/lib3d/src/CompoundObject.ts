@@ -208,8 +208,8 @@ export default class CompoundObject extends Object3D {
 
   public updateFromJSON(
     object: ICompoundObjectJSON,
-    fromParent: boolean = false,
-    forceUpdate: boolean = false
+    fromParent = false,
+    forceUpdate = false
   ) {
     if (this.id !== object.id) {
       throw new Error("Object id does not match with JSON id");
@@ -368,10 +368,7 @@ export default class CompoundObject extends Object3D {
     });
   }
 
-  private setChildren(
-    children: IObjectsCommonJSON[],
-    forceUpdate: boolean = false
-  ) {
+  private setChildren(children: IObjectsCommonJSON[], forceUpdate = false) {
     const currentChildren: IObjectsCommonJSON[] = this.toJSON().children;
 
     // children are the same do not update anything.

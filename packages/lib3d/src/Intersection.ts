@@ -18,7 +18,7 @@ import ObjectsCommon from "./ObjectsCommon";
 import Scene from "./Scene";
 
 export default class Intersection extends CompoundObject {
-  public static typeName: string = "Intersection";
+  public static typeName = "Intersection";
 
   public static newFromJSON(
     object: ICompoundObjectJSON,
@@ -85,7 +85,7 @@ export default class Intersection extends CompoundObject {
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
     mesh?: THREE.Mesh | undefined,
-    applyOperations: boolean = false
+    applyOperations = false
   ) {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),

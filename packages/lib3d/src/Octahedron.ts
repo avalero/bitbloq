@@ -20,7 +20,7 @@ import {
 } from "./Interfaces";
 
 export default class Octahedron extends PrimitiveObject {
-  public static typeName: string = "Octahedron";
+  public static typeName = "Octahedron";
 
   public static newFromJSON(object: IOctahedronJSON): Octahedron {
     if (object.type !== Octahedron.typeName) {

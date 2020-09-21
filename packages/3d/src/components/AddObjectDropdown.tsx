@@ -1,12 +1,11 @@
 import React, { FC } from "react";
 import styled from "@emotion/styled";
-import { css } from "@emotion/core";
-import { colors, ScrollableTabs, useTranslate } from "@bitbloq/ui";
+import { ScrollableTabs, useTranslate } from "@bitbloq/ui";
 import { IShape, IShapeGroup } from "../types";
 
 export interface IAddObjectDropDownProps {
   shapeGroups: IShapeGroup[];
-  onAddObject: (shapeConfig: IShape) => any;
+  onAddObject: (shapeConfig: IShape) => void;
 }
 
 const AddObjectDropdown: FC<IAddObjectDropDownProps> = ({

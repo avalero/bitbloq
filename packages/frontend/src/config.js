@@ -1,3 +1,4 @@
+import React from "react";
 import dynamic from "next/dynamic";
 
 import { colors, Icon } from "@bitbloq/ui";
@@ -11,8 +12,14 @@ export { addShapeGroups };
 
 const ENABLED_TOOLS = env.ENABLED_TOOLS || [];
 
-const CreateDynamicComponent = (fn, loadingColor) =>
-  dynamic(fn, { ssr: false, loading: () => <Loading color={loadingColor} /> });
+const CreateDynamicComponent = function DynamicComponent(fn, loadingColor) {
+  return dynamic(fn, {
+    ssr: false,
+    loading: function LoadingComponent() {
+      return <Loading color={loadingColor} />;
+    }
+  });
+};
 
 export const documentTypes = {
   junior: {

@@ -11,4 +11,3 @@ const SvgLedOn = props => (
 );
 
 export default SvgLedOn;
-

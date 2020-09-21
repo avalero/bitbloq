@@ -24,7 +24,7 @@ import ObjectsCommon from "./ObjectsCommon";
 import STLObject from "./STLObject";
 
 export default class PredesignedObject extends STLObject {
-  public static typeName: string = "PredesignedObject";
+  public static typeName = "PredesignedObject";
 
   public static newFromJSON(object: ISTLJSON): PredesignedObject {
     if (object.type !== PredesignedObject.typeName) {

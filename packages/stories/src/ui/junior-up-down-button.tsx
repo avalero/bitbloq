@@ -1,4 +1,4 @@
-import React from "react";
+import React, { FC } from "react";
 import { JuniorUpDownButton } from "@bitbloq/ui";
 
 export default {
@@ -6,4 +6,6 @@ export default {
   title: "ui/junior/UpDownButton"
 };
 
-export const Default = () => <JuniorUpDownButton>Button</JuniorUpDownButton>;
+export const Default: FC = () => (
+  <JuniorUpDownButton>Button</JuniorUpDownButton>
+);

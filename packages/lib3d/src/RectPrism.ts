@@ -19,7 +19,7 @@ import {
 } from "./Interfaces";
 
 export default class RectPrism extends PrimitiveObject {
-  public static typeName: string = "RectPrism";
+  public static typeName = "RectPrism";
 
   /**
    * Creates a new RectPrism instance from json

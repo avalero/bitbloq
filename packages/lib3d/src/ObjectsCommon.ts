@@ -142,11 +142,11 @@ export default class ObjectsCommon {
   }
 
   public static createViewOptions(
-    color: string = "#ffffff",
-    visible: boolean = true,
-    selected: boolean = false,
-    name: string = "",
-    opacity: number = 100
+    color = "#ffffff",
+    visible = true,
+    selected = false,
+    name = "",
+    opacity = 100
   ): IViewOptions {
     return {
       color,
@@ -158,10 +158,10 @@ export default class ObjectsCommon {
   }
 
   public static createTranslateOperation(
-    x: number = 0,
-    y: number = 0,
-    z: number = 0,
-    relative: boolean = true
+    x = 0,
+    y = 0,
+    z = 0,
+    relative = true
   ): ITranslateOperation {
     return {
       x,
@@ -174,7 +174,7 @@ export default class ObjectsCommon {
   }
 
   public static createMirrorOperation(
-    plane: string = "yz" // xy, yz, zx
+    plane = "yz" // xy, yz, zx
   ): IMirrorOperation {
     return {
       plane,
@@ -184,10 +184,10 @@ export default class ObjectsCommon {
   }
 
   public static createRotateOperation(
-    x: number = 0,
-    y: number = 0,
-    z: number = 0,
-    relative: boolean = true
+    x = 0,
+    y = 0,
+    z = 0,
+    relative = true
   ): IRotateOperation {
     return {
       x,
@@ -199,11 +199,7 @@ export default class ObjectsCommon {
     };
   }
 
-  public static createScaleOperation(
-    x: number = 1,
-    y: number = 1,
-    z: number = 1
-  ): IScaleOperation {
+  public static createScaleOperation(x = 1, y = 1, z = 1): IScaleOperation {
     return {
       x,
       y,
@@ -330,8 +326,8 @@ export default class ObjectsCommon {
 
   public updateFromJSON(
     object: IObjectsCommonJSON,
-    fromParent: boolean = false,
-    forceUpdate: boolean = false
+    fromParent = false,
+    forceUpdate = false
   ): void {
     throw new Error("updateFromJSON() Implemented in children");
   }
@@ -354,30 +350,25 @@ export default class ObjectsCommon {
       this.pendingOperation || !isEqual(this.operations, operations);
   }
 
-  protected translate(
-    x: number,
-    y: number,
-    z: number,
-    relative: boolean = false
-  ): void {
+  protected translate(x: number, y: number, z: number, relative = false): void {
     this.addOperations([
       ObjectsCommon.createTranslateOperation(x, y, z, relative)
     ]);
   }
 
-  protected rotateX(angle: number, relative: boolean = false): void {
+  protected rotateX(angle: number, relative = false): void {
     this.addOperations([
       ObjectsCommon.createRotateOperation(angle, 0, 0, relative)
     ]);
   }
 
-  protected rotateY(angle: number, relative: boolean = false): void {
+  protected rotateY(angle: number, relative = false): void {
     this.addOperations([
       ObjectsCommon.createRotateOperation(0, angle, 0, relative)
     ]);
   }
 
-  protected rotateZ(angle: number, relative: boolean = false): void {
+  protected rotateZ(angle: number, relative = false): void {
     this.addOperations([
       ObjectsCommon.createRotateOperation(0, 0, angle, relative)
     ]);

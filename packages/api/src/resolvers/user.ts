@@ -57,9 +57,9 @@ import {
 import { SESSION } from "../config";
 
 import { SUBMISSION_SESSION_EXPIRES } from "./submission";
-const saltRounds: number = 7;
+const saltRounds = 7;
 
-export const USER_SESSION_EXPIRES: string = "USER_SESSION_EXPIRES";
+export const USER_SESSION_EXPIRES = "USER_SESSION_EXPIRES";
 
 const userResolver = {
   Subscription: {
@@ -92,6 +92,9 @@ const userResolver = {
      * args: email, password and user information.
      */
     saveUserData: async (_, args: IMutationSaveUserDataArgs) => {
+      if (!args.input.email) {
+        throw new ApolloError("Email required", "EMAIL_REQUIRED");
+      }
       const contactFound: IUser | null = await UserModel.findOne({
         email: args.input.email
       });
@@ -138,7 +141,7 @@ const userResolver = {
         {
           saveUserData: newUser._id
         },
-        process.env.JWT_SECRET,
+        process.env.JWT_SECRET || "",
         { expiresIn: "15m" }
       );
       return { id: idToken, email: newUser.email };
@@ -151,10 +154,10 @@ const userResolver = {
      * args: userID and plan selected("member" or "teacher").
      */
     finishSignUp: async (_, args: IMutationFinishSignUpArgs) => {
-      const idInfo: { saveUserData: string } = await jwtVerify(
+      const idInfo = ((await jwtVerify(
         args.id,
-        process.env.JWT_SECRET
-      );
+        process.env.JWT_SECRET || ""
+      )) as unknown) as { saveUserData: string };
       if (!idInfo.saveUserData) {
         throw new ApolloError("User ID not valid", "ID_NOT_VALID");
       }
@@ -174,7 +177,7 @@ const userResolver = {
           "USER_NOT_BIRTHDATE"
         );
       }
-      let teacher: boolean = false;
+      let teacher = false;
       switch (args.userPlan) {
         case "teacher":
           teacher = true;
@@ -190,8 +193,8 @@ const userResolver = {
         user: user._id
       });
 
-      let activeUser: boolean = false;
-      let logOrSignToken: string = "";
+      let activeUser = false;
+      let logOrSignToken = "";
       if (user.microsoftID || user.googleID) {
         activeUser = true;
         const { token, role } = await contextController.generateLoginToken(
@@ -204,7 +207,7 @@ const userResolver = {
           {
             signUpUserID: user._id
           },
-          process.env.JWT_SECRET
+          process.env.JWT_SECRET || ""
         );
         // Generate the email with the activation link and send it
         const data: IEmailData = {
@@ -257,7 +260,7 @@ const userResolver = {
         {
           signUpUserID: user._id
         },
-        process.env.JWT_SECRET
+        process.env.JWT_SECRET || ""
       );
 
       // Update the user information in the database
@@ -296,10 +299,10 @@ const userResolver = {
      */
 
     saveBirthDate: async (_, args: IMutationSaveBirthDateArgs) => {
-      const idInfo: { saveUserData: string } = await jwtVerify(
+      const idInfo = ((await jwtVerify(
         args.id,
-        process.env.JWT_SECRET
-      );
+        process.env.JWT_SECRET || ""
+      )) as unknown) as { saveUserData: string };
       if (!idInfo || !idInfo.saveUserData) {
         throw new ApolloError("User ID not valid", "ID_NOT_VALID");
       }
@@ -417,9 +420,9 @@ const userResolver = {
       args: IMutationLoginWithGoogleArgs,
       context: any
     ) => {
-      let idToken: string = "";
+      let idToken = "";
       let finishedSignUp: boolean | undefined;
-      let token: string = "";
+      let token = "";
       const userData: IGoogleData = await getGoogleUser(args.token);
       if (!userData) {
         throw new ApolloError("Not valid token", "NOT_VALID_TOKEN");
@@ -446,13 +449,13 @@ const userResolver = {
           lastLogin: new Date(),
           finishedSignUp: false,
           socialLogin: true
-        });
+        } as IUser);
         finishedSignUp = user.finishedSignUp;
         idToken = await jwtSign(
           {
             saveUserData: user._id
           },
-          process.env.JWT_SECRET,
+          process.env.JWT_SECRET || "",
           { expiresIn: "15m" }
         );
       } else {
@@ -479,9 +482,9 @@ const userResolver = {
       args: IMutationLoginWithMicrosoftArgs,
       ___
     ) => {
-      let idToken: string = "";
+      let idToken = "";
       let finishedSignUp: boolean | undefined;
-      let token: string = "";
+      let token = "";
       const userData: IMSData = await getMicrosoftUser(args.token);
       if (!userData) {
         throw new ApolloError("Not valid token", "NOT_VALID_TOKEN");
@@ -508,13 +511,13 @@ const userResolver = {
           lastLogin: new Date(),
           finishedSignUp: false,
           socialLogin: true
-        });
+        } as IUser);
         finishedSignUp = user.finishedSignUp;
         idToken = await jwtSign(
           {
             saveUserData: user._id
           },
-          process.env.JWT_SECRET,
+          process.env.JWT_SECRET || "",
           { expiresIn: "15m" }
         );
       } else {
@@ -540,11 +543,13 @@ const userResolver = {
       const justToken: string = token1.split(" ")[1];
       const data:
         | IUserInToken
-        | undefined = await contextController.getDataInToken(justToken);
+        | undefined = ((await contextController.getDataInToken(
+        justToken
+      )) as unknown) as IUserInToken;
 
       if (data && String(process.env.USE_REDIS) === "true") {
         const now: Date = new Date();
-        let secondsRemaining: number = 0;
+        let secondsRemaining = 0;
         if (data.userID) {
           await updateExpireDateInRedis(data.userID, false);
           const result: IDataInRedis = await redisClient.hgetallAsync(
@@ -599,10 +604,10 @@ const userResolver = {
         {
           resetPassUserID: contactFound._id
         },
-        process.env.JWT_SECRET,
+        process.env.JWT_SECRET || "",
         { expiresIn: "30m" }
       );
-      const index: string = `resPass-${contactFound._id}`;
+      const index = `resPass-${contactFound._id}`;
       await storeTokenInRedis(index, token);
 
       // Generate the email with the activation link and send it
@@ -631,10 +636,12 @@ const userResolver = {
      * args: token, new Password
      */
     updateForgotPassword: async (_, { token, newPassword }) => {
-      const dataInToken = await getResetPasswordData(token);
+      const dataInToken = ((await getResetPasswordData(
+        token
+      )) as unknown) as IResetPasswordToken;
 
       const contactFound: IUser | null = await UserModel.findOne({
-        _id: dataInToken.resetPassUserID,
+        _id: (dataInToken.resetPassUserID as unknown) as string,
         finishedSignUp: true
       });
 
@@ -680,12 +687,12 @@ const userResolver = {
           "NOT_TOKEN_PROVIDED"
         );
       }
-      const userInToken: ISignUpToken = await contextController.getDataInToken(
+      const userInToken = ((await contextController.getDataInToken(
         args.token
-      );
+      )) as unknown) as ISignUpToken;
 
       const contactFound: IUser | null = await UserModel.findOne({
-        _id: userInToken.signUpUserID,
+        _id: (userInToken.signUpUserID as unknown) as string,
         active: false,
         finishedSignUp: true
       });
@@ -843,7 +850,7 @@ const userResolver = {
       args: IMutationUpdateMyPlanArgs,
       context: { user: IUserInToken }
     ) => {
-      let teacher: boolean = false;
+      let teacher = false;
       switch (args.userPlan) {
         case "teacher":
           teacher = true;
@@ -899,7 +906,7 @@ const userResolver = {
           changeEmailUserID: contactFound._id,
           changeEmailNewEmail: args.newEmail
         },
-        process.env.JWT_SECRET,
+        process.env.JWT_SECRET || "",
         { expiresIn: "30m" }
       );
       await storeTokenInRedis(`changeEmail-${contactFound._id}`, token);
@@ -926,13 +933,21 @@ const userResolver = {
         changeEmailUserID: string;
         changeEmailNewEmail: string;
       };
-      let redisToken: string = "";
+      let redisToken = "";
       try {
-        userInToken = await jwtVerify(token, process.env.JWT_SECRET);
+        userInToken = ((await jwtVerify(
+          token,
+          process.env.JWT_SECRET || ""
+        )) as unknown) as {
+          changeEmailUserID: string;
+          changeEmailNewEmail: string;
+        };
         if (String(process.env.USE_REDIS) === "true") {
-          redisToken = (await redisClient.hgetallAsync(
-            `changeEmail-${userInToken.changeEmailUserID}`
-          )).authToken;
+          redisToken = (
+            await redisClient.hgetallAsync(
+              `changeEmail-${userInToken.changeEmailUserID}`
+            )
+          ).authToken;
           return redisToken === token;
         }
         return false;
@@ -955,13 +970,21 @@ const userResolver = {
         changeEmailUserID: string;
         changeEmailNewEmail: string;
       };
-      let redisToken: string = "";
+      let redisToken = "";
       try {
-        userInToken = await jwtVerify(args.token, process.env.JWT_SECRET);
+        userInToken = ((await jwtVerify(
+          args.token,
+          process.env.JWT_SECRET || ""
+        )) as unknown) as {
+          changeEmailUserID: string;
+          changeEmailNewEmail: string;
+        };
         if (String(process.env.USE_REDIS) === "true") {
-          redisToken = (await redisClient.hgetallAsync(
-            `changeEmail-${userInToken.changeEmailUserID}`
-          )).authToken;
+          redisToken = (
+            await redisClient.hgetallAsync(
+              `changeEmail-${userInToken.changeEmailUserID}`
+            )
+          ).authToken;
         }
       } catch (e) {
         throw new ApolloError("Token not valid", "TOKEN_NOT_VALID");
@@ -1040,7 +1063,9 @@ const getResetPasswordData = async (token: string) => {
   let dataInToken: IResetPasswordToken;
 
   try {
-    dataInToken = await contextController.getDataInToken(token);
+    dataInToken = ((await contextController.getDataInToken(
+      token
+    )) as unknown) as IResetPasswordToken;
   } catch (e) {
     throw new ApolloError(
       "The provided token is not valid or has expired",

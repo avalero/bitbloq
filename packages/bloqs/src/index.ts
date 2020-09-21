@@ -242,7 +242,6 @@ export interface IComponentInstance {
   ports?: { [connectorName: string]: string };
   integrated?: boolean;
   pins?: { [name: string]: string | number };
-  position?: IPosition;
 }
 
 export interface IHardware {

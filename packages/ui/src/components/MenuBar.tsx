@@ -144,7 +144,7 @@ class MenuBar extends React.Component<IMenuBarProps, IState> {
     disabled: false
   };
 
-  public render() {
+  public render(): React.ReactNode {
     const { disabled } = this.state;
     const { options } = this.props;
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { FC, useState } from "react";
 import { MelodyEditor, IMelodyNote } from "@bitbloq/ui";
 
 export default {
@@ -6,7 +6,7 @@ export default {
   title: "ui/MelodyEditor"
 };
 
-export const Default = () => {
+export const Default: FC = () => {
   const [notes, setNodes] = useState<IMelodyNote[]>([
     { duration: 2, note: "C4" },
     { duration: 2, note: "D4" },
@@ -21,7 +21,7 @@ export const Default = () => {
   );
 };
 
-export const Small = () => {
+export const Small: FC = () => {
   const [notes, setNodes] = useState<IMelodyNote[]>([
     { duration: 2, note: "C4" },
     { duration: 2, note: "D4" },

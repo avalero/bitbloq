@@ -291,7 +291,7 @@ const SignupStepPage: NextPage = () => {
                   {t("legal.general-conditions").toLowerCase()}
                 </a>{" "}
                 {t("signup.login.with-sub-text-2")}{" "}
-                <a target="_blank" href={privacyPolicyUrl}>
+                <a target="_blank" href={privacyPolicyUrl} rel="noreferrer">
                   {t("legal.privacy-policy").toLowerCase()}
                 </a>
                 .

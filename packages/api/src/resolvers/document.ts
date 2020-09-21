@@ -27,7 +27,7 @@ import {
   IResult
 } from "../api-types";
 
-export const DOCUMENT_UPDATED: string = "DOCUMENT_UPDATED";
+export const DOCUMENT_UPDATED = "DOCUMENT_UPDATED";
 
 const hasDocsWithEx = async (folder: IFolder): Promise<boolean> => {
   if (folder.documentsID && folder.documentsID.length > 0) {
@@ -278,7 +278,7 @@ const documentResolver = {
                 existDocument.contentVersion,
               advancedMode:
                 args.input && args.input.advancedMode !== undefined
-                  ? args.input.advancedMode
+                  ? args.input.advancedMode || undefined
                   : existDocument.advancedMode,
               cache: args.input
                 ? args.input.cache || existDocument.cache
@@ -325,7 +325,7 @@ const documentResolver = {
 
       const updatedDoc = await DocumentModel.findOneAndUpdate(
         { _id: docFound._id },
-        { $set: { image: { image, isSnapshot: args.isSnapshot } } },
+        { $set: { image: { image, isSnapshot: !!args.isSnapshot } } },
         { new: true }
       );
       pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: updatedDoc });
@@ -357,7 +357,7 @@ const documentResolver = {
       }
       return DocumentModel.findOneAndUpdate(
         { _id: docFound._id },
-        { $set: { public: args.public, example: args.example } },
+        { $set: { public: !!args.public, example: !!args.example } },
         { new: true }
       );
     }
@@ -502,10 +502,12 @@ const documentResolver = {
         hasChildren = await hasDocsWithEx(fol);
       } else {
         hasChildren =
-          (await ExerciseModel.find({
-            document: args.id,
-            user: context.user.userID
-          })).length > 0;
+          (
+            await ExerciseModel.find({
+              document: args.id,
+              user: context.user.userID
+            })
+          ).length > 0;
       }
       return hasChildren;
     }
@@ -527,9 +529,11 @@ const documentResolver = {
       return result;
     },
     resources: async (document: IDocument) => {
-      const result: IResource[] | any = (await UploadModel.find({
-        _id: { $in: document.resourcesID }
-      })).map(i => {
+      const result: IResource[] | any = (
+        await UploadModel.find({
+          _id: { $in: document.resourcesID }
+        })
+      ).map(i => {
         return {
           id: i._id,
           title: i.filename,
@@ -545,9 +549,11 @@ const documentResolver = {
       return result;
     },
     exercisesResources: async (document: IDocument) => {
-      const result: IResource[] | any = (await UploadModel.find({
-        _id: { $in: document.exResourcesID }
-      })).map(i => {
+      const result: IResource[] | any = (
+        await UploadModel.find({
+          _id: { $in: document.exResourcesID }
+        })
+      ).map(i => {
         return {
           id: i._id,
           title: i.filename,

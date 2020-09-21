@@ -5,23 +5,34 @@
   ],
   "scripts": {
     "prettier": "prettier --write \"packages/*/src/**/*.{ts,js,tsx,jsx,json,md,scss,yml}\"",
-    "tslint": "tslint -c ./tslint.json \"packages/*/src/**/*.{ts,tsx}\"",
+    "lint": "eslint \"packages/*/**/src/**/*.{js,jsx,ts,tsx}\" --fix --quiet",
     "tsc:front": "cd packages/frontend && tsc --noEmit --p ./tsconfig.json",
     "tsc:back": "cd packages/api && tsc --noEmit --p ./tsconfig.json",
     "tsc": "yarn run tsc:front && yarn run tsc:back",
     "storybook": "yarn workspace @bitbloq/stories run storybook"
   },
   "devDependencies": {
+    "@babel/eslint-parser": "^7.11.5",
+    "@typescript-eslint/eslint-plugin": "^4.1.1",
+    "@typescript-eslint/parser": "^4.1.1",
+    "eslint": "^7.9.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-react": "^7.20.6",
     "husky": "^3.0.9",
     "lint-staged": "^9.4.3",
     "prettier": "^1.18.2",
-    "tslint": "^5.20.1",
-    "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.7.2"
   },
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged && yarn run tsc"
     }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "git add"
+    ]
   }
 }

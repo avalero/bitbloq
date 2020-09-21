@@ -1,5 +1,4 @@
 import React from "react";
-import chroma from "chroma-js";
 
 const COLOR_VALUES = {
   black: ["#FFFFFF", "#323843", "#0b0c0e"],

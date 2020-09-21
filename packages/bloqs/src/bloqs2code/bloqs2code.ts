@@ -165,8 +165,7 @@ const adjustProgram = (
 
   adjustedProgram = adjustedProgram.map(timeline => {
     timeline = timeline.flatMap(bloq => {
-      let result: IBloq[];
-      result =
+      const result: IBloq[] =
         bloq.type === "Music"
           ? transformMusicBloq(bloq, extraData) // transform bloq
           : [bloq];
@@ -208,33 +207,25 @@ const bloqs2code = (
   program: IBloq[][],
   extraData: IExtraData = {}
 ) => {
-  try {
-    // adjust program
-    const programFixed: IBloq[][] = adjustProgram(
-      cloneDeep(program),
-      bloqTypes,
-      extraData
-    );
+  // adjust program
+  const programFixed: IBloq[][] = adjustProgram(
+    cloneDeep(program),
+    bloqTypes,
+    extraData
+  );
 
-    const board: IBoard = getBoardDefinition(boards, hardware);
-    const arduinoCode: IArduinoCode = compose([
-      board2code(board),
-      components2code(components, hardware.components, board),
-      program2code(components, bloqTypes, hardware, programFixed)
-    ]);
+  const board: IBoard = getBoardDefinition(boards, hardware);
+  const arduinoCode: IArduinoCode = compose([
+    board2code(board),
+    components2code(components, hardware.components, board),
+    program2code(components, bloqTypes, hardware, programFixed)
+  ]);
 
-    const nunjucksData = { ...arduinoCode, date: getDate() };
-    const code: string = nunjucks.renderString(
-      juniorcodetemplate,
-      nunjucksData
-    );
+  const nunjucksData = { ...arduinoCode, date: getDate() };
+  const code: string = nunjucks.renderString(juniorcodetemplate, nunjucksData);
 
-    console.info(code);
-    return code;
-  } catch (e) {
-    // console.warn(e);
-    throw e;
-  }
+  console.info(code);
+  return code;
 };
 
 export default bloqs2code;

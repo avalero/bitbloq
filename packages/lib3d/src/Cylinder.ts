@@ -23,7 +23,7 @@ import {
 } from "./Interfaces";
 
 export default class Cylinder extends PrimitiveObject {
-  public static typeName: string = "Cylinder";
+  public static typeName = "Cylinder";
 
   public static newFromJSON(object: ICylinderJSON): Cylinder {
     if (object.type !== Cylinder.typeName) {

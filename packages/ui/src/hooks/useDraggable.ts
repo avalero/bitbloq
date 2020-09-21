@@ -20,6 +20,8 @@ export interface IUseDragParams {
   onDragStart?: (params: IOnDragParams) => void;
   onDrag?: (params: IOnDragParams) => void;
   onDragEnd?: (params: IOnDragParams) => void;
+  offsetX?: number;
+  offsetY?: number;
 }
 
 export interface IUseDragElementProps {
@@ -41,24 +43,31 @@ const useDraggable = (params: IUseDragParams): IUseDragElementProps => {
     diffX: 0,
     diffY: 0
   });
+  const { offsetX = 0, offsetY = 0 } = params;
 
   const startDrag = (clientX: number, clientY: number) => {
     const element = ref.current;
-    const { x, y, width, height } = element!.getBoundingClientRect();
+    if (!element) {
+      return;
+    }
+    const { x, y, width, height } = element.getBoundingClientRect();
     if (params.onDragStart) {
-      params.onDragStart({ x, y, width, height, element: element! });
+      params.onDragStart({ x, y, width, height, element });
     }
     setState({
       dragging: true,
       width,
       height,
-      diffX: x - clientX,
-      diffY: y - clientY
+      diffX: x - clientX + offsetX,
+      diffY: y - clientY + offsetY
     });
   };
 
   const drag = (clientX: number, clientY: number) => {
     const element = ref.current;
+    if (!element) {
+      return;
+    }
     const { width, height, diffX, diffY } = state;
     if (params.onDrag) {
       params.onDrag({
@@ -66,13 +75,16 @@ const useDraggable = (params: IUseDragParams): IUseDragElementProps => {
         y: clientY + diffY,
         width,
         height,
-        element: element!
+        element
       });
     }
   };
 
   const endDrag = (clientX: number, clientY: number) => {
     const element = ref.current;
+    if (!element) {
+      return;
+    }
     const { width, height, diffX, diffY } = state;
     if (params.onDragEnd) {
       params.onDragEnd({
@@ -80,7 +92,7 @@ const useDraggable = (params: IUseDragParams): IUseDragElementProps => {
         y: clientY + diffY,
         width,
         height,
-        element: element!
+        element
       });
     }
     setState({ ...state, dragging: false });
@@ -89,7 +101,10 @@ const useDraggable = (params: IUseDragParams): IUseDragElementProps => {
   useEffect(() => {
     if (state.dragging) {
       const onMouseMove = (e: MouseEvent) => drag(e.clientX, e.clientY);
-      const onMouseUp = (e: MouseEvent) => endDrag(e.clientX, e.clientY);
+      const onMouseUp = (e: MouseEvent) => {
+        window.removeEventListener("mousemove", onMouseMove);
+        endDrag(e.clientX, e.clientY);
+      };
 
       document.body.style.cursor = "grabbing";
 
