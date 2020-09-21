@@ -55,8 +55,7 @@ class Uploader {
         connection.serialPort.requestOptions = {
           filters: [
             {
-              usbVendorId: boardConfig.vendorId,
-              usbProductId: boardConfig.productId
+              usbVendorId: boardConfig.vendorId
             }
           ]
         };
