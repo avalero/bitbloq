@@ -35,6 +35,7 @@ const Container = styled.div`
   background: #d7d7d7;
   border-radius: 4px;
   padding: 10px;
+  z-index: 20;
 
   img {
     margin: 10px;

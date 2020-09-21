@@ -45,11 +45,13 @@ const Component: FC<IComponentProps> = ({ id }) => {
     return null;
   }
 
+  const isSelected = selectedComponent === id;
+
   return (
     <Container
       {...containerProps}
       onClick={() => setSelectedComponent(id)}
-      selected={selectedComponent === id}
+      selected={isSelected}
       style={{
         left: instance.position.x,
         top: instance.position.y
@@ -96,6 +98,7 @@ const Component: FC<IComponentProps> = ({ id }) => {
             <Connector
               {...props}
               style={{
+                backgroundColor: isSelected ? colors.black : colors.green,
                 display: dragging ? "none" : "block",
                 left: `${((connector.position.x + 1) / 2) * 100}%`,
                 top: `${((connector.position.y + 1) / 2) * 100}%`
@@ -125,6 +128,7 @@ const Container = styled.div<{ selected: boolean }>`
 `;
 
 const NameInput = styled.input`
+  box-sizing: border-box;
   width: 120px;
   height: 26px;
   border-radius: 4px;

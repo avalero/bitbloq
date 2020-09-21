@@ -800,8 +800,12 @@
     "components": "Componentes",
     "diagram": "Diagrama",
     "drag-board-here": "Arrastra una placa o un robot aquí",
+    "drop-bloq-here": "Arrastra un bloque aquí",
+    "global-variables-and-functions": "Variables globales y funciones",
     "hardware": "Hardware",
-    "robots": "Robots"
+    "main-loop": "Bucle principal (Loop)",
+    "robots": "Robots",
+    "setup-instructions": "Instrucciones iniciales (Setup)"
   },
   "roles": {
     "teacher": "Profesor"

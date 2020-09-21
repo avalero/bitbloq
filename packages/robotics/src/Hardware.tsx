@@ -1,32 +1,20 @@
-import React, { FC, useState, useRef, useEffect, useMemo } from "react";
+import React, { FC, useState, useRef } from "react";
 import styled from "@emotion/styled";
 import {
   useRecoilCallback,
+  useSetRecoilState,
   useRecoilState,
-  useRecoilValue,
-  useSetRecoilState
+  useRecoilValue
 } from "recoil";
-import update from "immutability-helper";
 import { v1 as uuid } from "uuid";
+import { IComponent, IPosition, IConnector, IPort } from "@bitbloq/bloqs";
 import {
-  IComponent,
-  IComponentInstance,
-  IHardware,
-  IPosition,
-  IConnector,
-  IPort,
-  IPortDirection
-} from "@bitbloq/bloqs";
-import {
-  breakpoints,
-  colors,
   Droppable,
   DragAndDropProvider,
   useKeyPressed,
   useResizeObserver,
   useTranslate
 } from "@bitbloq/ui";
-import useHardwareDefinition from "./useHardwareDefinition";
 import useUpdateContent from "./useUpdateContent";
 import {
   boardState,
@@ -34,7 +22,6 @@ import {
   componentsState,
   componentWithIdState,
   draggingConnectorState,
-  draggingInstanceState,
   selectedComponentState,
   ICanvasComponentInstance
 } from "./state";
@@ -42,6 +29,7 @@ import {
 import Board from "./Board";
 import Connections from "./Connections";
 import Component from "./Component";
+import DeleteDroppable from "./DeleteDroppable";
 import DraggingBoard from "./DraggingBoard";
 import DraggingComponent from "./DraggingComponent";
 import DraggingConnector from "./DraggingConnector";
@@ -49,19 +37,14 @@ import HardwareTabs from "./HardwareTabs";
 
 const Hardware: FC = () => {
   const t = useTranslate();
-  const { getBoard, getComponent } = useHardwareDefinition();
   const updateContent = useUpdateContent();
-
-  const componentRefs = useRef<{
-    [id: string]: React.RefObject<HTMLDivElement>;
-  }>({});
 
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
 
   const canvasRef = useRef<HTMLDivElement>(null);
 
-  const [board, setBoard] = useRecoilState(boardState);
+  const setBoard = useSetRecoilState(boardState);
   const [componentList, setComponentList] = useRecoilState(componentListState);
   const draggingConnector = useRecoilValue(draggingConnectorState);
   const selectedComponent = useRecoilValue(selectedComponentState);
@@ -116,10 +99,13 @@ const Hardware: FC = () => {
     });
   });
 
-  useResizeObserver(canvasRef, (canvasWidth, canvasHeight) => {
-    setWidth(canvasWidth);
-    setHeight(canvasHeight);
-  });
+  useResizeObserver(
+    canvasRef,
+    ({ width: canvasWidth, height: canvasHeight }) => {
+      setWidth(canvasWidth);
+      setHeight(canvasHeight);
+    }
+  );
 
   useKeyPressed(
     "Delete",
@@ -174,7 +160,7 @@ const Hardware: FC = () => {
     <DragAndDropProvider onDrop={onDrop}>
       <Container>
         <CanvasWrap data={{ type: "canvas" }} active={!draggingConnector}>
-          <Connections width={width} height={height} />
+          <Connections />
           <Canvas ref={canvasRef}>
             <Board />
             {componentList.map(id => (
@@ -183,6 +169,7 @@ const Hardware: FC = () => {
           </Canvas>
         </CanvasWrap>
         <HardwareTabs />
+        <DeleteDroppable />
       </Container>
       <DraggingBoard />
       <DraggingComponent />

@@ -48,6 +48,17 @@ export const componentsState = selector({
     get(componentListState).map(id => get(componentWithIdState(id)))
 });
 
+export const connectedPortsState = selector({
+  key: "connectedPorts",
+  get: ({ get }) =>
+    get(componentsState).flatMap(component =>
+      Object.values(component.ports || {}).map(port => ({
+        component: component.id,
+        port
+      }))
+    )
+});
+
 export interface IDraggingBoard {
   x: number;
   y: number;
@@ -57,6 +68,11 @@ export interface IDraggingBoard {
 export const draggingBoardState = atom<IDraggingBoard>({
   key: "draggingBoard",
   default: { board: "", x: 0, y: 0 }
+});
+
+export const isDraggingBoardState = selector({
+  key: "isDraggingBoard",
+  get: ({ get }) => !!get(draggingBoardState).board
 });
 
 export interface IDraggingConnector {
@@ -72,7 +88,7 @@ export const draggingConnectorState = atom<IDraggingConnector | null>({
 });
 
 export const draggingInstanceState = atom<ICanvasComponentInstance>({
-  key: "draggingComponent",
+  key: "draggingInstance",
   default: {
     component: "",
     position: { x: 0, y: 0 },
@@ -80,6 +96,11 @@ export const draggingInstanceState = atom<ICanvasComponentInstance>({
     width: 0,
     height: 0
   }
+});
+
+export const isDraggingInstanceState = selector({
+  key: "isDraggingInstance",
+  get: ({ get }) => !!get(draggingInstanceState).component
 });
 
 export const boardSelectedState = atom<boolean>({

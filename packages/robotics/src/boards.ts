@@ -7,7 +7,12 @@ const boards = [
     },
     ports: [
       {
-        connectorTypes: []
+        name: "1",
+        connectorTypes: ["zumjunior-digital", "zumjunior-analog"],
+        position: {
+          x: -1,
+          y: 0.15
+        }
       }
     ]
   },

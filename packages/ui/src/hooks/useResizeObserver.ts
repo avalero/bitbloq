@@ -1,19 +1,28 @@
 import { RefObject, useEffect } from "react";
 
+interface ICallbackProps {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 const useResizeObserver = (
   ref: RefObject<HTMLElement>,
-  callback: (width: number, height: number) => void,
+  callback: (props: ICallbackProps) => void,
   effects: any[] = []
 ): void => {
   useEffect(() => {
     const resizeObserver = new ResizeObserver(() => {
       if (ref.current) {
-        const { width, height } = ref.current.getBoundingClientRect();
-        callback(width, height);
+        const { x, y, width, height } = ref.current.getBoundingClientRect();
+        callback({ x, y, width, height });
       }
     });
 
     if (ref.current) {
+      const { x, y, width, height } = ref.current.getBoundingClientRect();
+      callback({ x, y, width, height });
       resizeObserver.observe(ref.current);
     }
 

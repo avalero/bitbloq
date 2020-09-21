@@ -13,6 +13,7 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import {
   boardState,
   boardSelectedState,
+  connectedPortsState,
   draggingConnectorState
 } from "./state";
 import useHardwareDefinition from "./useHardwareDefinition";
@@ -23,6 +24,7 @@ const Board: FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [board, setBoard] = useRecoilState(boardState);
   const [boardSelected, setBoardSelected] = useRecoilState(boardSelectedState);
+  const connectedPorts = useRecoilValue(connectedPortsState);
   const draggingConnector = useRecoilValue(draggingConnectorState);
   const { getBoard } = useHardwareDefinition();
   const updateContent = useUpdateContent();
@@ -32,7 +34,7 @@ const Board: FC = () => {
   useClickOutside(containerRef, () => setBoardSelected(false));
   useResizeObserver(
     containerRef,
-    (width, height) => {
+    ({ width, height }) => {
       if (board?.name) {
         setBoard({
           name: board.name,
@@ -68,6 +70,8 @@ const Board: FC = () => {
     );
   }
 
+  console.log("connectedPorts", connectedPorts);
+
   return (
     <>
       <Container
@@ -77,25 +81,28 @@ const Board: FC = () => {
         dragging={!!draggingConnector}
         onClick={() => setBoardSelected(true)}
       />
-      <Connectors visible={!!draggingConnector}>
-        {boardObject.ports.map(port => (
-          <PortDroppable
-            active={!!draggingConnector}
-            key={port.name}
-            data={{ type: "port", port }}
-            top={port.position.y}
-            left={port.position.x}
-          >
-            {connector => (
-              <Port
-                dragging={!!connector}
-                width={port.width || 0}
-                height={port.height || 0}
-              />
-            )}
-          </PortDroppable>
-        ))}
-      </Connectors>
+      {boardObject.ports.map(port => (
+        <PortDroppable
+          active={!!draggingConnector}
+          key={port.name}
+          data={{ type: "port", port }}
+          priority={2}
+          style={{
+            top: port.position.y,
+            left: port.position.x
+          }}
+        >
+          {connector => (
+            <Port
+              dragging={!!connector}
+              style={{
+                height: port.height,
+                width: port.width
+              }}
+            />
+          )}
+        </PortDroppable>
+      ))}
     </>
   );
 };
@@ -155,26 +162,13 @@ const BoardPlaceholder = styled.div<{ active: boolean }>`
   justify-content: center;
 `;
 
-const Connectors = styled.div<{ visible: boolean }>`
-  visibility: ${props => (props.visible ? "visible" : "hidden")};
-`;
-
-const PortDroppable = styled(Droppable)<{
-  top: number;
-  left: number;
-}>`
+const PortDroppable = styled(Droppable)`
   position: absolute;
-  top: ${props => props.top}px;
-  left: ${props => props.left}px;
 `;
 
 const Port = styled.div<{
-  width: number;
-  height: number;
   dragging?: boolean;
 }>`
-  width: ${props => props.width}px;
-  height: ${props => props.height}px;
   border-radius: 2px;
   border: solid 1px #373b44;
   background-color: ${props =>
