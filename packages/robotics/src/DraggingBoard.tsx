@@ -31,6 +31,7 @@ export default DraggingBoard;
 const Container = styled.div`
   position: fixed;
   opacity: 0.5;
+  z-index: 20;
 
   img {
     pointer-events: none;

@@ -1,4 +1,11 @@
-import React, { FC, useRef, useEffect, useContext, useState } from "react";
+import React, {
+  CSSProperties,
+  FC,
+  useRef,
+  useEffect,
+  useContext,
+  useState
+} from "react";
 import { DragAndDropContext } from "./DragAndDropProvider";
 import useResizeObserver from "../hooks/useResizeObserver";
 
@@ -7,6 +14,7 @@ export interface IDroppableProps {
   active?: boolean;
   className?: string;
   priority?: number;
+  style?: CSSProperties;
 }
 
 const Droppable: FC<IDroppableProps> = ({
@@ -14,7 +22,8 @@ const Droppable: FC<IDroppableProps> = ({
   active = true,
   children,
   priority,
-  className
+  className,
+  style
 }) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const dragAndDropController = useContext(DragAndDropContext);
@@ -42,7 +51,7 @@ const Droppable: FC<IDroppableProps> = ({
 
   useResizeObserver(
     wrapRef,
-    (wrapWidth, wrapHeight) => {
+    ({ width: wrapWidth, height: wrapHeight }) => {
       setWidth(wrapWidth);
       setHeight(wrapHeight);
     },
@@ -53,7 +62,7 @@ const Droppable: FC<IDroppableProps> = ({
     typeof children === "function" ? children(draggableData) : children;
 
   return (
-    <div ref={wrapRef} className={className}>
+    <div ref={wrapRef} className={className} style={style}>
       {content}
     </div>
   );
