@@ -1,16 +1,15 @@
 import React, { FC } from "react";
 import useForm from "react-hook-form";
-import { IUserIn } from "@bitbloq/api";
 import { Button, Input, useTranslate, colors } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import ErrorMessage from "./ErrorMessage";
 import { isValidDate, getAge } from "../util";
 
 interface ISignupBirthDateProps {
-  defaultValues: IUserIn;
+  defaultValues: any;
   loading: boolean;
   onCancel: () => void;
-  onSubmit: (input: IUserIn) => void;
+  onSubmit: (input: any) => void;
 }
 
 const SignupBirthDate: FC<ISignupBirthDateProps> = ({

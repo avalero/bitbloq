@@ -11,8 +11,8 @@ import { HardwareDefinitionProvider } from "./useHardwareDefinition";
 import { UpdateContentProvider } from "./useUpdateContent";
 import { boardState } from "./state";
 
-import boardsJSON from "./boards";
-import componentsJSON from "./components";
+import boards from "../config/boards.yml";
+import components from "../config/components.yml";
 
 export interface IRoboticsCallbackProps {
   hardware: React.ReactElement;
@@ -50,8 +50,8 @@ const Robotics: FC<IRoboticsProps> = ({
   return (
     <UpdateContentProvider onContentChange={onContentChange}>
       <HardwareDefinitionProvider
-        boards={boardsJSON as IBoard[]}
-        components={componentsJSON as IComponent[]}
+        boards={boards as IBoard[]}
+        components={components as IComponent[]}
       >
         {children({
           hardware: <Hardware />,

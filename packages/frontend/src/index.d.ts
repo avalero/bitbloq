@@ -1,4 +1,5 @@
 declare module "*.svg";
+declare module "*.yml";
 declare module "*.json";
 declare module "*.stl";
 declare module "*.png";

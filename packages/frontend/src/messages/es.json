@@ -795,6 +795,13 @@
     "url-to-share": "URL para compartir"
   },
   "robotics": {
+    "bloq-categories": {
+      "components": "Componentes",
+      "con": "Con",
+      "control": "Control",
+      "fun": "Fun",
+      "functions": "Funciones"
+    },
     "bloqs": "Bloques",
     "boards": "Placas",
     "components": "Componentes",
@@ -803,9 +810,11 @@
     "drop-bloq-here": "Arrastra un bloque aquí",
     "global-variables-and-functions": "Variables globales y funciones",
     "hardware": "Hardware",
+    "if": "Si",
     "main-loop": "Bucle principal (Loop)",
     "robots": "Robots",
-    "setup-instructions": "Instrucciones iniciales (Setup)"
+    "setup-instructions": "Instrucciones iniciales (Setup)",
+    "the-led": "el LED"
   },
   "roles": {
     "teacher": "Profesor"

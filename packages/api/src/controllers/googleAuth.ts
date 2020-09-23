@@ -12,7 +12,7 @@ export interface IGoogleData {
   birthDate: string;
 }
 
-export const getGoogleUser = (token): Promise<IGoogleData> => {
+export const getGoogleUser = (token): Promise<IGoogleData | undefined> => {
   const getOptions = {
     hostname: "www.googleapis.com",
     path: "/oauth2/v2/userinfo",
