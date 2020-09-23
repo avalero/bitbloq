@@ -1,0 +1,49 @@
+---
+# ZumJunior
+- name: zumjunior
+  label: Zum Junior
+  image:
+    url: https://storage.googleapis.com/bitbloq-prod/images/hardware/board/zumjunior.svg
+  ports:
+  - name: '1'
+    connectorTypes:
+    - zumjunior-digital
+    - zumjunior-analog
+    position:
+      x: -1
+      y: 0.15
+
+# ZumCore2
+- name: zumcore2
+  label: Zum Core 2.0
+  image:
+    url: https://storage.googleapis.com/bitbloq-prod/images/hardware/board/zumcore2.svg
+  ports:
+  - name: '23'
+    connectorTypes:
+    - digital
+    position:
+      x: -0.135
+      y: -0.362
+    width: 0.028
+    height: 0.113
+    direction: north
+  - name: '22'
+    connectorTypes:
+    - digital
+    position:
+      x: -0.101
+      y: -0.362
+    width: 0.028
+    height: 0.113
+    direction: north
+  - name: '13'
+    connectorTypes:
+    - digital
+    position:
+      x: -0.068
+      y: -0.362
+    width: 0.028
+    height: 0.113
+    direction: north
+

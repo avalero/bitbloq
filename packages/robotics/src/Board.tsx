@@ -14,7 +14,8 @@ import {
   boardState,
   boardSelectedState,
   connectedPortsState,
-  draggingConnectorState
+  draggingConnectorState,
+  selectedComponentState
 } from "./state";
 import useHardwareDefinition from "./useHardwareDefinition";
 import useUpdateContent from "./useUpdateContent";
@@ -26,6 +27,7 @@ const Board: FC = () => {
   const [boardSelected, setBoardSelected] = useRecoilState(boardSelectedState);
   const connectedPorts = useRecoilValue(connectedPortsState);
   const draggingConnector = useRecoilValue(draggingConnectorState);
+  const selectedComponent = useRecoilValue(selectedComponentState);
   const { getBoard } = useHardwareDefinition();
   const updateContent = useUpdateContent();
 
@@ -37,7 +39,7 @@ const Board: FC = () => {
     ({ width, height }) => {
       if (board?.name) {
         setBoard({
-          name: board.name,
+          name: board?.name,
           width,
           height
         });
@@ -70,8 +72,6 @@ const Board: FC = () => {
     );
   }
 
-  console.log("connectedPorts", connectedPorts);
-
   return (
     <>
       <Container
@@ -88,16 +88,19 @@ const Board: FC = () => {
           data={{ type: "port", port }}
           priority={2}
           style={{
-            top: port.position.y,
-            left: port.position.x
+            top: port.position.y * (board?.height || 0),
+            left: port.position.x * (board?.width || 0)
           }}
         >
           {connector => (
             <Port
-              dragging={!!connector}
+              active={!!connector}
+              connected={!!connectedPorts[port.name]}
+              dragging={!!draggingConnector}
+              selected={connectedPorts[port.name] === selectedComponent}
               style={{
-                height: port.height,
-                width: port.width
+                height: (port.height || 0) * (board?.height || 0),
+                width: (port.width || 0) * (board?.width || 0)
               }}
             />
           )}
@@ -167,10 +170,21 @@ const PortDroppable = styled(Droppable)`
 `;
 
 const Port = styled.div<{
+  active?: boolean;
+  connected?: boolean;
   dragging?: boolean;
+  selected?: boolean;
 }>`
+  margin: -1px;
   border-radius: 2px;
-  border: solid 1px #373b44;
+  border: solid 1px
+    ${props =>
+      props.connected && !props.selected ? colors.green : colors.black};
   background-color: ${props =>
-    props.dragging ? "#373b44" : "rgba(55, 59, 68, 0.3)"};
+    props.active || (props.connected && props.selected)
+      ? "#373b44"
+      : props.connected
+      ? colors.green
+      : "rgba(55, 59, 68, 0.3)"};
+  opacity: ${props => (props.dragging || props.connected ? 1 : 0)};
 `;

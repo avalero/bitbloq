@@ -20,8 +20,10 @@ export interface IDroppableHandler {
   height: number;
   data: any;
   priority?: number;
+  margin?: number;
   onDragOver: (draggableData: any) => void;
   onDragOut: () => void;
+  onDrop?: (draggableData: any) => void;
 }
 
 export interface IDragAndDropController {
@@ -72,11 +74,11 @@ const createController = ({
     },
     drag: (dragX: number, dragY: number) => {
       const handler = droppableHandlers.find(
-        ({ x, y, width, height }) =>
-          dragX >= x &&
-          dragX + draggableWidth <= x + width &&
-          dragY >= y &&
-          dragY + draggableHeight <= y + height
+        ({ x, y, width, height, margin = 0 }) =>
+          dragX >= x - margin &&
+          dragX + draggableWidth <= x + width + margin &&
+          dragY >= y - margin &&
+          dragY + draggableHeight <= y + height + margin
       );
 
       if (activeHandler && handler !== activeHandler) {
@@ -95,6 +97,9 @@ const createController = ({
       if (onDrop && activeHandler) {
         const { data, x, y } = activeHandler;
         activeHandler.onDragOut();
+        if (activeHandler.onDrop) {
+          activeHandler.onDrop(data);
+        }
         onDrop({
           draggableData: draggingData,
           droppableData: data,

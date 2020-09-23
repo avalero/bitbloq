@@ -1,5 +1,6 @@
 import { atom, atomFamily, selector } from "recoil";
-import { IBoard, IComponentInstance, IConnector } from "@bitbloq/bloqs";
+import { IComponentInstance, IConnector } from "@bitbloq/bloqs";
+import { IBloq, IBloqType } from "./types";
 
 interface IPosition {
   x: number;
@@ -51,12 +52,14 @@ export const componentsState = selector({
 export const connectedPortsState = selector({
   key: "connectedPorts",
   get: ({ get }) =>
-    get(componentsState).flatMap(component =>
-      Object.values(component.ports || {}).map(port => ({
-        component: component.id,
-        port
-      }))
-    )
+    get(componentsState)
+      .flatMap(component =>
+        Object.values(component.ports || {}).map(port => ({
+          component: component.id,
+          port
+        }))
+      )
+      .reduce((acc, { component, port }) => ({ ...acc, [port]: component }), {})
 });
 
 export interface IDraggingBoard {
@@ -111,4 +114,36 @@ export const boardSelectedState = atom<boolean>({
 export const selectedComponentState = atom<string | null>({
   key: "selectedComponent",
   default: null
+});
+
+interface IDraggingBloq {
+  x: number;
+  y: number;
+  bloqType: IBloqType | null;
+}
+
+export const draggingBloqState = atom<IDraggingBloq>({
+  key: "draggingBloq",
+  default: {
+    x: 0,
+    y: 0,
+    bloqType: null
+  }
+});
+
+export enum BloqSection {
+  Global = "global",
+  Setup = "setup",
+  Loop = "loop"
+}
+
+type BloqState = Record<BloqSection, IBloq[]>;
+
+export const bloqsState = atom<BloqState>({
+  key: "bloqs",
+  default: {
+    global: [],
+    setup: [],
+    loop: []
+  }
 });

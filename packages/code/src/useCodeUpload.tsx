@@ -94,7 +94,7 @@ class Uploader {
       isCanceled = true;
     };
 
-    const promise = new Promise((resolve, reject) => {
+    const promise = new Promise<void>((resolve, reject) => {
       const boardConfig = knownBoards[board];
       this.openPort(board)
         .then((avrgirl: Avrgirl) => {

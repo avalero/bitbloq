@@ -423,7 +423,7 @@ const userResolver = {
       let idToken = "";
       let finishedSignUp: boolean | undefined;
       let token = "";
-      const userData: IGoogleData = await getGoogleUser(args.token);
+      const userData = await getGoogleUser(args.token);
       if (!userData) {
         throw new ApolloError("Not valid token", "NOT_VALID_TOKEN");
       }

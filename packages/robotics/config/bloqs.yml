@@ -1,0 +1,21 @@
+---
+- name: turn-led
+  instructionType: statement
+  category: component
+  uiElements:
+    - type: select
+      parameterName: turnOn
+      options:
+        - value: true
+          label: robotics.turn-on
+        - value: false
+          label: robotics.turn-off
+    - type: label
+      text: robotics.the-led
+
+- name: if
+  instructionType: block
+  category: control
+  uiElements:
+    - type: label
+      text: robotics.if

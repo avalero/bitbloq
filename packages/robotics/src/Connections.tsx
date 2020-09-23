@@ -126,9 +126,12 @@ const Connections: FC = () => {
                 return;
               }
 
-              const portX = portObject.position.x + (portObject.width || 0) / 2;
+              const portX =
+                (portObject.position.x + (portObject.width || 0) / 2) *
+                (board?.width || 0);
               const portY =
-                portObject.position.y + (portObject.height || 0) / 2;
+                (portObject.position.y + (portObject.height || 0) / 2) *
+                (board?.height || 0);
 
               return renderConnection(
                 instance,

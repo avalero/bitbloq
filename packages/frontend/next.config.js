@@ -55,6 +55,10 @@ module.exports = withTM(
         {
           test: /\.css$/,
           use: ["style-loader", "css-loader"]
+        },
+        {
+          test: /\.ya?ml$/,
+          use: "js-yaml-loader"
         }
       );
 
