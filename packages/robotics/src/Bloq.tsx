@@ -1,20 +1,33 @@
 import React, { FC, useMemo } from "react";
 import styled from "@emotion/styled";
-import { colors, Droppable, Select, useTranslate } from "@bitbloq/ui";
+import { Select, useTranslate } from "@bitbloq/ui";
 import { bloqCategories } from "./config";
-import { IBloqType, InstructionType } from "./types";
+import { IBloq, InstructionType } from "./types";
+import bloqs from "../config/bloqs.yml";
+import BloqList from "./BloqList";
+
+const bloqsMap = bloqs.reduce(
+  (acc, bloq) => ({ ...acc, [bloq.name]: bloq }),
+  {}
+);
 
 export interface IBloqProps {
-  type: IBloqType;
+  bloq: IBloq;
+  section: string;
+  path: number[];
 }
 
-const Bloq: FC<IBloqProps> = ({ type }) => {
+const Bloq: FC<IBloqProps> = ({ bloq, section, path }) => {
   const t = useTranslate();
+
+  const type = bloqsMap[bloq.type];
 
   const color = useMemo(() => {
     const category = bloqCategories.find(c => c.name === type.category);
     return category?.color || "";
   }, [type]);
+
+  const { children = [] } = bloq;
 
   return (
     <Container>
@@ -23,14 +36,15 @@ const Bloq: FC<IBloqProps> = ({ type }) => {
           backgroundColor: color
         }}
       >
-        {type.uiElements.map(uiElement => {
+        {type.uiElements.map((uiElement, i) => {
           switch (uiElement.type) {
             case "label":
-              return <Label>{t(uiElement.text)}</Label>;
+              return <Label key={i}>{t(uiElement.text)}</Label>;
 
             case "select":
               return (
                 <Select
+                  key={i}
                   options={uiElement.options.map(option => ({
                     value: option.value,
                     label: t("option.label")
@@ -48,11 +62,11 @@ const Bloq: FC<IBloqProps> = ({ type }) => {
           <ChildrenWrap>
             <ChildrenLeft style={{ backgroundColor: color }} />
             <Children>
-              <Droppable margin={20}>
-                {active => (
-                  <BloqDroppable>{active && <DropIndicator />}</BloqDroppable>
-                )}
-              </Droppable>
+              <BloqList
+                bloqs={children}
+                section={section}
+                path={[...path, 0]}
+              />
             </Children>
           </ChildrenWrap>
           <Footer style={{ backgroundColor: color }} />
@@ -66,6 +80,7 @@ export default Bloq;
 
 const Container = styled.div`
   display: inline-block;
+  margin-bottom: 2px;
 `;
 
 const Header = styled.div`
@@ -86,23 +101,13 @@ const ChildrenWrap = styled.div`
 `;
 
 const ChildrenLeft = styled.div`
-  height: 40px;
   width: 20px;
 `;
 
 const Children = styled.div`
-  padding: 4px;
-`;
-
-const BloqDroppable = styled.div`
-  height: 32px;
-  width: 180px;
-`;
-
-const DropIndicator = styled.div`
-  height: 6px;
-  background-color: ${colors.black};
-  border-radius: 3px;
+  box-sizing: border-box;
+  min-height: 40px;
+  padding: 2px 2px 18px 2px;
 `;
 
 const Footer = styled.div`

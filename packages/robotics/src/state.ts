@@ -116,18 +116,18 @@ export const selectedComponentState = atom<string | null>({
   default: null
 });
 
-interface IDraggingBloq {
+interface IDraggingBloqs {
   x: number;
   y: number;
-  bloqType: IBloqType | null;
+  bloqs: IBloq[];
 }
 
-export const draggingBloqState = atom<IDraggingBloq>({
-  key: "draggingBloq",
+export const draggingBloqsState = atom<IDraggingBloqs>({
+  key: "draggingBloqs",
   default: {
     x: 0,
     y: 0,
-    bloqType: null
+    bloqs: []
   }
 });
 

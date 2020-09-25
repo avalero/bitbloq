@@ -94,15 +94,16 @@ const createController = ({
       lastY = dragY;
     },
     endDrag: () => {
+      const droppableData = activeHandler?.data;
       if (onDrop && activeHandler) {
-        const { data, x, y } = activeHandler;
+        const { x, y } = activeHandler;
         activeHandler.onDragOut();
         if (activeHandler.onDrop) {
-          activeHandler.onDrop(data);
+          activeHandler.onDrop(draggingData);
         }
         onDrop({
           draggableData: draggingData,
-          droppableData: data,
+          droppableData,
           x: lastX - x,
           y: lastY - y,
           draggableWidth,
@@ -114,6 +115,7 @@ const createController = ({
       }
       activeHandler = undefined;
       draggingData = null;
+      return droppableData;
     }
   };
 };

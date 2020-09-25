@@ -14,7 +14,11 @@ const DraggingComponent: FC = () => {
   }
 
   return (
-    <Container style={{ left: instance.position.x, top: instance.position.y }}>
+    <Container
+      style={{
+        transform: `translate(${instance.position.x}px, ${instance.position.y}px)`
+      }}
+    >
       <img
         src={component.image.url}
         width={component.image.width}
@@ -29,6 +33,8 @@ export default DraggingComponent;
 
 const Container = styled.div`
   position: fixed;
+  top: 0px;
+  left: 0px;
   display: inline-flex;
   flex-direction: column;
   align-items: center;

@@ -1,34 +1,33 @@
 import React, { FC } from "react";
 import styled from "@emotion/styled";
 import { colors, Droppable, useTranslate } from "@bitbloq/ui";
-import { useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
 import { bloqsState, BloqSection } from "./state";
-import Bloq from "./Bloq";
-import bloqs from "../config/bloqs.yml";
+import BloqList from "./BloqList";
+import { IBloq } from "./types";
 
 interface IBloqCanvasProps {
   section: BloqSection;
 }
 
-const bloqsMap = bloqs.reduce(
-  (acc, bloq) => ({ ...acc, [bloq.name]: bloq }),
-  {}
-);
-
 const BloqCanvas: FC<IBloqCanvasProps> = ({ section }) => {
   const t = useTranslate();
 
-  const bloqs = useRecoilValue(bloqsState);
+  const [bloqs, setBloqs] = useRecoilState(bloqsState);
   const sectionBloqs = bloqs[section];
 
   return (
     <Container>
       {sectionBloqs.length > 0 ? (
-        sectionBloqs.map((bloq, i) => (
-          <Bloq key={`section-bloq-${i}`} type={bloqsMap[bloq.type]} />
-        ))
+        <BloqList bloqs={sectionBloqs} section={section} path={[0]} />
       ) : (
         <InitialDroppable
+          onDrop={data =>
+            setBloqs({
+              ...bloqs,
+              [section]: data.bloqs
+            })
+          }
           data={{ type: "initial-placeholder", section }}
           margin={20}
         >
