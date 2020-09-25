@@ -9,10 +9,10 @@ import {
   Tabs,
   useTranslate
 } from "@bitbloq/ui";
-import { useSetRecoilState, useResetRecoilState, useRecoilState } from "recoil";
-import { IBloqType, IBloq } from "./types";
+import { useRecoilState, useSetRecoilState, useResetRecoilState } from "recoil";
+import { IBloq, IBloqType } from "./types";
 import { bloqCategories } from "./config";
-import { draggingBloqState, bloqsState, BloqSection } from "./state";
+import { bloqsState, draggingBloqsState, BloqSection } from "./state";
 import bloqs from "../config/bloqs.yml";
 import Bloq from "./Bloq";
 import BloqCanvas from "./BloqCanvas";
@@ -27,11 +27,41 @@ const categoryBloqs: Record<string, IBloqType[]> = bloqCategories.reduce(
   {}
 );
 
+const replaceBloqs = (
+  bloqs: IBloq[],
+  path: number[],
+  deleteCount: number,
+  newBloqs: IBloq[]
+): IBloq[] => {
+  const [first, ...rest] = path;
+  if (path.length > 1) {
+    return [
+      ...bloqs.slice(0, first),
+      {
+        ...bloqs[first],
+        children: replaceBloqs(
+          bloqs[first].children || [],
+          rest,
+          deleteCount,
+          newBloqs
+        )
+      },
+      ...bloqs.slice(first + 1)
+    ];
+  } else {
+    return [
+      ...bloqs.slice(0, first),
+      ...newBloqs,
+      ...bloqs.slice(first + deleteCount)
+    ];
+  }
+};
+
 const Bloqs: FC = () => {
   const t = useTranslate();
 
-  const setDraggingBloq = useSetRecoilState(draggingBloqState);
-  const resetDraggingBloq = useResetRecoilState(draggingBloqState);
+  const setDraggingBloq = useSetRecoilState(draggingBloqsState);
+  const resetDraggingBloq = useResetRecoilState(draggingBloqsState);
   const [bloqs, setBloqs] = useRecoilState(bloqsState);
 
   const bloqsTabs = bloqCategories.map(category => ({
@@ -45,17 +75,21 @@ const Bloqs: FC = () => {
       <BloqsTab>
         {categoryBloqs[category.name].map(bloqType => (
           <Draggable
-            data={{ bloqType }}
+            data={{ bloqs: [{ type: bloqType.name }] }}
             draggableHeight={40}
             draggableWidth={140}
             key={bloqType.name}
-            onDragStart={({ x, y }) => setDraggingBloq({ x, y, bloqType })}
-            onDrag={({ x, y }) => setDraggingBloq({ x, y, bloqType })}
+            onDragStart={({ x, y }) =>
+              setDraggingBloq({ x, y, bloqs: [{ type: bloqType.name }] })
+            }
+            onDrag={({ x, y }) =>
+              setDraggingBloq({ x, y, bloqs: [{ type: bloqType.name }] })
+            }
             onDragEnd={() => resetDraggingBloq()}
           >
             {props => (
               <BloqWrap {...props}>
-                <Bloq type={bloqType} />
+                <Bloq bloq={{ type: bloqType.name }} section="" path={[0]} />
               </BloqWrap>
             )}
           </Draggable>
@@ -66,16 +100,24 @@ const Bloqs: FC = () => {
   }));
 
   const onDrop = ({ draggableData, droppableData }) => {
-    const { type } = droppableData || {};
-
-    if (type === "initial-placeholder") {
-      const sectionBloqs = bloqs[droppableData.section] as IBloq[];
+    if (droppableData.type === "bloq-droppable") {
+      const sectionBloqs = draggableData.section
+        ? replaceBloqs(
+            bloqs[draggableData.section],
+            draggableData.path,
+            draggableData.bloqs.length,
+            []
+          )
+        : bloqs[droppableData.section];
+      const newSectionBloqs = replaceBloqs(
+        sectionBloqs,
+        droppableData.path,
+        0,
+        draggableData.bloqs
+      );
       setBloqs({
         ...bloqs,
-        [droppableData.section]: [
-          ...sectionBloqs,
-          { type: draggableData.bloqType.name }
-        ]
+        [droppableData.section]: newSectionBloqs
       });
     }
   };

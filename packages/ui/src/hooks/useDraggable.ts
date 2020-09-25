@@ -8,12 +8,13 @@ interface IState {
   diffY: number;
 }
 
-interface IOnDragParams {
+export interface IOnDragParams {
   x: number;
   y: number;
   width: number;
   height: number;
   element: HTMLDivElement;
+  data?: any;
 }
 
 export interface IUseDragParams {

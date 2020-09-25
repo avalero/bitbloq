@@ -50,10 +50,10 @@ const Draggable: FC<IDraggableProps> = ({
       }
     },
     onDragEnd: params => {
-      dragAndDropController.endDrag();
+      const data = dragAndDropController.endDrag();
       setDragging(false);
       if (onDragEnd) {
-        onDragEnd(params);
+        onDragEnd({ ...params, data });
       }
     },
     offsetX,

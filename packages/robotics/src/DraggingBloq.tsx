@@ -1,20 +1,12 @@
-import React, { FC, useMemo } from "react";
+import React, { FC } from "react";
 import { useRecoilValue } from "recoil";
-import { draggingBloqState } from "./state";
-import { bloqCategories } from "./config";
-import Bloq from "./Bloq";
+import { draggingBloqsState } from "./state";
+import BloqList from "./BloqList";
 
 const DraggingBloq: FC = () => {
-  const draggingBloq = useRecoilValue(draggingBloqState);
+  const draggingBloqs = useRecoilValue(draggingBloqsState);
 
-  const color = useMemo(() => {
-    const category = bloqCategories.find(
-      c => c.name === draggingBloq.bloqType?.category
-    );
-    return category?.color || "";
-  }, [draggingBloq]);
-
-  if (!draggingBloq.bloqType) {
+  if (draggingBloqs.bloqs.length === 0) {
     return null;
   }
 
@@ -22,11 +14,11 @@ const DraggingBloq: FC = () => {
     <div
       style={{
         position: "fixed",
-        left: draggingBloq.x,
-        top: draggingBloq.y
+        left: draggingBloqs.x,
+        top: draggingBloqs.y
       }}
     >
-      <Bloq type={draggingBloq.bloqType} />
+      <BloqList bloqs={draggingBloqs.bloqs} section="" path={[]} />
     </div>
   );
 };
