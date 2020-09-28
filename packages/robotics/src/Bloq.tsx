@@ -52,6 +52,14 @@ const Bloq: FC<IBloqProps> = ({ bloq, section, path }) => {
                 />
               );
 
+            case "parameter":
+              return (
+                <div>
+                  <ParameterPlaceholderNodge />
+                  <ParameterPlaceholder key={i} />
+                </div>
+              );
+
             default:
               return null;
           }
@@ -118,3 +126,28 @@ const Footer = styled.div`
 const Label = styled.div`
   color: white;
 `;
+
+const ParameterPlaceholder = styled.div`
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.3);
+  width: 50px;
+  height: 40px;
+
+  &:before {
+  }
+`;
+
+const ParameterPlaceholderNodge = styled.div`
+  width: 7px;
+  height: 18px;
+  overflow: hidden;
+
+  &::after {
+    width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+`;
+
+const ParameterPlaceholderContent = styled.div``;

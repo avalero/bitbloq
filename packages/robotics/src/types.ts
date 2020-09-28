@@ -31,7 +31,11 @@ export interface IBloqUISelect {
   options: IBloqUISelectOption[];
 }
 
-type IBloqUIElement = IBloqUILabel | IBloqUISelect;
+export interface IBloqUIParameter {
+  type: "parameter";
+}
+
+type IBloqUIElement = IBloqUILabel | IBloqUISelect | IBloqUIParameter;
 
 export interface IBloqType {
   name: string;

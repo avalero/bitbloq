@@ -19,3 +19,22 @@
   uiElements:
     - type: label
       text: robotics.if
+    - type: parameter
+    - type: select
+      parameterName: comparation
+      options:
+        - value: eq
+          label: '='
+        - value: neq
+          label: '!='
+        - value: gt
+          label: '>'
+        - value: gte
+          label: '>='
+        - value: lt
+          label: '<'
+        - value: lte
+          label: '<='
+    - type: parameter
+    - type: label
+      text: robotics.execute
