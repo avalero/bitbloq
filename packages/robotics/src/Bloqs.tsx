@@ -1,65 +1,168 @@
 import React, { FC } from "react";
 import styled from "@emotion/styled";
-import { breakpoints, colors, Icon, Tabs, useTranslate } from "@bitbloq/ui";
+import {
+  breakpoints,
+  colors,
+  DragAndDropProvider,
+  Draggable,
+  Icon,
+  Tabs,
+  useTranslate
+} from "@bitbloq/ui";
+import { useRecoilState, useSetRecoilState, useResetRecoilState } from "recoil";
+import { IBloq, IBloqType } from "./types";
+import { bloqCategories } from "./config";
+import { bloqsState, draggingBloqsState, BloqSection } from "./state";
+import bloqs from "../config/bloqs.yml";
+import Bloq from "./Bloq";
 import BloqCanvas from "./BloqCanvas";
+import DraggingBloq from "./DraggingBloq";
 import ExpandablePanel from "./ExpandablePanel";
+
+const categoryBloqs: Record<string, IBloqType[]> = bloqCategories.reduce(
+  (acc, category) => ({
+    ...acc,
+    [category.name]: bloqs.filter(bloq => bloq.category === category.name)
+  }),
+  {}
+);
+
+const replaceBloqs = (
+  bloqs: IBloq[],
+  path: number[],
+  deleteCount: number,
+  newBloqs: IBloq[]
+): IBloq[] => {
+  const [first, ...rest] = path;
+  if (path.length > 1) {
+    return [
+      ...bloqs.slice(0, first),
+      {
+        ...bloqs[first],
+        children: replaceBloqs(
+          bloqs[first].children || [],
+          rest,
+          deleteCount,
+          newBloqs
+        )
+      },
+      ...bloqs.slice(first + 1)
+    ];
+  } else {
+    return [
+      ...bloqs.slice(0, first),
+      ...newBloqs,
+      ...bloqs.slice(first + deleteCount)
+    ];
+  }
+};
 
 const Bloqs: FC = () => {
   const t = useTranslate();
 
-  return (
-    <Container>
-      <Main>
-        <Toolbar>
-          <ToolbarLeft>
-            <ToolbarButton>
-              <Icon name="undo" />
-            </ToolbarButton>
-            <ToolbarButton>
-              <Icon name="redo" />
-            </ToolbarButton>
-          </ToolbarLeft>
-          <ToolbarRight>
-            <ToolbarGreenButton>
-              <Icon name="tick" />
-            </ToolbarGreenButton>
-            <ToolbarGreenButton>
-              <UploadIcon name="arrow" />
-            </ToolbarGreenButton>
-          </ToolbarRight>
-        </Toolbar>
-        <BloqsContent>
-          <ExpandablePanel
-            title={t("robotics.global-variables-and-functions")}
-            startsOpen
+  const setDraggingBloq = useSetRecoilState(draggingBloqsState);
+  const resetDraggingBloq = useResetRecoilState(draggingBloqsState);
+  const [bloqs, setBloqs] = useRecoilState(bloqsState);
+
+  const bloqsTabs = bloqCategories.map(category => ({
+    icon: category.icon ? (
+      <Icon name={category.icon} />
+    ) : (
+      t(category.iconText || "")
+    ),
+    label: t(category.label),
+    content: (
+      <BloqsTab>
+        {categoryBloqs[category.name].map(bloqType => (
+          <Draggable
+            data={{ bloqs: [{ type: bloqType.name }] }}
+            draggableHeight={40}
+            draggableWidth={140}
+            key={bloqType.name}
+            onDragStart={({ x, y }) =>
+              setDraggingBloq({ x, y, bloqs: [{ type: bloqType.name }] })
+            }
+            onDrag={({ x, y }) =>
+              setDraggingBloq({ x, y, bloqs: [{ type: bloqType.name }] })
+            }
+            onDragEnd={() => resetDraggingBloq()}
           >
-            <BloqCanvas />
-          </ExpandablePanel>
-          <ExpandablePanel title={t("robotics.setup-instructions")}>
-            <BloqCanvas />
-          </ExpandablePanel>
-          <ExpandablePanel title={t("robotics.main-loop")}>
-            <BloqCanvas />
-          </ExpandablePanel>
-        </BloqsContent>
-      </Main>
-      <Tabs
-        tabs={[
-          {
-            icon: <Icon name="led-on" />,
-            label: t("robotics.components"),
-            content: <div>Components</div>,
-            color: "#ce1c23"
-          },
-          {
-            icon: "FUN",
-            label: t("robotics.functions"),
-            content: <div>Functions</div>,
-            color: "#dd5b0c"
-          }
-        ]}
-      />
-    </Container>
+            {props => (
+              <BloqWrap {...props}>
+                <Bloq bloq={{ type: bloqType.name }} section="" path={[0]} />
+              </BloqWrap>
+            )}
+          </Draggable>
+        ))}
+      </BloqsTab>
+    ),
+    color: category.color
+  }));
+
+  const onDrop = ({ draggableData, droppableData }) => {
+    if (droppableData.type === "bloq-droppable") {
+      const sectionBloqs = draggableData.section
+        ? replaceBloqs(
+            bloqs[draggableData.section],
+            draggableData.path,
+            draggableData.bloqs.length,
+            []
+          )
+        : bloqs[droppableData.section];
+      const newSectionBloqs = replaceBloqs(
+        sectionBloqs,
+        droppableData.path,
+        0,
+        draggableData.bloqs
+      );
+      setBloqs({
+        ...bloqs,
+        [droppableData.section]: newSectionBloqs
+      });
+    }
+  };
+
+  return (
+    <DragAndDropProvider onDrop={onDrop}>
+      <Container>
+        <Main>
+          <Toolbar>
+            <ToolbarLeft>
+              <ToolbarButton>
+                <Icon name="undo" />
+              </ToolbarButton>
+              <ToolbarButton>
+                <Icon name="redo" />
+              </ToolbarButton>
+            </ToolbarLeft>
+            <ToolbarRight>
+              <ToolbarGreenButton>
+                <Icon name="tick" />
+              </ToolbarGreenButton>
+              <ToolbarGreenButton>
+                <UploadIcon name="arrow" />
+              </ToolbarGreenButton>
+            </ToolbarRight>
+          </Toolbar>
+          <BloqsContent>
+            <ExpandablePanel
+              title={t("robotics.global-variables-and-functions")}
+              startsOpen
+            >
+              <BloqCanvas section={BloqSection.Global} />
+            </ExpandablePanel>
+            <ExpandablePanel title={t("robotics.setup-instructions")}>
+              <BloqCanvas section={BloqSection.Setup} />
+            </ExpandablePanel>
+            <ExpandablePanel title={t("robotics.main-loop")}>
+              <BloqCanvas section={BloqSection.Loop} />
+            </ExpandablePanel>
+          </BloqsContent>
+        </Main>
+        <Tabs tabs={bloqsTabs} />
+        <DraggingBloq />
+      </Container>
+    </DragAndDropProvider>
   );
 };
 
@@ -129,4 +232,19 @@ const UploadIcon = styled(Icon)`
 const BloqsContent = styled.div`
   flex: 1;
   padding: 20px;
+  overflow-y: auto;
+`;
+
+const BloqsTab = styled.div`
+  box-sizing: border-box;
+  padding: 20px;
+  width: 320px;
+
+  @media screen and (min-width: ${breakpoints.desktop}px) {
+    width: 350px;
+  }
+`;
+
+const BloqWrap = styled.div`
+  display: inline-block;
 `;

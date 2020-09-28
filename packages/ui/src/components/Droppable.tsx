@@ -14,7 +14,9 @@ export interface IDroppableProps {
   active?: boolean;
   className?: string;
   priority?: number;
+  margin?: number;
   style?: CSSProperties;
+  onDrop?: (draggableData: any) => void;
 }
 
 const Droppable: FC<IDroppableProps> = ({
@@ -22,8 +24,10 @@ const Droppable: FC<IDroppableProps> = ({
   active = true,
   children,
   priority,
+  margin,
   className,
-  style
+  style,
+  onDrop
 }) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const dragAndDropController = useContext(DragAndDropContext);
@@ -43,8 +47,10 @@ const Droppable: FC<IDroppableProps> = ({
       width,
       height,
       priority,
+      margin,
       onDragOver: () => setDraggableData(true),
       onDragOut: () => setDraggableData(false),
+      onDrop,
       data
     });
   }, [active, width, height]);

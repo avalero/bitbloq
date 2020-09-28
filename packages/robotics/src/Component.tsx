@@ -1,6 +1,5 @@
 import React, { FC } from "react";
 import styled from "@emotion/styled";
-import { IComponent, IComponentInstance } from "@bitbloq/bloqs";
 import { colors, Draggable, useDraggable } from "@bitbloq/ui";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import {
@@ -26,6 +25,7 @@ const Component: FC<IComponentProps> = ({ id }) => {
   const component = getComponent(instance.component);
 
   const containerProps = useDraggable({
+    onDragStart: () => setSelectedComponent(id),
     onDrag: ({ x, y, height, width, element }) => {
       const {
         x: canvasX,

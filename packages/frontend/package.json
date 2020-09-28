@@ -50,6 +50,7 @@
     "file-saver": "^2.0.1",
     "graphql-tag": "^2.10.1",
     "isomorphic-fetch": "^2.2.1",
+    "js-yaml-loader": "^1.2.2",
     "lodash": "^4.17.15",
     "next": "9.4",
     "next-transpile-modules": "3.3.0",

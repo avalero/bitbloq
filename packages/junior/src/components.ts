@@ -177,7 +177,7 @@ export const components: Array<Partial<IComponent>> = [
     instanceName: "bloq-digitalrgbled-instance-name",
     connectors: [
       {
-        name: "red",
+        name: "main",
         type: "digital",
         position: {
           x: -0.4,
@@ -187,31 +187,11 @@ export const components: Array<Partial<IComponent>> = [
           {
             name: "PinRed",
             mode: ConnectorPinMode.OUTPUT
-          }
-        ]
-      },
-      {
-        name: "green",
-        type: "digital",
-        position: {
-          x: -0.4,
-          y: -1
-        },
-        pins: [
+          },
           {
             name: "PinGreen",
             mode: ConnectorPinMode.OUTPUT
-          }
-        ]
-      },
-      {
-        name: "blue",
-        type: "digital",
-        position: {
-          x: -0.4,
-          y: -1
-        },
-        pins: [
+          },
           {
             name: "PinBlue",
             mode: ConnectorPinMode.OUTPUT

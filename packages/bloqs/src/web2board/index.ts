@@ -38,7 +38,7 @@ export default class Web2Board {
   }
 
   public connect() {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       if (!this.ws) {
         this.ws = new WebSocket(this.url);
       }
