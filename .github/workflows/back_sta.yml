@@ -2,11 +2,9 @@ name: back at sta
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - master
-    paths:
-      - "packages/api/**"
+  release:
+    types:
+      - created
 
 # Environment variables available to all jobs and steps in this workflow
 env:
