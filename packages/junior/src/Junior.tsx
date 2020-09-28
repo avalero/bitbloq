@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
-import styled from "@emotion/styled";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useTranslate } from "@bitbloq/ui";
 import {
   useCodeUpload,
@@ -23,6 +22,7 @@ import {
   IExtraData,
   isBloqSelectComponentParameter
 } from "@bitbloq/bloqs";
+import migrateContent from "./migrate-content";
 
 export interface IJuniorCallbackProps {
   hardware: JSX.Element;
@@ -61,7 +61,10 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
 
   const { upload, cancel, uploadContent } = useCodeUpload(uploadOptions);
 
-  const [content, setContent] = useState(initialContent);
+  const migratedContent = useMemo(() => migrateContent(initialContent), [
+    initialContent
+  ]);
+  const [content, setContent] = useState(migratedContent);
   const program: IBloqLine[] = content.program || [];
   const hardware: IHardware = content.hardware || {
     board: "zumjunior",
@@ -91,23 +94,23 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
   };
 
   const reset = () => {
-    if (content !== initialContent) {
-      updateContent(initialContent);
+    if (content !== migratedContent) {
+      updateContent(migratedContent);
     }
   };
 
   useEffect(() => {
-    if (content !== initialContent) {
+    if (content !== migratedContent) {
       onContentChange(content);
     }
   }, [content]);
 
   useEffect(() => {
-    if (content !== initialContent) {
-      onContentChange(initialContent);
-      updateContent(initialContent);
+    if (content !== migratedContent) {
+      onContentChange(migratedContent);
+      updateContent(migratedContent);
     }
-  }, [initialContent]);
+  }, [migratedContent]);
 
   const board: IBoard = getBoardDefinition(boards, hardware);
   if (hardware.components.length === 0) {
