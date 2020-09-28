@@ -2,19 +2,9 @@ name: front at sta
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - master
-    paths:
-      - "packages/frontend/**"
-      - "packages/3d/**"
-      - "packages/bloqs/**"
-      - "packages/code/**"
-      - "packages/junior/**"
-      - "packages/lib3d/**"
-      - "packages/robotics/**"
-      - "packages/stories/**"
-      - "packages/ui/**"
+  release:
+    types:
+      - created
 
 # Environment variables available to all jobs and steps in this workflow
 env:
