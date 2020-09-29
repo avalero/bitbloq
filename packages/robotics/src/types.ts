@@ -21,7 +21,7 @@ export interface IBloqUILabel {
 }
 
 export interface IBloqUISelectOption {
-  value: any;
+  value: string | number;
   label: string;
 }
 
@@ -33,6 +33,7 @@ export interface IBloqUISelect {
 
 export interface IBloqUIParameter {
   type: "parameter";
+  parameterName: string;
 }
 
 type IBloqUIElement = IBloqUILabel | IBloqUISelect | IBloqUIParameter;
@@ -47,4 +48,5 @@ export interface IBloqType {
 export interface IBloq {
   type: string;
   children?: IBloq[];
+  parameters?: Record<string, string | number | IBloq>;
 }

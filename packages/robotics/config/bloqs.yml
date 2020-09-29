@@ -20,6 +20,7 @@
     - type: label
       text: robotics.if
     - type: parameter
+      parameterName: value1
     - type: select
       parameterName: comparation
       options:
@@ -36,5 +37,19 @@
         - value: lte
           label: '<='
     - type: parameter
+      parameterName: value2
     - type: label
       text: robotics.execute
+
+- name: read
+  instructionType: parameter
+  category: component
+  uiElements:
+    - type: label
+      text: robotics.read
+    - type: select
+      parameterName: component
+      options:
+        - value: component1
+          label: Component
+

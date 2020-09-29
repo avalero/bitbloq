@@ -10,9 +10,14 @@ import {
   useTranslate
 } from "@bitbloq/ui";
 import { useRecoilState, useSetRecoilState, useResetRecoilState } from "recoil";
-import { IBloq, IBloqType } from "./types";
+import { IBloq, IBloqType, InstructionType } from "./types";
 import { bloqCategories } from "./config";
-import { bloqsState, draggingBloqsState, BloqSection } from "./state";
+import {
+  bloqsState,
+  draggingBloqsState,
+  isDraggingParameterState,
+  BloqSection
+} from "./state";
 import bloqs from "../config/bloqs.yml";
 import Bloq from "./Bloq";
 import BloqCanvas from "./BloqCanvas";
@@ -61,6 +66,7 @@ const Bloqs: FC = () => {
   const t = useTranslate();
 
   const setDraggingBloq = useSetRecoilState(draggingBloqsState);
+  const setIsDraggingParameter = useSetRecoilState(isDraggingParameterState);
   const resetDraggingBloq = useResetRecoilState(draggingBloqsState);
   const [bloqs, setBloqs] = useRecoilState(bloqsState);
 
@@ -76,12 +82,15 @@ const Bloqs: FC = () => {
         {categoryBloqs[category.name].map(bloqType => (
           <Draggable
             data={{ bloqs: [{ type: bloqType.name }] }}
-            draggableHeight={40}
-            draggableWidth={140}
+            draggableHeight={0}
+            draggableWidth={0}
             key={bloqType.name}
-            onDragStart={({ x, y }) =>
-              setDraggingBloq({ x, y, bloqs: [{ type: bloqType.name }] })
-            }
+            onDragStart={({ x, y }) => {
+              setIsDraggingParameter(
+                bloqType.instructionType === InstructionType.Parameter
+              );
+              setDraggingBloq({ x, y, bloqs: [{ type: bloqType.name }] });
+            }}
             onDrag={({ x, y }) =>
               setDraggingBloq({ x, y, bloqs: [{ type: bloqType.name }] })
             }
@@ -114,6 +123,27 @@ const Bloqs: FC = () => {
         droppableData.path,
         0,
         draggableData.bloqs
+      );
+      setBloqs({
+        ...bloqs,
+        [droppableData.section]: newSectionBloqs
+      });
+    }
+    if (droppableData.type === "bloq-parameter") {
+      const sectionBloqs = bloqs[droppableData.section];
+      const newSectionBloqs = replaceBloqs(
+        sectionBloqs,
+        droppableData.path,
+        1,
+        [
+          {
+            ...droppableData.bloq,
+            parameters: {
+              ...droppableData.bloq.parameters,
+              [droppableData.parameterName]: draggableData.bloqs[0]
+            }
+          }
+        ]
       );
       setBloqs({
         ...bloqs,

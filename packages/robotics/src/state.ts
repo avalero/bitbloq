@@ -131,6 +131,11 @@ export const draggingBloqsState = atom<IDraggingBloqs>({
   }
 });
 
+export const isDraggingParameterState = atom<boolean>({
+  key: "isDraggingParamater",
+  default: false
+});
+
 export enum BloqSection {
   Global = "global",
   Setup = "setup",
