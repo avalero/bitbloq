@@ -808,13 +808,17 @@
     "diagram": "Diagrama",
     "drag-board-here": "Arrastra una placa o un robot aquí",
     "drop-bloq-here": "Arrastra un bloque aquí",
+    "execute": "Ejecutar",
     "global-variables-and-functions": "Variables globales y funciones",
     "hardware": "Hardware",
     "if": "Si",
     "main-loop": "Bucle principal (Loop)",
+    "read": "Leer",
     "robots": "Robots",
     "setup-instructions": "Instrucciones iniciales (Setup)",
-    "the-led": "el LED"
+    "the-led": "el LED",
+    "turn-on": "Encender",
+    "turn-off": "Apagar"
   },
   "roles": {
     "teacher": "Profesor"

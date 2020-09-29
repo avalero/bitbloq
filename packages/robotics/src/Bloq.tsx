@@ -1,12 +1,12 @@
 import React, { FC, useMemo } from "react";
-import { useRecoilValue } from "recoil";
 import styled from "@emotion/styled";
-import { Select, useTranslate } from "@bitbloq/ui";
+import { useTranslate } from "@bitbloq/ui";
 import { bloqCategories } from "./config";
 import { IBloq, InstructionType } from "./types";
 import bloqs from "../config/bloqs.yml";
 import BloqList from "./BloqList";
 import BloqParameter from "./BloqParameter";
+import BloqSelect from "./BloqSelect";
 
 const bloqsMap = bloqs.reduce(
   (acc, bloq) => ({ ...acc, [bloq.name]: bloq }),
@@ -51,11 +51,11 @@ const Bloq: FC<IBloqProps> = ({ bloq, section, path }) => {
 
               case "select":
                 return (
-                  <Select
+                  <BloqSelect
                     key={i}
                     options={uiElement.options.map(option => ({
                       value: option.value,
-                      label: t("option.label")
+                      label: t(option.label)
                     }))}
                   />
                 );
