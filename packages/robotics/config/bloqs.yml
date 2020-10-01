@@ -53,3 +53,28 @@
         - value: component1
           label: Component
 
+- name: turn-zumjunior-rgb-led
+  instructionType: statement
+  category: component
+  code:
+    main: >
+      zumJunior.setRGBLEDColor(BQ::ZUMJunior::{{parameters.color}});
+  uiElements:
+    - type: label
+      text: robotics.turn-zumjunior-rgb-led
+    - type: select
+      parameterName: color
+      options:
+        - value: RED
+          label: robotics.red
+        - value: GREEN
+          label: robotics.green
+        - value: BLUE
+          label: robotics.blue
+        - value: YELLOW
+          label: robotics.yellow
+        - value: PINK
+          label: robotics.pink
+        - value: WHITE
+          label: robotics.white
+

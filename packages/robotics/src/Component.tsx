@@ -62,7 +62,7 @@ const Component: FC<IComponentProps> = ({ id }) => {
         onMouseDown={e => e.stopPropagation()}
         onChange={e => setInstance({ ...instance, name: e.target.value })}
       />
-      <Image
+      <img
         src={component.image.url}
         width={component.image.width}
         height={component.image.height}
@@ -138,10 +138,6 @@ const NameInput = styled.input`
   color: white;
   font-size: 14px;
   padding: 0px 10px;
-`;
-
-const Image = styled.img`
-  margin: 10px;
 `;
 
 const Connector = styled.div`

@@ -803,6 +803,7 @@
       "functions": "Funciones"
     },
     "bloqs": "Bloques",
+    "blue": "azul",
     "boards": "Placas",
     "components": "Componentes",
     "diagram": "Diagrama",
@@ -810,15 +811,21 @@
     "drop-bloq-here": "Arrastra un bloque aquí",
     "execute": "Ejecutar",
     "global-variables-and-functions": "Variables globales y funciones",
+    "green": "verde",
     "hardware": "Hardware",
     "if": "Si",
     "main-loop": "Bucle principal (Loop)",
+    "pink": "rosa",
     "read": "Leer",
+    "red": "rojo",
     "robots": "Robots",
     "setup-instructions": "Instrucciones iniciales (Setup)",
     "the-led": "el LED",
     "turn-on": "Encender",
-    "turn-off": "Apagar"
+    "turn-off": "Apagar",
+    "turn-zumjunior-rgb-led": "Encender el LED de la placa con el color",
+    "white": "blanco",
+    "yellow": "amarillo"
   },
   "roles": {
     "teacher": "Profesor"

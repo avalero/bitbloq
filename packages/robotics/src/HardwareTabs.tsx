@@ -204,7 +204,6 @@ const Component = styled.div`
   padding: 10px;
 
   img {
-    margin: 10px;
     pointer-events: none;
   }
 `;

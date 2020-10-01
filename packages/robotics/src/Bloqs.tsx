@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useEffect } from "react";
 import styled from "@emotion/styled";
 import {
   breakpoints,
@@ -9,20 +9,29 @@ import {
   Tabs,
   useTranslate
 } from "@bitbloq/ui";
-import { useRecoilState, useSetRecoilState, useResetRecoilState } from "recoil";
-import { IBloq, IBloqType, InstructionType } from "./types";
+import {
+  useRecoilState,
+  useSetRecoilState,
+  useResetRecoilState,
+  useRecoilCallback
+} from "recoil";
+import { IBloqType, InstructionType } from "./types";
 import { bloqCategories } from "./config";
 import {
+  boardState,
   bloqsState,
+  componentsState,
   draggingBloqsState,
   isDraggingParameterState,
-  BloqSection
+  BloqSection,
+  replaceBloqs
 } from "./state";
 import bloqs from "../config/bloqs.yml";
 import Bloq from "./Bloq";
 import BloqCanvas from "./BloqCanvas";
 import DraggingBloq from "./DraggingBloq";
 import ExpandablePanel from "./ExpandablePanel";
+import { getCode } from "./code-generation";
 
 const categoryBloqs: Record<string, IBloqType[]> = bloqCategories.reduce(
   (acc, category) => ({
@@ -32,36 +41,6 @@ const categoryBloqs: Record<string, IBloqType[]> = bloqCategories.reduce(
   {}
 );
 
-const replaceBloqs = (
-  bloqs: IBloq[],
-  path: number[],
-  deleteCount: number,
-  newBloqs: IBloq[]
-): IBloq[] => {
-  const [first, ...rest] = path;
-  if (path.length > 1) {
-    return [
-      ...bloqs.slice(0, first),
-      {
-        ...bloqs[first],
-        children: replaceBloqs(
-          bloqs[first].children || [],
-          rest,
-          deleteCount,
-          newBloqs
-        )
-      },
-      ...bloqs.slice(first + 1)
-    ];
-  } else {
-    return [
-      ...bloqs.slice(0, first),
-      ...newBloqs,
-      ...bloqs.slice(first + deleteCount)
-    ];
-  }
-};
-
 const Bloqs: FC = () => {
   const t = useTranslate();
 
@@ -69,6 +48,10 @@ const Bloqs: FC = () => {
   const setIsDraggingParameter = useSetRecoilState(isDraggingParameterState);
   const resetDraggingBloq = useResetRecoilState(draggingBloqsState);
   const [bloqs, setBloqs] = useRecoilState(bloqsState);
+
+  useEffect(() => {
+    console.log(bloqs);
+  }, [bloqs]);
 
   const bloqsTabs = bloqCategories.map(category => ({
     icon: category.icon ? (
@@ -152,6 +135,19 @@ const Bloqs: FC = () => {
     }
   };
 
+  const onUpload = useRecoilCallback(({ snapshot }) => async () => {
+    const board = await snapshot.getPromise(boardState);
+    const components = await snapshot.getPromise(componentsState);
+    const bloqs = await snapshot.getPromise(bloqsState);
+
+    if (!board) {
+      return;
+    }
+
+    const code = getCode(board.name, components, bloqs);
+    console.log(code);
+  });
+
   return (
     <DragAndDropProvider onDrop={onDrop}>
       <Container>
@@ -169,7 +165,7 @@ const Bloqs: FC = () => {
               <ToolbarGreenButton>
                 <Icon name="tick" />
               </ToolbarGreenButton>
-              <ToolbarGreenButton>
+              <ToolbarGreenButton onClick={onUpload}>
                 <UploadIcon name="arrow" />
               </ToolbarGreenButton>
             </ToolbarRight>
@@ -238,6 +234,7 @@ const ToolbarButton = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 
   svg {
     width: 18px;

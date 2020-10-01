@@ -38,11 +38,17 @@ export interface IBloqUIParameter {
 
 type IBloqUIElement = IBloqUILabel | IBloqUISelect | IBloqUIParameter;
 
+export interface IBloqCode {
+  main?: string;
+}
+
 export interface IBloqType {
   name: string;
   instructionType: InstructionType;
   category: BloqCategory;
   uiElements: IBloqUIElement[];
+  forComponents?: string[];
+  code?: IBloqCode;
 }
 
 export interface IBloq {

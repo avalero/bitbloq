@@ -2,6 +2,18 @@
 # ZumJunior
 - name: zumjunior
   label: Zum Junior
+  integrated:
+    - component: zumjunior-rgb-led
+      name: rgbLed
+  code:
+    includes:
+      - <BQZUMJunior.h>
+      - <BQZUMJuniorPorts.h>
+    globals:
+      - BQ::ZUMJunior zumJunior;
+    setup:
+      - zumJunior.setup();
+
   image:
     url: https://storage.googleapis.com/bitbloq-prod/images/hardware/board/zumjunior.svg
   ports:
@@ -10,8 +22,41 @@
     - zumjunior-digital
     - zumjunior-analog
     position:
-      x: -1
-      y: 0.15
+      x: -0.37
+      y: -0.1
+    width: 0.035
+    height: 0.046
+    direction: west
+  - name: '2'
+    connectorTypes:
+    - zumjunior-digital
+    - zumjunior-analog
+    position:
+      x: -0.37
+      y: 0.05
+    width: 0.035
+    height: 0.046
+    direction: west
+  - name: '3'
+    connectorTypes:
+    - zumjunior-digital
+    - zumjunior-analog
+    position:
+      x: 0.34
+      y: 0.05
+    width: 0.035
+    height: 0.046
+    direction: east
+  - name: '4'
+    connectorTypes:
+    - zumjunior-digital
+    - zumjunior-analog
+    position:
+      x: 0.34
+      y: -0.1
+    width: 0.035
+    height: 0.046
+    direction: east
 
 # ZumCore2
 - name: zumcore2

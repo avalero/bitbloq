@@ -1,4 +1,5 @@
 import React, { FC, useMemo } from "react";
+import { useRecoilCallback } from "recoil";
 import styled from "@emotion/styled";
 import { useTranslate } from "@bitbloq/ui";
 import { bloqCategories } from "./config";
@@ -7,6 +8,7 @@ import bloqs from "../config/bloqs.yml";
 import BloqList from "./BloqList";
 import BloqParameter from "./BloqParameter";
 import BloqSelect from "./BloqSelect";
+import { replaceBloqs, bloqsState } from "./state";
 
 const bloqsMap = bloqs.reduce(
   (acc, bloq) => ({ ...acc, [bloq.name]: bloq }),
@@ -34,6 +36,18 @@ const Bloq: FC<IBloqProps> = ({ bloq, section, path }) => {
   const isBlock = type.instructionType === InstructionType.Block;
   const isParameter = type.instructionType === InstructionType.Parameter;
 
+  const onBloqChange = useRecoilCallback(
+    ({ set, snapshot }) => async (newBloq: IBloq) => {
+      const bloqs = await snapshot.getPromise(bloqsState);
+      const sectionBloqs = bloqs[section];
+      const newSectionBloqs = replaceBloqs(sectionBloqs, path, 1, [newBloq]);
+      set(bloqsState, {
+        ...bloqs,
+        [section]: newSectionBloqs
+      });
+    }
+  );
+
   return (
     <Container>
       <Header>
@@ -49,7 +63,11 @@ const Bloq: FC<IBloqProps> = ({ bloq, section, path }) => {
               case "label":
                 return <Label key={i}>{t(uiElement.text)}</Label>;
 
-              case "select":
+              case "select": {
+                const parameterName = uiElement.parameterName;
+                const { parameters = {} } = bloq;
+                const param = parameters[parameterName] as IBloq | undefined;
+
                 return (
                   <BloqSelect
                     key={i}
@@ -57,8 +75,19 @@ const Bloq: FC<IBloqProps> = ({ bloq, section, path }) => {
                       value: option.value,
                       label: t(option.label)
                     }))}
+                    value={param}
+                    onChange={newValue =>
+                      onBloqChange({
+                        ...bloq,
+                        parameters: {
+                          ...parameters,
+                          [parameterName]: newValue
+                        }
+                      })
+                    }
                   />
                 );
+              }
 
               case "parameter": {
                 return (
@@ -154,4 +183,5 @@ const Footer = styled.div`
 
 const Label = styled.div`
   color: white;
+  white-space: nowrap;
 `;

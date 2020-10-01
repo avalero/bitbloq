@@ -1,6 +1,6 @@
 import { atom, atomFamily, selector } from "recoil";
 import { IComponentInstance, IConnector } from "@bitbloq/bloqs";
-import { IBloq, IBloqType } from "./types";
+import { IBloq } from "./types";
 
 interface IPosition {
   x: number;
@@ -137,18 +137,48 @@ export const isDraggingParameterState = atom<boolean>({
 });
 
 export enum BloqSection {
-  Global = "global",
+  Global = "globals",
   Setup = "setup",
   Loop = "loop"
 }
 
-type BloqState = Record<BloqSection, IBloq[]>;
+export type BloqState = Record<BloqSection, IBloq[]>;
 
 export const bloqsState = atom<BloqState>({
   key: "bloqs",
   default: {
-    global: [],
+    globals: [],
     setup: [],
     loop: []
   }
 });
+
+export const replaceBloqs = (
+  bloqs: IBloq[],
+  path: number[],
+  deleteCount: number,
+  newBloqs: IBloq[]
+): IBloq[] => {
+  const [first, ...rest] = path;
+  if (path.length > 1) {
+    return [
+      ...bloqs.slice(0, first),
+      {
+        ...bloqs[first],
+        children: replaceBloqs(
+          bloqs[first].children || [],
+          rest,
+          deleteCount,
+          newBloqs
+        )
+      },
+      ...bloqs.slice(first + 1)
+    ];
+  } else {
+    return [
+      ...bloqs.slice(0, first),
+      ...newBloqs,
+      ...bloqs.slice(first + deleteCount)
+    ];
+  }
+};
