@@ -153,6 +153,21 @@ export const bloqsState = atom<BloqState>({
   }
 });
 
+export interface CompilingState {
+  compiling?: boolean;
+  uploading?: boolean;
+  visible?: boolean;
+  compileSuccess?: boolean;
+  compileError?: boolean;
+  uploadSuccess?: boolean;
+  uploadError?: boolean;
+}
+
+export const compilingState = atom<CompilingState>({
+  key: "compiling",
+  default: {}
+});
+
 export const replaceBloqs = (
   bloqs: IBloq[],
   path: number[],

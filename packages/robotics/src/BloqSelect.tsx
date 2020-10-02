@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useEffect } from "react";
 import { colors, Icon } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
@@ -27,6 +27,12 @@ const BloqSelect: FC<IBloqSelectProps> = ({ value, options, onChange }) => {
       onChange(option.value);
     }
   };
+
+  /*useEffect(() => {
+    if (value === undefined && onChange && options.length > 0) {
+      onChange(options[0].value);
+    }
+  }, [value]);*/
 
   return (
     <Container {...menu}>

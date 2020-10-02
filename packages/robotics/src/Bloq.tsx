@@ -1,6 +1,7 @@
 import React, { FC, useMemo } from "react";
 import { useRecoilCallback } from "recoil";
 import styled from "@emotion/styled";
+import { IComponentInstance } from "@bitbloq/bloqs";
 import { useTranslate } from "@bitbloq/ui";
 import { bloqCategories } from "./config";
 import { IBloq, InstructionType } from "./types";
@@ -8,6 +9,7 @@ import bloqs from "../config/bloqs.yml";
 import BloqList from "./BloqList";
 import BloqParameter from "./BloqParameter";
 import BloqSelect from "./BloqSelect";
+import BloqSelectComponent from "./BloqSelectComponent";
 import { replaceBloqs, bloqsState } from "./state";
 
 const bloqsMap = bloqs.reduce(
@@ -64,10 +66,6 @@ const Bloq: FC<IBloqProps> = ({ bloq, section, path }) => {
                 return <Label key={i}>{t(uiElement.text)}</Label>;
 
               case "select": {
-                const parameterName = uiElement.parameterName;
-                const { parameters = {} } = bloq;
-                const param = parameters[parameterName] as IBloq | undefined;
-
                 return (
                   <BloqSelect
                     key={i}
@@ -75,13 +73,36 @@ const Bloq: FC<IBloqProps> = ({ bloq, section, path }) => {
                       value: option.value,
                       label: t(option.label)
                     }))}
-                    value={param}
+                    value={bloq.parameters?.[uiElement.parameterName]}
                     onChange={newValue =>
                       onBloqChange({
                         ...bloq,
                         parameters: {
-                          ...parameters,
-                          [parameterName]: newValue
+                          ...(bloq.parameters || {}),
+                          [uiElement.parameterName]: newValue
+                        }
+                      })
+                    }
+                  />
+                );
+              }
+
+              case "select-component": {
+                return (
+                  <BloqSelectComponent
+                    key={i}
+                    componentTypes={uiElement.componentTypes}
+                    value={
+                      bloq.parameters?.[uiElement.parameterName] as
+                        | IComponentInstance
+                        | undefined
+                    }
+                    onChange={newValue =>
+                      onBloqChange({
+                        ...bloq,
+                        parameters: {
+                          ...(bloq.parameters || {}),
+                          [uiElement.parameterName]: newValue
                         }
                       })
                     }

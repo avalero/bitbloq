@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from "react";
+import React, { FC } from "react";
 import styled from "@emotion/styled";
 import {
   breakpoints,
@@ -9,18 +9,11 @@ import {
   Tabs,
   useTranslate
 } from "@bitbloq/ui";
-import {
-  useRecoilState,
-  useSetRecoilState,
-  useResetRecoilState,
-  useRecoilCallback
-} from "recoil";
+import { useRecoilState, useSetRecoilState, useResetRecoilState } from "recoil";
 import { IBloqType, InstructionType } from "./types";
 import { bloqCategories } from "./config";
 import {
-  boardState,
   bloqsState,
-  componentsState,
   draggingBloqsState,
   isDraggingParameterState,
   BloqSection,
@@ -31,7 +24,7 @@ import Bloq from "./Bloq";
 import BloqCanvas from "./BloqCanvas";
 import DraggingBloq from "./DraggingBloq";
 import ExpandablePanel from "./ExpandablePanel";
-import { getCode } from "./code-generation";
+import useCodeGeneration from "./useCodeGeneration";
 
 const categoryBloqs: Record<string, IBloqType[]> = bloqCategories.reduce(
   (acc, category) => ({
@@ -41,17 +34,20 @@ const categoryBloqs: Record<string, IBloqType[]> = bloqCategories.reduce(
   {}
 );
 
-const Bloqs: FC = () => {
+export interface IBloqsProps {
+  borndateFilesRoot: string;
+}
+
+const Bloqs: FC<IBloqsProps> = ({ borndateFilesRoot }) => {
   const t = useTranslate();
 
+  const { compile, upload } = useCodeGeneration({
+    filesRoot: borndateFilesRoot
+  });
   const setDraggingBloq = useSetRecoilState(draggingBloqsState);
   const setIsDraggingParameter = useSetRecoilState(isDraggingParameterState);
   const resetDraggingBloq = useResetRecoilState(draggingBloqsState);
   const [bloqs, setBloqs] = useRecoilState(bloqsState);
-
-  useEffect(() => {
-    console.log(bloqs);
-  }, [bloqs]);
 
   const bloqsTabs = bloqCategories.map(category => ({
     icon: category.icon ? (
@@ -135,19 +131,6 @@ const Bloqs: FC = () => {
     }
   };
 
-  const onUpload = useRecoilCallback(({ snapshot }) => async () => {
-    const board = await snapshot.getPromise(boardState);
-    const components = await snapshot.getPromise(componentsState);
-    const bloqs = await snapshot.getPromise(bloqsState);
-
-    if (!board) {
-      return;
-    }
-
-    const code = getCode(board.name, components, bloqs);
-    console.log(code);
-  });
-
   return (
     <DragAndDropProvider onDrop={onDrop}>
       <Container>
@@ -162,10 +145,10 @@ const Bloqs: FC = () => {
               </ToolbarButton>
             </ToolbarLeft>
             <ToolbarRight>
-              <ToolbarGreenButton>
+              <ToolbarGreenButton onClick={compile}>
                 <Icon name="tick" />
               </ToolbarGreenButton>
-              <ToolbarGreenButton onClick={onUpload}>
+              <ToolbarGreenButton onClick={upload}>
                 <UploadIcon name="arrow" />
               </ToolbarGreenButton>
             </ToolbarRight>

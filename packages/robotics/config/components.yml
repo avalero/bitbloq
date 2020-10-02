@@ -1,4 +1,37 @@
 ---
+# Generic components
+- name: base-component
+  code:
+    globals:
+      - >
+        {% for connector in getComponentType(component).connectors %}
+        {% for pin in connector.pins %}
+        uint8_t {{component.name}}{{pin.name}} = {{getPinValue(component, connector.name, pin.portPin)}};
+        {% endfor %}
+        {% endfor %}
+
+- name: digital-input
+  extends: base-component
+  code:
+    setup:
+      - >
+        {% for connector in getComponentType(component).connectors %}
+        {% for pin in connector.pins %}
+        pinMode({{component.name}}{{pin.name}}, INPUT);
+        {% endfor %}
+        {% endfor %}
+
+- name: digital-output
+  extends: base-component
+  code:
+    setup:
+      - >
+        {% for connector in getComponentType(component).connectors %}
+        {% for pin in connector.pins %}
+        pinMode({{component.name}}{{pin.name}}, INPUT);
+        {% endfor %}
+        {% endfor %}
+
 - name: button
   label: hardware.component.button
   instanceName: hardware.instanceName.button
@@ -13,6 +46,7 @@
     url: "https://storage.googleapis.com/bitbloq-prod/images/hardware/component/button.svg"
     width: 56
     height: 40
+
 - name: joystick
   label: hardware.component.joystick
   instanceName: hardware.instanceName.joystick
@@ -45,6 +79,7 @@
   connectors: []
 
 - name: zumjunior-button
+  extends: digital-input
   label: hardware.component.button
   instanceName: hardware.instanceName.button
   connectors:
@@ -54,6 +89,9 @@
         x: 0
         y: 1
       direction: south
+      pins:
+        - name: Pin
+          portPin: '0'
   image:
     url: "https://storage.googleapis.com/bitbloq-prod/images/hardware/component/zumjunior_button.svg"
     width: 104

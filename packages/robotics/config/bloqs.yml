@@ -56,6 +56,8 @@
 - name: turn-zumjunior-rgb-led
   instructionType: statement
   category: component
+  forComponents:
+    - zumjunior-rgb-led
   code:
     main: >
       zumJunior.setRGBLEDColor(BQ::ZUMJunior::{{parameters.color}});
@@ -78,3 +80,29 @@
         - value: WHITE
           label: robotics.white
 
+- name: if-zumjunior-button-pressed
+  instructionType: block
+  category: component
+  forComponents:
+    - zumjunior-button
+  code:
+    main: >
+      if ({{"!" if not parameters.pressed}}digitalRead({{parameters.component.name}}Pin)) {
+        {{childrenCode}}
+      }
+  uiElements:
+    - type: label
+      text: robotics.if
+    - type: select-component
+      parameterName: component
+      componentTypes:
+        - zumjunior-button
+    - type: label
+      text: robotics.is
+    - type: select
+      parameterName: pressed
+      options:
+        - value: true
+          label: robotics.pressed
+        - value: false
+          label: robotics.not-pressed

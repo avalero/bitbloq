@@ -31,12 +31,22 @@ export interface IBloqUISelect {
   options: IBloqUISelectOption[];
 }
 
+export interface IBloqUISelectComponent {
+  type: "select-component";
+  parameterName: string;
+  componentTypes: string[];
+}
+
 export interface IBloqUIParameter {
   type: "parameter";
   parameterName: string;
 }
 
-type IBloqUIElement = IBloqUILabel | IBloqUISelect | IBloqUIParameter;
+type IBloqUIElement =
+  | IBloqUILabel
+  | IBloqUISelect
+  | IBloqUISelectComponent
+  | IBloqUIParameter;
 
 export interface IBloqCode {
   main?: string;

@@ -17,12 +17,14 @@ const HardwareTabs: FC = () => {
   const boardObject = board && getBoard(board.name);
 
   const compatibleComponents = boardObject
-    ? components.filter(component =>
-        component.connectors.some(connector =>
-          boardObject.ports.some(port =>
-            port.connectorTypes.includes(connector.type)
+    ? components.filter(
+        component =>
+          component.connectors &&
+          component.connectors.some(connector =>
+            boardObject.ports.some(port =>
+              port.connectorTypes.includes(connector.type)
+            )
           )
-        )
       )
     : [];
 
