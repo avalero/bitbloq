@@ -15,7 +15,10 @@ const JuniorEditor: React.FunctionComponent<IEditorProps> = ({
 
   const [initialContent, onContentChange] = useDocumentContent(
     document,
-    onDocumentChange
+    onDocumentChange,
+    {
+      version: 1
+    }
   );
 
   if (!initialContent) {

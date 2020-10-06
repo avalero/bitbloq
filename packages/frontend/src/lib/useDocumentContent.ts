@@ -4,6 +4,7 @@ import { IDocument } from "@bitbloq/api";
 const useDocumentContent = (
   document: IDocument,
   onDocumentChange: (document: IDocument) => any,
+  newContent: any,
   advancedMode?: boolean
 ) => {
   const documentRef = useRef(document);
@@ -19,7 +20,9 @@ const useDocumentContent = (
 
   useEffect(() => {
     try {
-      setInitialContent(JSON.parse(document.content!));
+      setInitialContent(
+        document.content ? JSON.parse(document.content) : newContent
+      );
     } catch (e) {
       console.warn("Error parsing document content", e);
     }

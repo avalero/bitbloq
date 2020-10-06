@@ -15,7 +15,8 @@ const RoboticsEditor: React.FunctionComponent<IEditorProps> = ({
 
   const [initialContent, onContentChange] = useDocumentContent(
     document,
-    onDocumentChange
+    onDocumentChange,
+    {}
   );
 
   if (!initialContent) {

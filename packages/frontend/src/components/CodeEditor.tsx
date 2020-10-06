@@ -26,7 +26,8 @@ const CodeEditor: FC<IEditorProps> = ({
 
   const [initialContent, onContentChange] = useDocumentContent(
     document,
-    onDocumentChange
+    onDocumentChange,
+    {}
   );
 
   const mainTab: IDocumentTab = useMemo(
