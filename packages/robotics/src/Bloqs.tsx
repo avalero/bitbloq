@@ -10,14 +10,21 @@ import {
   useTranslate
 } from "@bitbloq/ui";
 import { useRecoilState, useSetRecoilState, useResetRecoilState } from "recoil";
-import { IBloq, IBloqType } from "./types";
+import { IBloqType, InstructionType } from "./types";
 import { bloqCategories } from "./config";
-import { bloqsState, draggingBloqsState, BloqSection } from "./state";
+import {
+  bloqsState,
+  draggingBloqsState,
+  isDraggingParameterState,
+  BloqSection,
+  replaceBloqs
+} from "./state";
 import bloqs from "../config/bloqs.yml";
 import Bloq from "./Bloq";
 import BloqCanvas from "./BloqCanvas";
 import DraggingBloq from "./DraggingBloq";
 import ExpandablePanel from "./ExpandablePanel";
+import useCodeGeneration from "./useCodeGeneration";
 
 const categoryBloqs: Record<string, IBloqType[]> = bloqCategories.reduce(
   (acc, category) => ({
@@ -27,40 +34,18 @@ const categoryBloqs: Record<string, IBloqType[]> = bloqCategories.reduce(
   {}
 );
 
-const replaceBloqs = (
-  bloqs: IBloq[],
-  path: number[],
-  deleteCount: number,
-  newBloqs: IBloq[]
-): IBloq[] => {
-  const [first, ...rest] = path;
-  if (path.length > 1) {
-    return [
-      ...bloqs.slice(0, first),
-      {
-        ...bloqs[first],
-        children: replaceBloqs(
-          bloqs[first].children || [],
-          rest,
-          deleteCount,
-          newBloqs
-        )
-      },
-      ...bloqs.slice(first + 1)
-    ];
-  } else {
-    return [
-      ...bloqs.slice(0, first),
-      ...newBloqs,
-      ...bloqs.slice(first + deleteCount)
-    ];
-  }
-};
+export interface IBloqsProps {
+  borndateFilesRoot: string;
+}
 
-const Bloqs: FC = () => {
+const Bloqs: FC<IBloqsProps> = ({ borndateFilesRoot }) => {
   const t = useTranslate();
 
+  const { compile, upload } = useCodeGeneration({
+    filesRoot: borndateFilesRoot
+  });
   const setDraggingBloq = useSetRecoilState(draggingBloqsState);
+  const setIsDraggingParameter = useSetRecoilState(isDraggingParameterState);
   const resetDraggingBloq = useResetRecoilState(draggingBloqsState);
   const [bloqs, setBloqs] = useRecoilState(bloqsState);
 
@@ -76,12 +61,15 @@ const Bloqs: FC = () => {
         {categoryBloqs[category.name].map(bloqType => (
           <Draggable
             data={{ bloqs: [{ type: bloqType.name }] }}
-            draggableHeight={40}
-            draggableWidth={140}
+            draggableHeight={0}
+            draggableWidth={0}
             key={bloqType.name}
-            onDragStart={({ x, y }) =>
-              setDraggingBloq({ x, y, bloqs: [{ type: bloqType.name }] })
-            }
+            onDragStart={({ x, y }) => {
+              setIsDraggingParameter(
+                bloqType.instructionType === InstructionType.Parameter
+              );
+              setDraggingBloq({ x, y, bloqs: [{ type: bloqType.name }] });
+            }}
             onDrag={({ x, y }) =>
               setDraggingBloq({ x, y, bloqs: [{ type: bloqType.name }] })
             }
@@ -120,6 +108,27 @@ const Bloqs: FC = () => {
         [droppableData.section]: newSectionBloqs
       });
     }
+    if (droppableData.type === "bloq-parameter") {
+      const sectionBloqs = bloqs[droppableData.section];
+      const newSectionBloqs = replaceBloqs(
+        sectionBloqs,
+        droppableData.path,
+        1,
+        [
+          {
+            ...droppableData.bloq,
+            parameters: {
+              ...droppableData.bloq.parameters,
+              [droppableData.parameterName]: draggableData.bloqs[0]
+            }
+          }
+        ]
+      );
+      setBloqs({
+        ...bloqs,
+        [droppableData.section]: newSectionBloqs
+      });
+    }
   };
 
   return (
@@ -136,10 +145,10 @@ const Bloqs: FC = () => {
               </ToolbarButton>
             </ToolbarLeft>
             <ToolbarRight>
-              <ToolbarGreenButton>
+              <ToolbarGreenButton onClick={compile}>
                 <Icon name="tick" />
               </ToolbarGreenButton>
-              <ToolbarGreenButton>
+              <ToolbarGreenButton onClick={upload}>
                 <UploadIcon name="arrow" />
               </ToolbarGreenButton>
             </ToolbarRight>
@@ -208,6 +217,7 @@ const ToolbarButton = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 
   svg {
     width: 18px;

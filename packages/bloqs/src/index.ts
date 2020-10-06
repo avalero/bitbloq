@@ -180,6 +180,11 @@ export interface IIntegratedComponent {
   pins: { [name: string]: string };
 }
 
+export interface ILibrary {
+  zipURL: string;
+  precompiled?: boolean;
+}
+
 export interface IBoard {
   name: string;
   label?: string;
@@ -190,6 +195,9 @@ export interface IBoard {
   schematicCenter: IConnectorPosition;
   schematicImage: IComponentImage;
   snapshotImage: IComponentImage;
+  avrgirlBoard?: string;
+  borndateBoard?: string;
+  libraries?: ILibrary[];
 }
 
 export enum ConnectorPinMode {

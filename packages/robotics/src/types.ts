@@ -21,7 +21,7 @@ export interface IBloqUILabel {
 }
 
 export interface IBloqUISelectOption {
-  value: any;
+  value: string | number;
   label: string;
 }
 
@@ -31,16 +31,38 @@ export interface IBloqUISelect {
   options: IBloqUISelectOption[];
 }
 
-type IBloqUIElement = IBloqUILabel | IBloqUISelect;
+export interface IBloqUISelectComponent {
+  type: "select-component";
+  parameterName: string;
+  componentTypes: string[];
+}
+
+export interface IBloqUIParameter {
+  type: "parameter";
+  parameterName: string;
+}
+
+type IBloqUIElement =
+  | IBloqUILabel
+  | IBloqUISelect
+  | IBloqUISelectComponent
+  | IBloqUIParameter;
+
+export interface IBloqCode {
+  main?: string;
+}
 
 export interface IBloqType {
   name: string;
   instructionType: InstructionType;
   category: BloqCategory;
   uiElements: IBloqUIElement[];
+  forComponents?: string[];
+  code?: IBloqCode;
 }
 
 export interface IBloq {
   type: string;
   children?: IBloq[];
+  parameters?: Record<string, string | number | IBloq>;
 }

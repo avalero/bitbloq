@@ -87,7 +87,6 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
   );
   const [files, setFiles] = useState<IFileItem[]>([]);
   const [libraries, setLibraries] = useState<ILibrary[]>([]);
-  const [librariesFiles, setLibrariesFiles] = useState<IFileItem[][]>([]);
   const [selectedFile, setSelectedFile] = useState(files[0]);
   const [errors, setErrors] = useState<IError[]>([]);
 

@@ -46,6 +46,7 @@ const ThreeDEditor: FC<IEditorProps> = ({
   const [initialContent, onContentChange] = useDocumentContent(
     document,
     onDocumentChange,
+    [],
     advancedMode
   );
 

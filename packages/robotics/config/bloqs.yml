@@ -19,3 +19,90 @@
   uiElements:
     - type: label
       text: robotics.if
+    - type: parameter
+      parameterName: value1
+    - type: select
+      parameterName: comparation
+      options:
+        - value: eq
+          label: '='
+        - value: neq
+          label: '!='
+        - value: gt
+          label: '>'
+        - value: gte
+          label: '>='
+        - value: lt
+          label: '<'
+        - value: lte
+          label: '<='
+    - type: parameter
+      parameterName: value2
+    - type: label
+      text: robotics.execute
+
+- name: read
+  instructionType: parameter
+  category: component
+  uiElements:
+    - type: label
+      text: robotics.read
+    - type: select
+      parameterName: component
+      options:
+        - value: component1
+          label: Component
+
+- name: turn-zumjunior-rgb-led
+  instructionType: statement
+  category: component
+  forComponents:
+    - zumjunior-rgb-led
+  code:
+    main: >
+      zumJunior.setRGBLEDColor(BQ::ZUMJunior::{{parameters.color}});
+  uiElements:
+    - type: label
+      text: robotics.turn-zumjunior-rgb-led
+    - type: select
+      parameterName: color
+      options:
+        - value: RED
+          label: robotics.red
+        - value: GREEN
+          label: robotics.green
+        - value: BLUE
+          label: robotics.blue
+        - value: YELLOW
+          label: robotics.yellow
+        - value: PINK
+          label: robotics.pink
+        - value: WHITE
+          label: robotics.white
+
+- name: if-zumjunior-button-pressed
+  instructionType: block
+  category: component
+  forComponents:
+    - zumjunior-button
+  code:
+    main: >
+      if ({{"!" if not parameters.pressed}}digitalRead({{parameters.component.name}}Pin)) {
+        {{childrenCode}}
+      }
+  uiElements:
+    - type: label
+      text: robotics.if
+    - type: select-component
+      parameterName: component
+      componentTypes:
+        - zumjunior-button
+    - type: label
+      text: robotics.is
+    - type: select
+      parameterName: pressed
+      options:
+        - value: true
+          label: robotics.pressed
+        - value: false
+          label: robotics.not-pressed

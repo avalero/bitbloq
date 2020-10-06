@@ -68,7 +68,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
   const [error, setError] = useState<ApolloError | null>(null);
   const [document, setDocument] = useState<IDocument>({
     id: "",
-    content: "[]",
+    content: null,
     name: t("untitled-project"),
     description: "",
     public: false,

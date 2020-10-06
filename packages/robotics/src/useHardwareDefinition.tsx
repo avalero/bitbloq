@@ -23,7 +23,14 @@ export const HardwareDefinitionProvider: FC<IHardwareDefinitionContext> = ({
   );
 };
 
-const useHardwareDefinition = () => {
+interface IUseHardwareDefinition {
+  boards: IBoard[];
+  components: IComponent[];
+  getBoard: (name: string) => IBoard;
+  getComponent: (name: string) => IComponent;
+  isInstanceOf: (name: string, base: string) => boolean;
+}
+const useHardwareDefinition = (): IUseHardwareDefinition => {
   const { boards, components } = useContext(HardwareDefinitionContext);
 
   const boardsMap: { [name: string]: IBoard } = useMemo(
@@ -39,7 +46,12 @@ const useHardwareDefinition = () => {
   const getBoard = (name: string) => boardsMap[name];
   const getComponent = (name: string) => componentsMap[name];
 
-  return { boards, components, getBoard, getComponent };
+  const isInstanceOf = (name: string, base: string) =>
+    name === base ||
+    (componentsMap[name].extends &&
+      isInstanceOf(componentsMap[name].extends, base));
+
+  return { boards, components, getBoard, getComponent, isInstanceOf };
 };
 
 export default useHardwareDefinition;

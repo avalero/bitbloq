@@ -15,7 +15,8 @@ const RoboticsEditor: React.FunctionComponent<IEditorProps> = ({
 
   const [initialContent, onContentChange] = useDocumentContent(
     document,
-    onDocumentChange
+    onDocumentChange,
+    {}
   );
 
   if (!initialContent) {
@@ -26,6 +27,7 @@ const RoboticsEditor: React.FunctionComponent<IEditorProps> = ({
     <Robotics
       initialContent={initialContent || {}}
       onContentChange={onContentChange}
+      borndateFilesRoot={`${window.location.origin}/_next/static/borndate`}
     >
       {({ hardware, bloqs, diagram }) =>
         children({
