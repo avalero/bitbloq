@@ -1,7 +1,5 @@
-import React, { FC, useState, useEffect } from "react";
-import styled from "@emotion/styled";
+import React, { FC, useEffect } from "react";
 import { IBoard, IComponent } from "@bitbloq/bloqs";
-import { useTranslate } from "@bitbloq/ui";
 import { RecoilRoot, useRecoilCallback } from "recoil";
 import Hardware from "./Hardware";
 import Bloqs from "./Bloqs";
@@ -24,15 +22,15 @@ export interface IRoboticsProps {
   initialContent?: Partial<IRoboticsContent>;
   onContentChange: (content: IRoboticsContent) => any;
   children: (props: IRoboticsCallbackProps) => React.ReactElement;
+  borndateFilesRoot: string;
 }
 
 const Robotics: FC<IRoboticsProps> = ({
   children,
   initialContent,
-  onContentChange
+  onContentChange,
+  borndateFilesRoot
 }) => {
-  const t = useTranslate();
-
   const initState = useRecoilCallback(({ set }) => () => {
     if (initialContent) {
       if (initialContent.hardware) {
@@ -55,7 +53,7 @@ const Robotics: FC<IRoboticsProps> = ({
       >
         {children({
           hardware: <Hardware />,
-          bloqs: <Bloqs />,
+          bloqs: <Bloqs borndateFilesRoot={borndateFilesRoot} />,
           diagram: <Diagram />
         })}
       </HardwareDefinitionProvider>

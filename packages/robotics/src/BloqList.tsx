@@ -1,8 +1,10 @@
 import React, { FC, useState } from "react";
+import { useRecoilValue } from "recoil";
 import styled from "@emotion/styled";
 import { IBloq } from "./types";
 import { colors, Draggable, Droppable } from "@bitbloq/ui";
 import Bloq from "./Bloq";
+import { isDraggingParameterState } from "./state";
 
 export interface IBloqListProps {
   bloqs: IBloq[];
@@ -11,6 +13,7 @@ export interface IBloqListProps {
 }
 
 const BloqList: FC<IBloqListProps> = ({ bloqs, section, path }) => {
+  const isDraggingParamater = useRecoilValue(isDraggingParameterState);
   const [dragging, setDragging] = useState(false);
   const [draggingX, setDraggingX] = useState(0);
   const [draggingY, setDraggingY] = useState(0);
@@ -19,8 +22,8 @@ const BloqList: FC<IBloqListProps> = ({ bloqs, section, path }) => {
   return (
     <Draggable
       data={{ type: "bloq-list", bloqs, section, path }}
-      draggableHeight={40}
-      draggableWidth={140}
+      draggableHeight={0}
+      draggableWidth={0}
       onDragStart={({ x, y }) => {
         setDragging(true);
         setDraggingX(x);
@@ -47,9 +50,9 @@ const BloqList: FC<IBloqListProps> = ({ bloqs, section, path }) => {
           }
         >
           <Droppable
-            active={!dragging}
+            active={!dragging && !isDraggingParamater}
             data={{ type: "bloq-droppable", bloqs, section, path }}
-            margin={40}
+            margin={30}
           >
             {active => (
               <BloqDroppable>{active && <DropIndicator />}</BloqDroppable>

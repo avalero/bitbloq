@@ -44,7 +44,6 @@ const Container = styled.div`
   z-index: 20;
 
   img {
-    margin: 10px;
     pointer-events: none;
   }
 `;

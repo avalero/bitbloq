@@ -4,7 +4,6 @@ import { colors, Droppable, useTranslate } from "@bitbloq/ui";
 import { useRecoilState } from "recoil";
 import { bloqsState, BloqSection } from "./state";
 import BloqList from "./BloqList";
-import { IBloq } from "./types";
 
 interface IBloqCanvasProps {
   section: BloqSection;

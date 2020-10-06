@@ -1,7 +1,24 @@
 ---
 # ZumJunior
 - name: zumjunior
+  avrgirlBoard: zumjunior
+  borndateBoard: zumjunior
   label: Zum Junior
+  libraries:
+    - zipURL: https://storage.googleapis.com/bitbloq-prod/arduino-libraries/BQZUMJunior.zip
+      precompiled: true
+  integrated:
+    - component: zumjunior-rgb-led
+      name: rgbLed
+  code:
+    includes:
+      - <BQZUMJunior.h>
+      - <BQZUMJuniorPorts.h>
+    globals:
+      - BQ::ZUMJunior zumJunior;
+    setup:
+      - zumJunior.setup();
+
   image:
     url: https://storage.googleapis.com/bitbloq-prod/images/hardware/board/zumjunior.svg
   ports:
@@ -9,9 +26,62 @@
     connectorTypes:
     - zumjunior-digital
     - zumjunior-analog
+    pins:
+      - name: '0'
+        value: BQ::ZUMJunior::ports[1][0]
+      - name: '1'
+        value: BQ::ZUMJunior::ports[1][1]
     position:
-      x: -1
-      y: 0.15
+      x: -0.37
+      y: -0.1
+    width: 0.035
+    height: 0.046
+    direction: west
+  - name: '2'
+    connectorTypes:
+    - zumjunior-digital
+    - zumjunior-analog
+    pins:
+      - name: '0'
+        value: BQ::ZUMJunior::ports[2][0]
+      - name: '1'
+        value: BQ::ZUMJunior::ports[2][1]
+    position:
+      x: -0.37
+      y: 0.05
+    width: 0.035
+    height: 0.046
+    direction: west
+  - name: '3'
+    connectorTypes:
+    - zumjunior-digital
+    - zumjunior-analog
+    pins:
+      - name: '0'
+        value: BQ::ZUMJunior::ports[3][0]
+      - name: '1'
+        value: BQ::ZUMJunior::ports[3][1]
+    position:
+      x: 0.34
+      y: 0.05
+    width: 0.035
+    height: 0.046
+    direction: east
+  - name: '4'
+    connectorTypes:
+    - zumjunior-digital
+    - zumjunior-analog
+    pins:
+      - name: '0'
+        value: BQ::ZUMJunior::ports[4][0]
+      - name: '1'
+        value: BQ::ZUMJunior::ports[4][1]
+    position:
+      x: 0.34
+      y: -0.1
+    width: 0.035
+    height: 0.046
+    direction: east
 
 # ZumCore2
 - name: zumcore2
