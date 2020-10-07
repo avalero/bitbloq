@@ -4764,10 +4764,9 @@ autoprefixer@^9.7.2:
     postcss "^7.0.32"
     postcss-value-parser "^4.1.0"
 
-avrgirl-arduino@^4.2.2:
-  version "4.2.3"
-  resolved "https://registry.yarnpkg.com/avrgirl-arduino/-/avrgirl-arduino-4.2.3.tgz#aab6b521be35ae05d43ca8e33ad699c033622d21"
-  integrity sha512-VieaZC2rVOfEKKu/CvRgjweValsdgH7TzgpfUROj80k8blURZ04CdfWpSSbD2SfYaa7Y8Lfocy9Bljr/SD8R8g==
+"avrgirl-arduino@git+https://github.com/Bitbloq/avrgirl-arduino.git#feature/fix-browser-serial":
+  version "4.2.4"
+  resolved "git+https://github.com/Bitbloq/avrgirl-arduino.git#1b2cc1874a2c24e27b1de6e6316c06f4f41ef815"
   dependencies:
     async "^2.1.2"
     awty "^0.1.0"
