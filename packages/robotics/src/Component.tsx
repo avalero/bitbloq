@@ -1,7 +1,8 @@
-import React, { FC } from "react";
+import React, { FC, useEffect } from "react";
 import styled from "@emotion/styled";
-import { colors, Draggable, useDraggable } from "@bitbloq/ui";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { colors, Draggable, useDraggable, useTranslate } from "@bitbloq/ui";
+import { IConnector } from "@bitbloq/bloqs";
+import { useRecoilState, useSetRecoilState, useRecoilCallback } from "recoil";
 import {
   componentWithIdState,
   draggingConnectorState,
@@ -15,6 +16,7 @@ export interface IComponentProps {
 }
 
 const Component: FC<IComponentProps> = ({ id }) => {
+  const t = useTranslate();
   const [instance, setInstance] = useRecoilState(componentWithIdState(id));
   const [selectedComponent, setSelectedComponent] = useRecoilState(
     selectedComponentState
@@ -41,9 +43,38 @@ const Component: FC<IComponentProps> = ({ id }) => {
     onDragEnd: () => updateContent()
   });
 
+  useEffect(() => {
+    const container = containerProps.ref.current;
+    if (container) {
+      const { width, height } = container.getBoundingClientRect();
+      setInstance({
+        ...instance,
+        width,
+        height
+      });
+    }
+  }, []);
+
   if (!instance || !instance.position) {
     return null;
   }
+
+  const removeConnection = useRecoilCallback(
+    ({ set }) => (connector: IConnector) => {
+      const ports = Object.keys(instance.ports || {}).reduce((o, key) => {
+        if (key !== connector.name) {
+          o[key] = instance.ports?.[key];
+        }
+        return o;
+      }, {});
+
+      set(componentWithIdState(id), {
+        ...instance,
+        ports
+      });
+    },
+    [instance]
+  );
 
   const isSelected = selectedComponent === id;
 
@@ -68,45 +99,54 @@ const Component: FC<IComponentProps> = ({ id }) => {
         height={component.image.height}
         alt={component.label}
       />
-      {component.connectors.map(connector => (
-        <Draggable
-          key={connector.name}
-          data={{ type: "connector", connector, instance }}
-          draggableWidth={0}
-          draggableHeight={0}
-          offsetX={10}
-          offsetY={10}
-          onDragStart={params =>
-            setDraggingConnector({
-              x: params.x,
-              y: params.y,
-              connector,
-              instance
-            })
-          }
-          onDrag={params =>
-            setDraggingConnector({
-              x: params.x,
-              y: params.y,
-              connector,
-              instance
-            })
-          }
-          onDragEnd={() => setDraggingConnector(null)}
-        >
-          {(props, dragging) => (
-            <Connector
-              {...props}
-              style={{
-                backgroundColor: isSelected ? colors.black : colors.green,
-                display: dragging ? "none" : "block",
-                left: `${((connector.position.x + 1) / 2) * 100}%`,
-                top: `${((connector.position.y + 1) / 2) * 100}%`
-              }}
-            />
-          )}
-        </Draggable>
-      ))}
+      {component.connectors.map(connector => {
+        const connected = !!instance.ports?.[connector.name];
+        return (
+          <Draggable
+            key={connector.name}
+            data={{ type: "connector", connector, instance }}
+            draggableWidth={0}
+            draggableHeight={0}
+            offsetX={connected ? 26 : 10}
+            offsetY={10}
+            onDragStart={params => {
+              removeConnection(connector);
+              setSelectedComponent(id);
+              setDraggingConnector({
+                x: params.x,
+                y: params.y,
+                connector,
+                instance
+              });
+            }}
+            onDrag={params =>
+              setDraggingConnector({
+                x: params.x,
+                y: params.y,
+                connector,
+                instance
+              })
+            }
+            onDragEnd={() => setDraggingConnector(null)}
+          >
+            {(props, dragging) => (
+              <Connector
+                {...props}
+                dragging={dragging}
+                selected={isSelected}
+                connected={connected}
+                style={{
+                  left: `${((connector.position.x + 1) / 2) * 100}%`,
+                  top: `${((connector.position.y + 1) / 2) * 100}%`
+                }}
+              >
+                {connected &&
+                  `${t("robotics.pin")} ${instance.ports?.[connector.name]}`}
+              </Connector>
+            )}
+          </Draggable>
+        );
+      })}
     </Container>
   );
 };
@@ -140,11 +180,21 @@ const NameInput = styled.input`
   padding: 0px 10px;
 `;
 
-const Connector = styled.div`
+const Connector = styled.div<{
+  connected: boolean;
+  dragging: boolean;
+  selected: boolean;
+}>`
   position: absolute;
   transform: translate(-50%, -50%);
-  background-color: ${colors.black};
-  width: 20px;
+  width: ${props => (props.connected ? 52 : 20)}px;
   height: 20px;
-  border-radius: 10px;
+  border-radius: ${props => (props.connected ? 4 : 10)}px;
+  align-items: center;
+  justify-content: center;
+  background-color: ${props =>
+    props.selected ? colors.black : props.connected ? "#d7d7d7" : colors.green};
+  display: ${props => (props.dragging ? "none" : "flex")};
+  color: ${props => (props.selected ? "white" : colors.black)};
+  font-size: 14px;
 `;

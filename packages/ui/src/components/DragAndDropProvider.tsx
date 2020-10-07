@@ -16,6 +16,7 @@ export interface IDropParams {
 export interface IDroppableHandler {
   x: number;
   y: number;
+  element: HTMLDivElement;
   width: number;
   height: number;
   data: any;
@@ -67,6 +68,12 @@ const createController = ({
       draggingData = data;
       draggableWidth = width;
       draggableHeight = height;
+
+      droppableHandlers.forEach(handler => {
+        const { x, y } = handler.element.getBoundingClientRect();
+        handler.x = x;
+        handler.y = y;
+      });
 
       if (onDragStart) {
         onDragStart({ draggableData: data });

@@ -2,12 +2,13 @@ import React, { FC } from "react";
 import { breakpoints, colors, Droppable, Icon } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import { useRecoilValue } from "recoil";
-import { isDraggingBoardState } from "./state";
+import { isDraggingBoardState, isDraggingInstanceState } from "./state";
 
 const DeleteDroppable: FC = () => {
   const isDraggingBoard = useRecoilValue(isDraggingBoardState);
+  const isDraggingInstance = useRecoilValue(isDraggingInstanceState);
 
-  if (!isDraggingBoard) {
+  if (!isDraggingBoard && !isDraggingInstance) {
     return null;
   }
 

@@ -160,9 +160,11 @@ const Hardware: FC = () => {
     <DragAndDropProvider onDrop={onDrop}>
       <Container>
         <CanvasWrap data={{ type: "canvas" }} active={!draggingConnector}>
-          <Connections />
           <Canvas ref={canvasRef}>
             <Board />
+          </Canvas>
+          <Connections />
+          <Canvas>
             {componentList.map(id => (
               <Component key={id} id={id} />
             ))}
@@ -192,7 +194,9 @@ const CanvasWrap = styled(Droppable)`
 `;
 
 const Canvas = styled.div`
-  position: relative;
+  position: absolute;
   flex: 1;
   transform: translate(50%, 50%);
+  width: 100%;
+  height: 100%;
 `;

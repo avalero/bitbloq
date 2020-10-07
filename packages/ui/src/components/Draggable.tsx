@@ -9,6 +9,7 @@ export interface IDraggableProps extends IUseDragParams {
   data?: any;
   draggableWidth?: number;
   draggableHeight?: number;
+  dragThreshold?: number;
   offsetX?: number;
   offsetY?: number;
   children: (
@@ -22,6 +23,7 @@ const Draggable: FC<IDraggableProps> = ({
   data = {},
   draggableWidth,
   draggableHeight,
+  dragThreshold,
   offsetX,
   offsetY,
   onDragStart,
@@ -56,6 +58,7 @@ const Draggable: FC<IDraggableProps> = ({
         onDragEnd({ ...params, data });
       }
     },
+    dragThreshold,
     offsetX,
     offsetY
   });

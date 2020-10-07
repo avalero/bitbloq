@@ -21,12 +21,23 @@ const getConnectionPath = (
   d2: IPortDirection
 ) => {
   let path = `M ${x1} ${y1} `;
-  if (d1 === IPortDirection.South) {
-    path += `L ${x1} ${(y1 + y2) / 2}`;
-    path += `L ${x2} ${(y1 + y2) / 2}`;
-  }
+  const initialVertical =
+    d1 === IPortDirection.South
+      ? Math.max(20, y2 - y1 / 2)
+      : d1 === IPortDirection.North
+      ? Math.min(-20, y2 - y1 / 2)
+      : 0;
 
-  path += `L ${x2} ${y2}`;
+  const diffX = x2 - x1;
+  const diffY = y2 - y1;
+
+  const finalHorizontal =
+    d2 === IPortDirection.West ? 30 : d2 === IPortDirection.East ? -30 : 0;
+
+  path += `l 0 ${initialVertical}`;
+  path += `l ${diffX - finalHorizontal} 0`;
+  path += `l 0 ${diffY - initialVertical}`;
+  path += `l ${finalHorizontal} 0`;
 
   return path;
 };
@@ -159,7 +170,6 @@ const Container = styled.div`
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 2;
 
   svg {
     position: absolute;

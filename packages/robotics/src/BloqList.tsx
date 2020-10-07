@@ -24,6 +24,7 @@ const BloqList: FC<IBloqListProps> = ({ bloqs, section, path }) => {
       data={{ type: "bloq-list", bloqs, section, path }}
       draggableHeight={0}
       draggableWidth={0}
+      dragThreshold={10}
       onDragStart={({ x, y }) => {
         setDragging(true);
         setDraggingX(x);
