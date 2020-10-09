@@ -1,13 +1,8 @@
 import React, { FC, useEffect } from "react";
 import styled from "@emotion/styled";
 import { colors, Draggable, useDraggable, useTranslate } from "@bitbloq/ui";
-import { IConnector } from "@bitbloq/bloqs";
-import { useRecoilState, useSetRecoilState, useRecoilCallback } from "recoil";
-import {
-  componentWithIdState,
-  draggingConnectorState,
-  selectedComponentState
-} from "./state";
+import { useRecoilState } from "recoil";
+import { componentWithIdState, selectedComponentState } from "./state";
 import useHardwareDefinition from "./useHardwareDefinition";
 import useUpdateContent from "./useUpdateContent";
 
@@ -21,7 +16,6 @@ const Component: FC<IComponentProps> = ({ id }) => {
   const [selectedComponent, setSelectedComponent] = useRecoilState(
     selectedComponentState
   );
-  const setDraggingConnector = useSetRecoilState(draggingConnectorState);
   const { getComponent } = useHardwareDefinition();
   const updateContent = useUpdateContent();
   const component = getComponent(instance.component);
@@ -59,23 +53,6 @@ const Component: FC<IComponentProps> = ({ id }) => {
     return null;
   }
 
-  const removeConnection = useRecoilCallback(
-    ({ set }) => (connector: IConnector) => {
-      const ports = Object.keys(instance.ports || {}).reduce((o, key) => {
-        if (key !== connector.name) {
-          o[key] = instance.ports?.[key];
-        }
-        return o;
-      }, {});
-
-      set(componentWithIdState(id), {
-        ...instance,
-        ports
-      });
-    },
-    [instance]
-  );
-
   const isSelected = selectedComponent === id;
 
   return (
@@ -109,25 +86,6 @@ const Component: FC<IComponentProps> = ({ id }) => {
             draggableHeight={0}
             offsetX={connected ? 26 : 10}
             offsetY={10}
-            onDragStart={params => {
-              removeConnection(connector);
-              setSelectedComponent(id);
-              setDraggingConnector({
-                x: params.x,
-                y: params.y,
-                connector,
-                instance
-              });
-            }}
-            onDrag={params =>
-              setDraggingConnector({
-                x: params.x,
-                y: params.y,
-                connector,
-                instance
-              })
-            }
-            onDragEnd={() => setDraggingConnector(null)}
           >
             {(props, dragging) => (
               <Connector

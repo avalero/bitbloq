@@ -15,7 +15,7 @@ export interface ITabsProps {
   className?: string;
 }
 
-const ScrollableTabs: React.FunctionComponent<ITabsProps> = ({
+const Tabs: React.FunctionComponent<ITabsProps> = ({
   className,
   currentTab,
   onTabChange,
@@ -31,7 +31,7 @@ const ScrollableTabs: React.FunctionComponent<ITabsProps> = ({
 
   return (
     <Container className={className}>
-      <Tabs isOpen={activeTab >= 0}>
+      <TabsContainer isOpen={activeTab >= 0}>
         {tabs.map((tab, i) => (
           <Tab key={i} onClick={() => setActiveTab(i)}>
             <TabIcon active={i === activeTab} color={tab.color || "#b9bdc8"}>
@@ -40,13 +40,13 @@ const ScrollableTabs: React.FunctionComponent<ITabsProps> = ({
             {activeTab < 0 && tab.label}
           </Tab>
         ))}
-      </Tabs>
+      </TabsContainer>
       {activeTab >= 0 && <Content>{tabs[activeTab].content}</Content>}
     </Container>
   );
 };
 
-export default ScrollableTabs;
+export default Tabs;
 
 /* styled components */
 
@@ -61,7 +61,7 @@ const Container = styled.div`
   }
 `;
 
-const Tabs = styled.div<{ isOpen: boolean }>`
+const TabsContainer = styled.div<{ isOpen: boolean }>`
   width: ${props => (props.isOpen ? "40px" : "100%")};
 
   @media screen and (min-width: ${breakpoints.desktop}px) {

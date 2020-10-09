@@ -10,6 +10,8 @@
   integrated:
     - component: zumjunior-rgb-led
       name: rgbLed
+    - component: zumjunior-buzzer
+      name: buzzer
   code:
     includes:
       - <BQZUMJunior.h>
@@ -69,8 +71,8 @@
     direction: east
   - name: '4'
     connectorTypes:
-    - zumjunior-digital
-    - zumjunior-analog
+      - zumjunior-digital
+      - zumjunior-analog
     pins:
       - name: '0'
         value: BQ::ZUMJunior::ports[4][0]
@@ -82,6 +84,42 @@
     width: 0.035
     height: 0.046
     direction: east
+  - name: A
+    connectorTypes:
+      - zumjunior-digital
+      - zumjunior-analog
+      - zumjunior-i2c
+    pins:
+      - name: '0'
+        value: BQ::ZUMJunior::ports[A][0]
+      - name: '1'
+        value: BQ::ZUMJunior::ports[A][1]
+      - name: 'i2c'
+        value: BQ::ZUMJunior::i2cPorts[A]
+    position:
+      x: 0.04
+      y: -0.495
+    width: 0.035
+    height: 0.046
+    direction: north
+  - name: B
+    connectorTypes:
+      - zumjunior-digital
+      - zumjunior-analog
+      - zumjunior-i2c
+    pins:
+      - name: '0'
+        value: BQ::ZUMJunior::ports[B][0]
+      - name: '1'
+        value: BQ::ZUMJunior::ports[B][1]
+      - name: 'i2c'
+        value: BQ::ZUMJunior::i2cPorts[B]
+    position:
+      x: -0.07
+      y: -0.495
+    width: 0.035
+    height: 0.046
+    direction: north
 
 # ZumCore2
 - name: zumcore2

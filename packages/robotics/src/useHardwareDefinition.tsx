@@ -1,23 +1,37 @@
-import React, { FC, createContext, useContext, useMemo } from "react";
+import React, { FC, createContext, useContext } from "react";
 import { IBoard, IComponent } from "@bitbloq/bloqs";
-import styled from "@emotion/styled";
 
 export interface IHardwareDefinitionContext {
   boards: IBoard[];
+  boardsMap: Record<string, IBoard>;
   components: IComponent[];
+  componentsMap: Record<string, IComponent>;
 }
 
 export const HardwareDefinitionContext = createContext<
   IHardwareDefinitionContext
->({ boards: [], components: [] });
+>({ boards: [], components: [], boardsMap: {}, componentsMap: {} });
 
-export const HardwareDefinitionProvider: FC<IHardwareDefinitionContext> = ({
+export interface IHardwareDefinitionProviderProps {
+  boards: IBoard[];
+  components: IComponent[];
+}
+
+export const HardwareDefinitionProvider: FC<IHardwareDefinitionProviderProps> = ({
   boards,
   components,
   children
 }) => {
+  const boardsMap = boards.reduce((map, b) => ({ ...map, [b.name]: b }), {});
+  const componentsMap = components.reduce(
+    (map, c) => ({ ...map, [c.name]: c }),
+    {}
+  );
+
   return (
-    <HardwareDefinitionContext.Provider value={{ boards, components }}>
+    <HardwareDefinitionContext.Provider
+      value={{ boards, components, boardsMap, componentsMap }}
+    >
       {children}
     </HardwareDefinitionContext.Provider>
   );
@@ -31,16 +45,8 @@ interface IUseHardwareDefinition {
   isInstanceOf: (name: string, base: string) => boolean;
 }
 const useHardwareDefinition = (): IUseHardwareDefinition => {
-  const { boards, components } = useContext(HardwareDefinitionContext);
-
-  const boardsMap: { [name: string]: IBoard } = useMemo(
-    () => boards.reduce((map, b) => ({ ...map, [b.name]: b }), {}),
-    [boards]
-  );
-
-  const componentsMap: { [name: string]: IComponent } = useMemo(
-    () => components.reduce((map, c) => ({ ...map, [c.name]: c }), {}),
-    [components]
+  const { boards, components, boardsMap, componentsMap } = useContext(
+    HardwareDefinitionContext
   );
 
   const getBoard = (name: string) => boardsMap[name];

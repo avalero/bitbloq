@@ -176,8 +176,8 @@ export const getCode = (
   /* Merge all code sections from board, component, bloqs into one */
   const codeSections = mergeCode([
     boardSections,
-    bloqSections,
-    ...componentsSections
+    ...componentsSections,
+    bloqSections
   ]);
 
   console.log("Bloqs", bloqs);
@@ -268,6 +268,7 @@ const useCodeGeneration = (
   const onUpload = useRecoilCallback(({ snapshot }) => async () => {
     setCompiling({ uploading: true, visible: true });
     const board = await snapshot.getPromise(boardState);
+    const instances = await snapshot.getPromise(componentsState);
     if (!board) {
       return;
     }
@@ -275,7 +276,19 @@ const useCodeGeneration = (
 
     try {
       const boardObject = boardsMap[board.name];
-      const libraries = [...(boardObject.libraries || [])];
+      const components = instances.reduce((acc: IComponent[], instance) => {
+        const component = componentsMap[instance.component];
+        if (!acc.includes(component)) {
+          acc.push(component);
+        }
+        return acc;
+      }, []);
+      const libraries = [
+        ...(boardObject.libraries || []),
+        ...components.flatMap(c => c.libraries || [])
+      ];
+      console.log(libraries);
+
       await upload(
         [{ name: "main.ino", content: code }],
         libraries,

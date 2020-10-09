@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC } from "react";
 import { useRecoilValue } from "recoil";
 import styled from "@emotion/styled";
 import { IBloq } from "./types";
@@ -14,9 +14,6 @@ export interface IBloqListProps {
 
 const BloqList: FC<IBloqListProps> = ({ bloqs, section, path }) => {
   const isDraggingParamater = useRecoilValue(isDraggingParameterState);
-  const [dragging, setDragging] = useState(false);
-  const [draggingX, setDraggingX] = useState(0);
-  const [draggingY, setDraggingY] = useState(0);
   const [first, ...rest] = bloqs;
 
   return (
@@ -25,33 +22,11 @@ const BloqList: FC<IBloqListProps> = ({ bloqs, section, path }) => {
       draggableHeight={0}
       draggableWidth={0}
       dragThreshold={10}
-      onDragStart={({ x, y }) => {
-        setDragging(true);
-        setDraggingX(x);
-        setDraggingY(y);
-      }}
-      onDrag={({ x, y }) => {
-        setDraggingX(x);
-        setDraggingY(y);
-      }}
-      onDragEnd={() => setDragging(false)}
     >
       {props => (
-        <div
-          {...props}
-          style={
-            dragging
-              ? {
-                  position: "fixed",
-                  top: 0,
-                  left: 0,
-                  transform: `translate(${draggingX}px, ${draggingY}px)`
-                }
-              : {}
-          }
-        >
+        <div {...props}>
           <Droppable
-            active={!dragging && !isDraggingParamater}
+            active={!isDraggingParamater}
             data={{ type: "bloq-droppable", bloqs, section, path }}
             margin={30}
           >

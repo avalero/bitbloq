@@ -1,18 +1,19 @@
 import React, { FC } from "react";
 import styled from "@emotion/styled";
 import { breakpoints, Draggable, Icon, Tabs, useTranslate } from "@bitbloq/ui";
-import { useRecoilValue, useSetRecoilState, useResetRecoilState } from "recoil";
-import { boardState, draggingBoardState, draggingInstanceState } from "./state";
+import { useRecoilValue } from "recoil";
+import {
+  boardState,
+  isDraggingBoardState,
+  isDraggingInstanceState
+} from "./state";
 import useHardwareDefinition from "./useHardwareDefinition";
+import DeleteDroppable from "./DeleteDroppable";
 
 const HardwareTabs: FC = () => {
   const t = useTranslate();
   const { boards, components, getBoard } = useHardwareDefinition();
   const board = useRecoilValue(boardState);
-  const setDraggingInstance = useSetRecoilState(draggingInstanceState);
-  const resetDraggingInstance = useResetRecoilState(draggingInstanceState);
-
-  const setDraggingBoard = useSetRecoilState(draggingBoardState);
 
   const boardObject = board && getBoard(board.name);
 
@@ -34,34 +35,7 @@ const HardwareTabs: FC = () => {
       <Items>
         {compatibleComponents.map(component => (
           <ComponentWrap key={component.name}>
-            <Draggable
-              data={{ component }}
-              onDragStart={params =>
-                setDraggingInstance({
-                  name: "",
-                  width: 0,
-                  height: 0,
-                  component: component.name,
-                  position: {
-                    x: params.x,
-                    y: params.y
-                  }
-                })
-              }
-              onDrag={params =>
-                setDraggingInstance({
-                  name: "",
-                  width: 0,
-                  height: 0,
-                  component: component.name,
-                  position: {
-                    x: params.x,
-                    y: params.y
-                  }
-                })
-              }
-              onDragEnd={() => resetDraggingInstance()}
-            >
+            <Draggable data={{ component }}>
               {props => (
                 <Component {...props}>
                   <img
@@ -86,24 +60,7 @@ const HardwareTabs: FC = () => {
       <Items>
         {boards.map(board => (
           <Board key={board.name}>
-            <Draggable
-              data={{ board }}
-              onDragStart={params =>
-                setDraggingBoard({
-                  board: board.name,
-                  x: params.x,
-                  y: params.y
-                })
-              }
-              onDrag={params => {
-                setDraggingBoard({
-                  board: board.name,
-                  x: params.x,
-                  y: params.y
-                });
-              }}
-              onDragEnd={() => setDraggingBoard({ board: "", x: 0, y: 0 })}
-            >
+            <Draggable data={{ board }}>
               {props => (
                 <div {...props}>
                   <BoardImage src={board.image.url} />
@@ -118,29 +75,48 @@ const HardwareTabs: FC = () => {
   );
 
   return (
-    <Tabs
-      tabs={[
-        {
-          icon: <Icon name="board" />,
-          label: t("robotics.boards"),
-          content: boardsContent
-        },
-        {
-          icon: <Icon name="led-on" />,
-          label: t("robotics.components"),
-          content: componentsContent
-        },
-        {
-          icon: <Icon name="robot" />,
-          label: t("robotics.robots"),
-          content: <div>Robots</div>
-        }
-      ]}
-    />
+    <Container>
+      <Tabs
+        tabs={[
+          {
+            icon: <Icon name="board" />,
+            label: t("robotics.boards"),
+            content: boardsContent
+          },
+          {
+            icon: <Icon name="led-on" />,
+            label: t("robotics.components"),
+            content: componentsContent
+          },
+          {
+            icon: <Icon name="robot" />,
+            label: t("robotics.robots"),
+            content: <div>Robots</div>
+          }
+        ]}
+      />
+      <HardwareDeleteDroppable />
+    </Container>
   );
 };
 
 export default HardwareTabs;
+
+const HardwareDeleteDroppable: FC = () => {
+  const isDraggingBoard = useRecoilValue(isDraggingBoardState);
+  const isDraggingInstance = useRecoilValue(isDraggingInstanceState);
+
+  if (!isDraggingBoard && !isDraggingInstance) {
+    return null;
+  }
+
+  return <DeleteDroppable />;
+};
+
+const Container = styled.div`
+  position: relative;
+  display: flex;
+`;
 
 const Content = styled.div`
   overflow-y: auto;
@@ -191,10 +167,6 @@ const ComponentWrap = styled.div`
     font-size: 14px;
     margin-top: 10px;
   }
-`;
-
-const ComponentDraggable = styled(Draggable)`
-  display: inline-block;
 `;
 
 const Component = styled.div`

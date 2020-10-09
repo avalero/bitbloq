@@ -110,8 +110,9 @@ class Uploader {
                 avrgirl.connection.serialPort.reader.cancel();
                 avrgirl.connection.serialPort.close();
               } catch (e) {
-                console.log(e);
+                console.log(e.errors);
               }
+              console.log("Compile errors", e.errors);
               reject(new UploadError("compile-error", e.errors));
             });
         })
@@ -272,6 +273,7 @@ export const useCodeUpload = (options): ICodeUploadResult => {
       setUploadSuccess(true);
       setUploadText(t("code.compile-success"));
     } catch (e) {
+      console.log("compile error", e);
       setUploading(false);
       setUploadSuccess(false);
 

@@ -78,6 +78,9 @@
 - name: zumjunior-rgb-led
   connectors: []
 
+- name: zumjunior-buzzer
+  connectors: []
+
 - name: zumjunior-button
   extends: digital-input
   label: hardware.component.button
@@ -96,3 +99,34 @@
     url: "https://storage.googleapis.com/bitbloq-prod/images/hardware/component/zumjunior_button.svg"
     width: 104
     height: 104
+
+- name: zumjunior-7segment
+  extends: base-component
+  instanceName: hardware.instanceName.7segment
+  libraries:
+    - zipURL: https://storage.googleapis.com/bitbloq-prod/arduino-libraries/BQZUMI2C7SegmentDisplay.zip
+      precompiled: true
+  connectors:
+    - name: main
+      type: zumjunior-i2c
+      position:
+        x: 0
+        y: 1
+      pins:
+        - name: i2c
+          portPin: 'i2c'
+  image:
+    url: "https://storage.googleapis.com/bitbloq-prod/images/hardware/component/zumjunior_7segment.svg"
+    width: 104
+    height: 104
+  code:
+    includes:
+      - <BQZUMI2C7SegmentDisplay.h>
+    globals:
+      - >
+        BQ::ZUM::I2C7SegmentDisplay {{component.name}}Obj({{component.name}}i2c);
+    setup:
+      - >
+        {{component.name}}Obj.setup();
+        {{component.name}}Obj.displayChar(' ', ' ');
+

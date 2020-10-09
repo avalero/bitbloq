@@ -4,11 +4,19 @@ import { RecoilRoot, useRecoilCallback } from "recoil";
 import Hardware from "./Hardware";
 import Bloqs from "./Bloqs";
 import Diagram from "./Diagram";
-import { IRoboticsContent } from "./index";
+import { IRoboticsContent } from "./types";
+import { BloqsDefinitionProvider } from "./useBloqsDefinition";
 import { HardwareDefinitionProvider } from "./useHardwareDefinition";
 import { UpdateContentProvider } from "./useUpdateContent";
-import { boardState } from "./state";
+import {
+  bloqsState,
+  boardState,
+  componentWithIdState,
+  componentListState
+} from "./state";
+import { IBloqType, BloqCategory } from "./types";
 
+import bloqs from "../config/bloqs.yml";
 import boards from "../config/boards.yml";
 import components from "../config/components.yml";
 
@@ -34,11 +42,22 @@ const Robotics: FC<IRoboticsProps> = ({
   const initState = useRecoilCallback(({ set }) => () => {
     if (initialContent) {
       if (initialContent.hardware) {
+        const { board, components } = initialContent.hardware;
         set(boardState, {
-          name: initialContent.hardware.board || "",
+          name: board || "",
           width: 0,
           height: 0
         });
+        components?.forEach(component =>
+          set(componentWithIdState(component.id || ""), component)
+        );
+        set(
+          componentListState,
+          components?.map(c => c.id || "")
+        );
+      }
+      if (initialContent.bloqs) {
+        set(bloqsState, initialContent.bloqs);
       }
     }
   });
@@ -51,11 +70,16 @@ const Robotics: FC<IRoboticsProps> = ({
         boards={boards as IBoard[]}
         components={components as IComponent[]}
       >
-        {children({
-          hardware: <Hardware />,
-          bloqs: <Bloqs borndateFilesRoot={borndateFilesRoot} />,
-          diagram: <Diagram />
-        })}
+        <BloqsDefinitionProvider
+          bloqTypes={bloqs as IBloqType[]}
+          categories={Object.values(BloqCategory)}
+        >
+          {children({
+            hardware: <Hardware />,
+            bloqs: <Bloqs borndateFilesRoot={borndateFilesRoot} />,
+            diagram: <Diagram />
+          })}
+        </BloqsDefinitionProvider>
       </HardwareDefinitionProvider>
     </UpdateContentProvider>
   );

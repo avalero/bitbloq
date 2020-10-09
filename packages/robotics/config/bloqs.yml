@@ -2,6 +2,7 @@
 - name: turn-led
   instructionType: statement
   category: component
+  subCategory: basic
   uiElements:
     - type: select
       parameterName: turnOn
@@ -16,6 +17,7 @@
 - name: if
   instructionType: block
   category: control
+  subCategory: basic
   uiElements:
     - type: label
       text: robotics.if
@@ -44,6 +46,7 @@
 - name: read
   instructionType: parameter
   category: component
+  subCategory: basic
   uiElements:
     - type: label
       text: robotics.read
@@ -56,6 +59,7 @@
 - name: turn-zumjunior-rgb-led
   instructionType: statement
   category: component
+  subCategory: junior
   forComponents:
     - zumjunior-rgb-led
   code:
@@ -80,9 +84,62 @@
         - value: WHITE
           label: robotics.white
 
+- name: turn-off-zumjunior-rgb-led
+  instructionType: statement
+  category: component
+  subCategory: junior
+  forComponents:
+    - zumjunior-rgb-led
+  code:
+    main: >
+      zumJunior.setRGBLEDColor(BQ::ZUMJunior::BLACK);
+  uiElements:
+    - type: label
+      text: robotics.turn-off-zumjunior-rgb-led
+
+- name: play-zumjunior-buzz
+  instructionType: statement
+  category: component
+  subCategory: junior
+  forComponents:
+    - zumjunior-buzzer
+  code:
+    main: >
+      zumJunior.play(BQ::ZUMJunior::{{parameters.note}}, {{parameters.duration}});
+      delay({{parameters.duration}});
+  uiElements:
+    - type: label
+      text: robotics.play-buzzer-with-note
+    - type: select
+      parameterName: note
+      options:
+        - value: DO
+          label: music.NOTE_C4
+        - value: RE
+          label: music.NOTE_D4
+        - value: MI
+          label: music.NOTE_E4
+        - value: FA
+          label: music.NOTE_F4
+        - value: SOL
+          label: music.NOTE_G4
+        - value: LA
+          label: music.NOTE_A4
+        - value: SI
+          label: music.NOTE_B4
+    - type: label
+      text: robotics.during
+    - type: text-input
+      parameterName: duration
+    - type: label
+      text: robotics.milliseconds
+
+
+
 - name: if-zumjunior-button-pressed
   instructionType: block
-  category: component
+  category: control
+  subCategory: junior
   forComponents:
     - zumjunior-button
   code:
@@ -106,3 +163,28 @@
           label: robotics.pressed
         - value: false
           label: robotics.not-pressed
+    - type: label
+      text: robotics.execute
+
+- name: zumjunior-display-number
+  instructionType: statement
+  category: component
+  subCategory: junior
+  forComponents:
+    - zumjunior-7segment
+  code:
+    main: >
+      {{parameters.component.name}}Obj.displayChar('{{parameters.digit1}}', '{{parameters.digit2}}');
+  uiElements:
+    - type: label
+      text: robotics.write
+    - type: text-input
+      parameterName: digit1
+    - type: text-input
+      parameterName: digit2
+    - type: label
+      text: robotics.to-display
+    - type: select-component
+      parameterName: component
+      componentTypes:
+        - zumjunior-7segment

@@ -5,17 +5,13 @@ import { IComponentInstance } from "@bitbloq/bloqs";
 import { useTranslate } from "@bitbloq/ui";
 import { bloqCategories } from "./config";
 import { IBloq, InstructionType } from "./types";
-import bloqs from "../config/bloqs.yml";
 import BloqList from "./BloqList";
 import BloqParameter from "./BloqParameter";
 import BloqSelect from "./BloqSelect";
 import BloqSelectComponent from "./BloqSelectComponent";
+import BloqTextInput from "./BloqTextInput";
 import { replaceBloqs, bloqsState } from "./state";
-
-const bloqsMap = bloqs.reduce(
-  (acc, bloq) => ({ ...acc, [bloq.name]: bloq }),
-  {}
-);
+import useBloqsDefinition from "./useBloqsDefinition";
 
 export interface IBloqProps {
   bloq: IBloq;
@@ -25,8 +21,9 @@ export interface IBloqProps {
 
 const Bloq: FC<IBloqProps> = ({ bloq, section, path }) => {
   const t = useTranslate();
+  const { getBloqType } = useBloqsDefinition();
 
-  const type = bloqsMap[bloq.type];
+  const type = getBloqType(bloq.type);
 
   const color = useMemo(() => {
     const category = bloqCategories.find(c => c.name === type.category);
@@ -118,6 +115,29 @@ const Bloq: FC<IBloqProps> = ({ bloq, section, path }) => {
                     section={section}
                     path={path}
                     parameterName={uiElement.parameterName}
+                  />
+                );
+              }
+
+              case "text-input": {
+                return (
+                  <BloqTextInput
+                    size={2}
+                    type="text"
+                    key={i}
+                    value={
+                      (bloq.parameters?.[uiElement.parameterName] as string) ||
+                      ""
+                    }
+                    onChange={e =>
+                      onBloqChange({
+                        ...bloq,
+                        parameters: {
+                          ...(bloq.parameters || {}),
+                          [uiElement.parameterName]: e.target.value
+                        }
+                      })
+                    }
                   />
                 );
               }
