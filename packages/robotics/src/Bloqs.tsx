@@ -4,35 +4,25 @@ import {
   breakpoints,
   colors,
   DragAndDropProvider,
-  Draggable,
   Icon,
-  Tabs,
   useTranslate
 } from "@bitbloq/ui";
-import { useRecoilState, useSetRecoilState, useResetRecoilState } from "recoil";
-import { IBloqType, InstructionType } from "./types";
-import { bloqCategories } from "./config";
+import { InstructionType } from "./types";
+import { useRecoilState, useResetRecoilState, useSetRecoilState } from "recoil";
 import {
   bloqsState,
+  BloqSection,
   draggingBloqsState,
   isDraggingParameterState,
-  BloqSection,
   replaceBloqs
 } from "./state";
-import bloqs from "../config/bloqs.yml";
-import Bloq from "./Bloq";
 import BloqCanvas from "./BloqCanvas";
+import BloqsTabs from "./BloqsTabs";
 import DraggingBloq from "./DraggingBloq";
 import ExpandablePanel from "./ExpandablePanel";
 import useCodeGeneration from "./useCodeGeneration";
-
-const categoryBloqs: Record<string, IBloqType[]> = bloqCategories.reduce(
-  (acc, category) => ({
-    ...acc,
-    [category.name]: bloqs.filter(bloq => bloq.category === category.name)
-  }),
-  {}
-);
+import useBloqsDefinition from "./useBloqsDefinition";
+import useUpdateContent from "./useUpdateContent";
 
 export interface IBloqsProps {
   borndateFilesRoot: string;
@@ -40,65 +30,53 @@ export interface IBloqsProps {
 
 const Bloqs: FC<IBloqsProps> = ({ borndateFilesRoot }) => {
   const t = useTranslate();
+  const updateContent = useUpdateContent();
+  const { getBloqType } = useBloqsDefinition();
+
+  const setDraggingBloq = useSetRecoilState(draggingBloqsState);
+  const setIsDraggingParameter = useSetRecoilState(isDraggingParameterState);
+  const resetDraggingBloq = useResetRecoilState(draggingBloqsState);
 
   const { compile, upload } = useCodeGeneration({
     filesRoot: borndateFilesRoot
   });
-  const setDraggingBloq = useSetRecoilState(draggingBloqsState);
-  const setIsDraggingParameter = useSetRecoilState(isDraggingParameterState);
-  const resetDraggingBloq = useResetRecoilState(draggingBloqsState);
   const [bloqs, setBloqs] = useRecoilState(bloqsState);
 
-  const bloqsTabs = bloqCategories.map(category => ({
-    icon: category.icon ? (
-      <Icon name={category.icon} />
-    ) : (
-      t(category.iconText || "")
-    ),
-    label: t(category.label),
-    content: (
-      <BloqsTab>
-        {categoryBloqs[category.name].map(bloqType => (
-          <Draggable
-            data={{ bloqs: [{ type: bloqType.name }] }}
-            draggableHeight={0}
-            draggableWidth={0}
-            key={bloqType.name}
-            onDragStart={({ x, y }) => {
-              setIsDraggingParameter(
-                bloqType.instructionType === InstructionType.Parameter
-              );
-              setDraggingBloq({ x, y, bloqs: [{ type: bloqType.name }] });
-            }}
-            onDrag={({ x, y }) =>
-              setDraggingBloq({ x, y, bloqs: [{ type: bloqType.name }] })
-            }
-            onDragEnd={() => resetDraggingBloq()}
-          >
-            {props => (
-              <BloqWrap {...props}>
-                <Bloq bloq={{ type: bloqType.name }} section="" path={[0]} />
-              </BloqWrap>
-            )}
-          </Draggable>
-        ))}
-      </BloqsTab>
-    ),
-    color: category.color
-  }));
-
-  const onDrop = ({ draggableData, droppableData }) => {
-    if (droppableData.type === "bloq-droppable") {
-      const sectionBloqs = draggableData.section
-        ? replaceBloqs(
+  const onDragStart = ({ draggableData }) => {
+    if (draggableData.bloqs && draggableData.bloqs.length) {
+      const bloqType = getBloqType(draggableData.bloqs[0].type);
+      setIsDraggingParameter(
+        bloqType.instructionType === InstructionType.Parameter
+      );
+      if (draggableData.type === "bloq-list") {
+        setBloqs({
+          ...bloqs,
+          [draggableData.section]: replaceBloqs(
             bloqs[draggableData.section],
             draggableData.path,
             draggableData.bloqs.length,
             []
           )
-        : bloqs[droppableData.section];
+        });
+      }
+    }
+  };
+
+  const onDrag = ({ draggableData, x, y }) => {
+    const { bloqs } = draggableData;
+    if (bloqs) {
+      setDraggingBloq({ x, y, bloqs });
+    }
+  };
+
+  const onDragEnd = () => {
+    resetDraggingBloq();
+  };
+
+  const onDrop = ({ draggableData, droppableData }) => {
+    if (droppableData.type === "bloq-droppable") {
       const newSectionBloqs = replaceBloqs(
-        sectionBloqs,
+        bloqs[droppableData.section],
         droppableData.path,
         0,
         draggableData.bloqs
@@ -107,6 +85,7 @@ const Bloqs: FC<IBloqsProps> = ({ borndateFilesRoot }) => {
         ...bloqs,
         [droppableData.section]: newSectionBloqs
       });
+      updateContent();
     }
     if (droppableData.type === "bloq-parameter") {
       const sectionBloqs = bloqs[droppableData.section];
@@ -128,11 +107,17 @@ const Bloqs: FC<IBloqsProps> = ({ borndateFilesRoot }) => {
         ...bloqs,
         [droppableData.section]: newSectionBloqs
       });
+      updateContent();
     }
   };
 
   return (
-    <DragAndDropProvider onDrop={onDrop}>
+    <DragAndDropProvider
+      onDragStart={onDragStart}
+      onDrag={onDrag}
+      onDragEnd={onDragEnd}
+      onDrop={onDrop}
+    >
       <Container>
         <Main>
           <Toolbar>
@@ -168,7 +153,7 @@ const Bloqs: FC<IBloqsProps> = ({ borndateFilesRoot }) => {
             </ExpandablePanel>
           </BloqsContent>
         </Main>
-        <Tabs tabs={bloqsTabs} />
+        <BloqsTabs />
         <DraggingBloq />
       </Container>
     </DragAndDropProvider>
@@ -243,18 +228,4 @@ const BloqsContent = styled.div`
   flex: 1;
   padding: 20px;
   overflow-y: auto;
-`;
-
-const BloqsTab = styled.div`
-  box-sizing: border-box;
-  padding: 20px;
-  width: 320px;
-
-  @media screen and (min-width: ${breakpoints.desktop}px) {
-    width: 350px;
-  }
-`;
-
-const BloqWrap = styled.div`
-  display: inline-block;
 `;

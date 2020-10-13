@@ -15,6 +15,7 @@ import Switch from "./components/Switch";
 import Document, * as DocumentModule from "./components/Document";
 import Panel from "./components/Panel";
 import HorizontalRule from "./components/HorizontalRule";
+import HorizontalTabs from "./components/HorizontalTabs";
 import TextArea from "./components/TextArea";
 import Option from "./components/Option";
 import * as MenuBar from "./components/MenuBar";
@@ -61,6 +62,7 @@ export {
   Document,
   Panel,
   HorizontalRule,
+  HorizontalTabs,
   TextArea,
   Option,
   TranslateProvider,

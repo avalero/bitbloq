@@ -489,6 +489,7 @@
       "seven-segment": "Display 7 segmentos"
     },
     "instanceName": {
+      "7segment": "display7segmentos",
       "button": "boton",
       "joystick": "joystick"
     }
@@ -809,22 +810,40 @@
     "diagram": "Diagrama",
     "drag-board-here": "Arrastra una placa o un robot aquí",
     "drop-bloq-here": "Arrastra un bloque aquí",
+    "during": "durante",
     "execute": "Ejecutar",
     "global-variables-and-functions": "Variables globales y funciones",
     "green": "verde",
     "hardware": "Hardware",
     "if": "Si",
+    "is": "está",
     "main-loop": "Bucle principal (Loop)",
+    "milliseconds": "milisegundos",
+    "not-pressed": "no pulsado",
+    "pin": "Pin",
     "pink": "rosa",
+    "play-buzzer-with-note": "Sonar el zumbador con la nota",
+    "pressed": "pulsado",
     "read": "Leer",
     "red": "rojo",
     "robots": "Robots",
     "setup-instructions": "Instrucciones iniciales (Setup)",
+    "tab-header": {
+      "component": "Bloques de componentes"
+    },
+    "tabs": {
+      "advanced": "Avanzados",
+      "basic": "Básicos",
+      "junior": "Junior"
+    },
     "the-led": "el LED",
+    "to-display": "en el display",
     "turn-on": "Encender",
     "turn-off": "Apagar",
+    "turn-off-zumjunior-rgb-led": "Apagar el LED de la placa",
     "turn-zumjunior-rgb-led": "Encender el LED de la placa con el color",
     "white": "blanco",
+    "write": "Escribir",
     "yellow": "amarillo"
   },
   "roles": {

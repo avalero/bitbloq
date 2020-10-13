@@ -241,6 +241,7 @@ export interface IComponent {
   connectors: IConnector[];
   image: IComponentImage;
   snapshotImage?: IComponentImage;
+  libraries?: ILibrary[];
 }
 
 export interface IComponentInstance {

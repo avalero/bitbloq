@@ -1,18 +1,28 @@
-import { FC, useState, useContext, ReactElement } from "react";
+import {
+  FC,
+  RefObject,
+  useContext,
+  ReactElement,
+  useRef,
+  useState
+} from "react";
 import { DragAndDropContext } from "./DragAndDropProvider";
-import useDraggable, {
-  IUseDragParams,
-  IUseDragElementProps
-} from "../hooks/useDraggable";
 
-export interface IDraggableProps extends IUseDragParams {
+export interface IDraggableElementProps {
+  ref: RefObject<HTMLDivElement>;
+  onDragStart: (e: React.DragEvent) => void;
+  onMouseDown: (e: React.MouseEvent) => void;
+}
+
+export interface IDraggableProps {
   data?: any;
   draggableWidth?: number;
   draggableHeight?: number;
+  dragThreshold?: number;
   offsetX?: number;
   offsetY?: number;
   children: (
-    elementProps: IUseDragElementProps,
+    elementProps: IDraggableElementProps,
     dragging: boolean
   ) => ReactElement;
 }
@@ -22,43 +32,40 @@ const Draggable: FC<IDraggableProps> = ({
   data = {},
   draggableWidth,
   draggableHeight,
-  offsetX,
-  offsetY,
-  onDragStart,
-  onDrag,
-  onDragEnd
+  dragThreshold = 0,
+  offsetX = 0,
+  offsetY = 0
 }) => {
-  const dragAndDropController = useContext(DragAndDropContext);
   const [dragging, setDragging] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const dragAndDropController = useContext(DragAndDropContext);
 
-  const elementProps = useDraggable({
-    onDragStart: params => {
-      dragAndDropController.startDrag(
+  const elementProps = {
+    onDragStart: (e: React.DragEvent) => {
+      e.preventDefault();
+    },
+    onMouseDown: (e: React.MouseEvent) => {
+      e.stopPropagation();
+      const element = ref.current;
+      if (!element) {
+        return;
+      }
+      const { clientX, clientY } = e;
+      dragAndDropController.draggableMouseDown({
         data,
-        draggableWidth !== undefined ? draggableWidth : params.width,
-        draggableHeight !== undefined ? draggableHeight : params.height
-      );
-      setDragging(true);
-      if (onDragStart) {
-        onDragStart(params);
-      }
+        element,
+        startX: clientX,
+        startY: clientY,
+        draggableHeight,
+        draggableWidth,
+        offsetX,
+        offsetY,
+        dragThreshold,
+        onDragging: setDragging
+      });
     },
-    onDrag: params => {
-      dragAndDropController.drag(params.x, params.y);
-      if (onDrag) {
-        onDrag(params);
-      }
-    },
-    onDragEnd: params => {
-      const data = dragAndDropController.endDrag();
-      setDragging(false);
-      if (onDragEnd) {
-        onDragEnd({ ...params, data });
-      }
-    },
-    offsetX,
-    offsetY
-  });
+    ref
+  };
 
   return children(elementProps, dragging);
 };

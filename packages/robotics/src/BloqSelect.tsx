@@ -1,8 +1,8 @@
-import React, { FC, useEffect } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import { colors, Icon } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
-import { useMenuState, Menu, MenuItem, MenuDisclosure } from "reakit/Menu";
+import { useMenuState, Menu, MenuItem, MenuButton } from "reakit/Menu";
 
 export interface IOption {
   label: string;
@@ -16,9 +16,17 @@ export interface IBloqSelectProps {
 }
 
 const BloqSelect: FC<IBloqSelectProps> = ({ value, options, onChange }) => {
-  const selectedOption = options.find(o => o.value === value) || options[0];
-
   const menu = useMenuState();
+  const [width, setWidth] = useState(0);
+
+  const optionsRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (optionsRef.current) {
+      setWidth(optionsRef.current.getBoundingClientRect().width - 2);
+    }
+  }, [options, menu.visible]);
+
+  const selectedOption = options.find(o => o.value === value);
 
   const onOptionClick = (e: React.MouseEvent, option: IOption) => {
     e.preventDefault();
@@ -28,20 +36,21 @@ const BloqSelect: FC<IBloqSelectProps> = ({ value, options, onChange }) => {
     }
   };
 
-  /*useEffect(() => {
-    if (value === undefined && onChange && options.length > 0) {
-      onChange(options[0].value);
-    }
-  }, [value]);*/
-
   return (
-    <Container {...menu}>
-      <Button {...menu}>
+    <Container visible={menu.visible}>
+      <Button {...menu} style={{ width }}>
         {selectedOption?.label}
         <Arrow name="triangle" />
       </Button>
-      <Options {...menu}>
-        <OptionsWrap>
+      <Options
+        {...menu}
+        aria-label="bloq select"
+        style={{
+          display: "block",
+          visibility: menu.visible ? "visible" : "hidden"
+        }}
+      >
+        <OptionsWrap ref={optionsRef}>
           {options.map(option => (
             <Option
               {...menu}
@@ -68,10 +77,12 @@ const Container = styled.div<{ visible?: boolean }>`
       box-shadow: 0 3px 7px 0 rgba(0, 0, 0, 0.5);
       border: solid 1px #cfcfcf;
       background-color: #ffffff;
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
     `}
 `;
 
-const Button = styled(MenuDisclosure)`
+const Button = styled(MenuButton)`
   border-radius: 4px;
   box-shadow: inset 0 1px 3px 0 rgba(0, 0, 0, 0.24);
   background-color: rgba(0, 0, 0, 0.2);
@@ -82,14 +93,26 @@ const Button = styled(MenuDisclosure)`
   cursor: pointer;
   padding-right: 30px;
   position: relative;
+  text-align: left;
+
+  &:focus {
+    outline: none;
+  }
 
   ${props =>
     props.visible &&
     css`
       box-shadow: none;
-      border: none;
       color: ${colors.black};
       background-color: #ffffff;
+      z-index: 1001;
+      border-bottom: solid 1px #cfcfcf;
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+
+      svg {
+        color: ${colors.black};
+      }
     `}
 `;
 
@@ -104,35 +127,45 @@ const Arrow = styled(Icon)`
 `;
 
 const Options = styled(Menu)`
-  background-color: white;
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
-  overflow: hidden;
-  width: 100%;
   z-index: 1000;
+
+  &:focus {
+    outline: none;
+  }
 `;
 
 const Option = styled(MenuItem)`
   background: transparent;
-  border: none
+  border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   font-size: 14px;
   height: 26px;
-  padding: 0px 10px;
+  padding: 0px 26px 0px 10px;
   text-align: left;
   border-bottom: solid 1px #cfcfcf;
+  white-space: nowrap;
+  width: 100%;
 
   &:hover,
   &:focus {
     background-color: #ebebeb;
     outline: none;
   }
+
+  &:last-of-type {
+    border-bottom: 0;
+  }
 `;
 
 const OptionsWrap = styled.div`
+  margin: -1px;
+  background-color: white;
   max-height: 200px;
   overflow-y: auto;
   box-shadow: 0 3px 7px 0 rgba(0, 0, 0, 0.5);
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  border: solid 1px #cfcfcf;
 `;

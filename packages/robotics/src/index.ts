@@ -1,8 +1,6 @@
-import { IHardware } from "@bitbloq/bloqs";
 import Robotics from "./Robotics";
+import { IRoboticsContent as IRoboticsContentType } from "./types";
 
-export interface IRoboticsContent {
-  hardware: Partial<IHardware>;
-}
+export type IRoboticsContent = IRoboticsContentType;
 
 export { Robotics };

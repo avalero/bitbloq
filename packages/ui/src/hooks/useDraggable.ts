@@ -1,11 +1,14 @@
-import { Ref, useEffect, useRef, useState, CSSProperties } from "react";
+import { RefObject, useEffect, useRef, useState, CSSProperties } from "react";
 
 interface IState {
+  mouseDown: boolean;
   dragging: boolean;
   width: number;
   height: number;
   diffX: number;
   diffY: number;
+  startX: number;
+  startY: number;
 }
 
 export interface IOnDragParams {
@@ -23,10 +26,11 @@ export interface IUseDragParams {
   onDragEnd?: (params: IOnDragParams) => void;
   offsetX?: number;
   offsetY?: number;
+  dragThreshold?: number;
 }
 
 export interface IUseDragElementProps {
-  ref: Ref<HTMLDivElement>;
+  ref: RefObject<HTMLDivElement>;
   style: CSSProperties;
   onDragStart: (e: React.DragEvent) => void;
   onMouseDown: (e: React.MouseEvent) => void;
@@ -38,13 +42,16 @@ export interface IUseDragElementProps {
 const useDraggable = (params: IUseDragParams): IUseDragElementProps => {
   const ref = useRef<HTMLDivElement>(null);
   const [state, setState] = useState<IState>({
+    mouseDown: false,
     dragging: false,
     width: 0,
     height: 0,
     diffX: 0,
-    diffY: 0
+    diffY: 0,
+    startX: 0,
+    startY: 0
   });
-  const { offsetX = 0, offsetY = 0 } = params;
+  const { offsetX = 0, offsetY = 0, dragThreshold = 0 } = params;
 
   const startDrag = (clientX: number, clientY: number) => {
     const element = ref.current;
@@ -52,15 +59,15 @@ const useDraggable = (params: IUseDragParams): IUseDragElementProps => {
       return;
     }
     const { x, y, width, height } = element.getBoundingClientRect();
-    if (params.onDragStart) {
-      params.onDragStart({ x, y, width, height, element });
-    }
     setState({
-      dragging: true,
+      mouseDown: true,
+      dragging: false,
       width,
       height,
       diffX: x - clientX + offsetX,
-      diffY: y - clientY + offsetY
+      diffY: y - clientY + offsetY,
+      startX: clientX,
+      startY: clientY
     });
   };
 
@@ -69,15 +76,36 @@ const useDraggable = (params: IUseDragParams): IUseDragElementProps => {
     if (!element) {
       return;
     }
-    const { width, height, diffX, diffY } = state;
-    if (params.onDrag) {
-      params.onDrag({
-        x: clientX + diffX,
-        y: clientY + diffY,
-        width,
-        height,
-        element
-      });
+    const { dragging, width, height, diffX, diffY, startX, startY } = state;
+    if (!dragging) {
+      if (
+        Math.abs(startX - clientX) > dragThreshold ||
+        Math.abs(startY - clientY) > dragThreshold
+      ) {
+        setState({
+          ...state,
+          dragging: true
+        });
+        if (params.onDragStart) {
+          params.onDragStart({
+            x: startX,
+            y: startY,
+            width,
+            height,
+            element
+          });
+        }
+      }
+    } else {
+      if (params.onDrag) {
+        params.onDrag({
+          x: clientX + diffX,
+          y: clientY + diffY,
+          width,
+          height,
+          element
+        });
+      }
     }
   };
 
@@ -96,11 +124,11 @@ const useDraggable = (params: IUseDragParams): IUseDragElementProps => {
         element
       });
     }
-    setState({ ...state, dragging: false });
+    setState({ ...state, dragging: false, mouseDown: false });
   };
 
   useEffect(() => {
-    if (state.dragging) {
+    if (state.mouseDown) {
       const onMouseMove = (e: MouseEvent) => drag(e.clientX, e.clientY);
       const onMouseUp = (e: MouseEvent) => {
         window.removeEventListener("mousemove", onMouseMove);
@@ -119,7 +147,7 @@ const useDraggable = (params: IUseDragParams): IUseDragElementProps => {
     }
 
     return undefined;
-  }, [state.dragging]);
+  }, [state.mouseDown, state.dragging]);
 
   const onDragStart = (e: React.DragEvent) => {
     e.preventDefault();

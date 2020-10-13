@@ -3,8 +3,8 @@ import styled from "@emotion/styled";
 import {
   useRecoilCallback,
   useSetRecoilState,
-  useRecoilState,
-  useRecoilValue
+  useResetRecoilState,
+  useRecoilState
 } from "recoil";
 import { v1 as uuid } from "uuid";
 import { IComponent, IPosition, IConnector, IPort } from "@bitbloq/bloqs";
@@ -21,7 +21,9 @@ import {
   componentListState,
   componentsState,
   componentWithIdState,
+  draggingBoardState,
   draggingConnectorState,
+  draggingInstanceState,
   selectedComponentState,
   ICanvasComponentInstance
 } from "./state";
@@ -29,7 +31,6 @@ import {
 import Board from "./Board";
 import Connections from "./Connections";
 import Component from "./Component";
-import DeleteDroppable from "./DeleteDroppable";
 import DraggingBoard from "./DraggingBoard";
 import DraggingComponent from "./DraggingComponent";
 import DraggingConnector from "./DraggingConnector";
@@ -44,10 +45,19 @@ const Hardware: FC = () => {
 
   const canvasRef = useRef<HTMLDivElement>(null);
 
+  const setDraggingBoard = useSetRecoilState(draggingBoardState);
+  const setDraggingInstance = useSetRecoilState(draggingInstanceState);
+  const resetDraggingBoard = useResetRecoilState(draggingBoardState);
+  const resetDraggingConnector = useResetRecoilState(draggingConnectorState);
+  const resetDraggingInstance = useResetRecoilState(draggingInstanceState);
   const setBoard = useSetRecoilState(boardState);
   const [componentList, setComponentList] = useRecoilState(componentListState);
-  const draggingConnector = useRecoilValue(draggingConnectorState);
-  const selectedComponent = useRecoilValue(selectedComponentState);
+  const [draggingConnector, setDraggingConnector] = useRecoilState(
+    draggingConnectorState
+  );
+  const [selectedComponent, setSelectedComponent] = useRecoilState(
+    selectedComponentState
+  );
 
   const addComponentInstance = useRecoilCallback<[IComponent, IPosition], void>(
     ({ set, snapshot }) => async (component, position) => {
@@ -64,7 +74,6 @@ const Hardware: FC = () => {
         name = baseName + nameIndex;
       }
 
-      setComponentList([...componentList, id]);
       set(componentWithIdState(id), {
         id,
         component: component.name,
@@ -73,6 +82,7 @@ const Hardware: FC = () => {
         width: 0,
         height: 0
       });
+      setComponentList([...componentList, id]);
       updateContent();
     }
   );
@@ -97,7 +107,28 @@ const Hardware: FC = () => {
         [connector.name]: port.name
       }
     });
+    updateContent();
   });
+
+  const removeConnection = useRecoilCallback(
+    ({ set }) => (
+      connector: IConnector,
+      instance: ICanvasComponentInstance
+    ) => {
+      const ports = Object.keys(instance.ports || {}).reduce((o, key) => {
+        if (key !== connector.name) {
+          o[key] = instance.ports?.[key];
+        }
+        return o;
+      }, {});
+
+      set(componentWithIdState(instance.id || ""), {
+        ...instance,
+        ports
+      });
+      updateContent();
+    }
+  );
 
   useResizeObserver(
     canvasRef,
@@ -117,6 +148,45 @@ const Hardware: FC = () => {
     [selectedComponent]
   );
 
+  const onDragStart = ({ draggableData }) => {
+    if (draggableData.type === "connector") {
+      removeConnection(draggableData.connector, draggableData.instance);
+      setSelectedComponent(draggableData.instance.id);
+    }
+  };
+
+  const onDrag = ({ draggableData, x, y }) => {
+    if (draggableData.board) {
+      setDraggingBoard({
+        board: draggableData.board.name,
+        x,
+        y
+      });
+    }
+    if (draggableData.component) {
+      setDraggingInstance({
+        name: "",
+        width: 0,
+        height: 0,
+        component: draggableData.component.name,
+        position: {
+          x,
+          y
+        }
+      });
+    }
+    if (draggableData.type === "connector") {
+      const { connector, instance } = draggableData;
+      setDraggingConnector({ x, y, connector, instance });
+    }
+  };
+
+  const onDragEnd = () => {
+    resetDraggingBoard();
+    resetDraggingConnector();
+    resetDraggingInstance();
+  };
+
   const onDrop = ({
     draggableData,
     droppableData,
@@ -134,6 +204,7 @@ const Hardware: FC = () => {
           width: 0,
           height: 0
         });
+        updateContent();
       }
     }
 
@@ -157,19 +228,25 @@ const Hardware: FC = () => {
   };
 
   return (
-    <DragAndDropProvider onDrop={onDrop}>
+    <DragAndDropProvider
+      onDragStart={onDragStart}
+      onDrag={onDrag}
+      onDragEnd={onDragEnd}
+      onDrop={onDrop}
+    >
       <Container>
         <CanvasWrap data={{ type: "canvas" }} active={!draggingConnector}>
-          <Connections />
           <Canvas ref={canvasRef}>
             <Board />
+          </Canvas>
+          <Connections />
+          <Canvas>
             {componentList.map(id => (
               <Component key={id} id={id} />
             ))}
           </Canvas>
         </CanvasWrap>
         <HardwareTabs />
-        <DeleteDroppable />
       </Container>
       <DraggingBoard />
       <DraggingComponent />
@@ -192,7 +269,9 @@ const CanvasWrap = styled(Droppable)`
 `;
 
 const Canvas = styled.div`
-  position: relative;
+  position: absolute;
   flex: 1;
   transform: translate(50%, 50%);
+  width: 100%;
+  height: 100%;
 `;

@@ -40,10 +40,10 @@ const Droppable: FC<IDroppableProps> = ({
       return;
     }
     const { x, y } = wrapRef.current.getBoundingClientRect();
-
     return dragAndDropController.registerDroppableHandler({
       x,
       y,
+      element: wrapRef.current,
       width,
       height,
       priority,
