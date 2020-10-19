@@ -35,7 +35,7 @@
     "apollo-server": "^2.15.0",
     "apollo-server-koa": "^2.15.0",
     "axios": "^0.19.2",
-    "bcrypt": "^3.0.5",
+    "bcrypt": "^5.0.0",
     "bluebird": "^3.5.3",
     "bson": "^4.0.2",
     "dotenv": "^6.2.0",
