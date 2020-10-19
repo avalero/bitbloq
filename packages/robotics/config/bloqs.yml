@@ -56,6 +56,19 @@
         - value: component1
           label: Component
 
+- name: number
+  instructionType: parameter
+  category: math
+  subCategory: basic
+  code:
+    main: '{{parameters.value}}'
+  uiElements:
+    - type: text-input
+      parameterName: value
+      text: robotics.read
+
+# Zumjunior
+
 - name: turn-zumjunior-rgb-led
   instructionType: statement
   category: component
@@ -83,6 +96,25 @@
           label: robotics.pink
         - value: WHITE
           label: robotics.white
+
+- name: turn-zumjunior-rgb-led-values
+  instructionType: statement
+  category: component
+  subCategory: junior
+  forComponents:
+    - zumjunior-rgb-led
+  code:
+    main: >
+      zumJunior.setRGBLED({{getBloqCode(parameters.r)}}, {{getBloqCode(parameters.g)}}, {{getBloqCode(parameters.b)}});
+  uiElements:
+    - type: label
+      text: robotics.turn-zumjunior-rgb-led-with-values
+    - type: parameter
+      parameterName: r
+    - type: parameter
+      parameterName: g
+    - type: parameter
+      parameterName: b
 
 - name: turn-off-zumjunior-rgb-led
   instructionType: statement
@@ -145,7 +177,7 @@
   code:
     main: >
       if ({{"!" if not parameters.pressed}}digitalRead({{parameters.component.name}}Pin)) {
-        {{childrenCode}}
+        {{getBloqsCode(children)}}
       }
   uiElements:
     - type: label

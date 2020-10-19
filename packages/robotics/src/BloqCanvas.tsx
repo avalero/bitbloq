@@ -1,7 +1,7 @@
 import React, { FC } from "react";
 import styled from "@emotion/styled";
 import { colors, Droppable, useTranslate } from "@bitbloq/ui";
-import { useRecoilState } from "recoil";
+import { useRecoilValue } from "recoil";
 import { bloqsState, BloqSection } from "./state";
 import BloqList from "./BloqList";
 
@@ -12,7 +12,7 @@ interface IBloqCanvasProps {
 const BloqCanvas: FC<IBloqCanvasProps> = ({ section }) => {
   const t = useTranslate();
 
-  const [bloqs, setBloqs] = useRecoilState(bloqsState);
+  const bloqs = useRecoilValue(bloqsState);
   const sectionBloqs = bloqs[section];
 
   return (
@@ -21,12 +21,6 @@ const BloqCanvas: FC<IBloqCanvasProps> = ({ section }) => {
         <BloqList bloqs={sectionBloqs} section={section} path={[0]} />
       ) : (
         <InitialDroppable
-          onDrop={data =>
-            setBloqs({
-              ...bloqs,
-              [section]: data.bloqs
-            })
-          }
           data={{ type: "initial-placeholder", section }}
           margin={20}
         >
@@ -46,6 +40,7 @@ export default BloqCanvas;
 const Container = styled.div`
   padding: 20px;
   min-height: 260px;
+  position: relative;
 `;
 
 const InitialDroppable = styled(Droppable)`

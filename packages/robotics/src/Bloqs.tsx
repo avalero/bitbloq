@@ -109,6 +109,13 @@ const Bloqs: FC<IBloqsProps> = ({ borndateFilesRoot }) => {
       });
       updateContent();
     }
+    if (droppableData.type === "initial-placeholder") {
+      setBloqs({
+        ...bloqs,
+        [droppableData.section]: draggableData.bloqs
+      });
+      updateContent();
+    }
   };
 
   return (

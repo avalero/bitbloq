@@ -41,7 +41,12 @@ const BloqParameter: FC<IBloqParameterProps> = ({
           <Content>
             {param && (
               <BloqWrap>
-                <Bloq bloq={param} section={section} path={path} />
+                <Bloq
+                  bloq={param}
+                  section={section}
+                  path={path}
+                  parameterName={parameterName}
+                />
               </BloqWrap>
             )}
             {active && <Active />}

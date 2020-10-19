@@ -32,7 +32,9 @@ const HorizontalTabs: FC<IHorizontalTabsProps> = ({
           </Tab>
         ))}
       </TabsContainer>
-      {activeTab >= 0 && <div>{tabs[activeTab].content}</div>}
+      {activeTab >= 0 && tabs[activeTab] && (
+        <div>{tabs[activeTab].content}</div>
+      )}
     </Container>
   );
 };

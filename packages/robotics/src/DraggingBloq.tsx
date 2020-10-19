@@ -15,7 +15,8 @@ const DraggingBloq: FC = () => {
       style={{
         position: "fixed",
         left: draggingBloqs.x,
-        top: draggingBloqs.y
+        top: draggingBloqs.y,
+        zIndex: 50
       }}
     >
       <BloqList bloqs={draggingBloqs.bloqs} section="" path={[]} />
