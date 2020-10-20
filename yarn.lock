@@ -4649,10 +4649,9 @@ autoprefixer@^9.7.2:
     postcss "^7.0.27"
     postcss-value-parser "^4.0.3"
 
-avrgirl-arduino@^4.2.2:
-  version "4.2.2"
-  resolved "https://registry.yarnpkg.com/avrgirl-arduino/-/avrgirl-arduino-4.2.2.tgz#7c1e9b90a3f8960b954e93387a74989075cd116e"
-  integrity sha512-odPMLQ1K/UTPdRLUQlDtYHwZL3PaYI/JESQzLJa+IJdHfO9F17iGsPtyoieFkC25WahMvGyumhm8nhj/DJvHvQ==
+"avrgirl-arduino@git+https://github.com/Bitbloq/avrgirl-arduino.git#feature/fix-browser-serial":
+  version "4.2.4"
+  resolved "git+https://github.com/Bitbloq/avrgirl-arduino.git#1b2cc1874a2c24e27b1de6e6316c06f4f41ef815"
   dependencies:
     async "^2.1.2"
     awty "^0.1.0"
@@ -13394,6 +13393,11 @@ lodash@4.17.15, lodash@^4.0.1, lodash@^4.17.10, lodash@^4.17.11, lodash@^4.17.12
   version "4.17.15"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
   integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
+
+lodash@^4.17.19:
+  version "4.17.20"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.20.tgz#b44a9b6297bcb698f1c51a3545a2b3b368d59c52"
+  integrity sha512-PlhdFcillOINfeV7Ni6oF1TAEayyZBoZ8bcshTHqOYJYlrqzRK5hagpagky5o4HfCzzd1TRkXPMFq6cKk9rGmA==
 
 log-driver@^1.2.7:
   version "1.2.7"
