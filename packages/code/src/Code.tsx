@@ -72,7 +72,7 @@ const parseErrors = (borndateErrors: any[]) =>
     return {
       message: e.message,
       file: file === "main.ino.cpp" ? "main.ino" : file,
-      line: file === "main.ino" ? line - 4 : line,
+      line: file === "main.ino.cpp" ? line - 5 : line,
       column
     };
   });

@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { useTranslate } from "@bitbloq/ui";
 import {
   useCodeUpload,
   ICodeUploadOptions
@@ -23,6 +22,7 @@ import {
   isBloqSelectComponentParameter
 } from "@bitbloq/bloqs";
 import migrateContent from "./migrate-content";
+import useDebug from "./useDebug";
 
 export interface IJuniorCallbackProps {
   hardware: JSX.Element;
@@ -57,8 +57,6 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
   externalUpload,
   readOnly
 }) => {
-  const t = useTranslate();
-
   const { upload, cancel, uploadContent } = useCodeUpload(uploadOptions);
 
   const migratedContent = useMemo(() => migrateContent(initialContent), [
@@ -71,6 +69,12 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
     components: []
   };
   const extraData: IExtraData = content.extraData || {};
+  const {
+    activeBloqs,
+    isDebugging,
+    startDebugging,
+    stopDebugging
+  } = useDebug();
 
   const [undoPast, setUndoPast] = useState<any[]>([]);
   const [undoFuture, setUndoFuture] = useState<any[]>([]);
@@ -181,7 +185,14 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
       )
   );
 
-  const onUpload = (onPortOpen?: () => void) => {
+  const onStartDebugging = () => {
+    startDebugging(program, hardware);
+  };
+
+  const onUpload = async (onPortOpen?: () => void) => {
+    if (isDebugging) {
+      await stopDebugging();
+    }
     const programBloqs = program
       .filter(line => !line.disabled)
       .map(line => line.bloqs);
@@ -195,12 +206,13 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
       extraData
     );
     try {
-      upload(
+      console.log(code);
+      /*upload(
         [{ name: "main.ino", content: code }],
         juniorLibraries,
         "zumjunior",
         onPortOpen
-      );
+      );*/
     } catch (e) {
       console.error(e.data);
     }
@@ -231,6 +243,9 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
             onLinesChange={(newProgram: IBloqLine[]) =>
               updateContent({ program: newProgram, hardware, extraData })
             }
+            isDebugging={isDebugging}
+            onStartDebugging={onStartDebugging}
+            onStopDebugging={stopDebugging}
             onUpload={() => onUpload()}
             board={board}
             externalUpload={externalUpload}
@@ -239,6 +254,7 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
             onExtraDataChange={(newExtraData: IExtraData) =>
               updateContent({ extraData: newExtraData, hardware, program })
             }
+            activeBloqs={activeBloqs}
           />
           {!externalUpload && uploadContent}
         </>
