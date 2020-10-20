@@ -855,6 +855,6 @@
   "general-download-button": "Download",
   "3d": {
     "download-single-object": "Download everything in a single STL object",
-    "download-multi-object": "Download each object on its own STL file"
+    "download-multi-object": "Download each object in its own STL file"
   }
 }
