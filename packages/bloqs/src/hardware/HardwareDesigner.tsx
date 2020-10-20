@@ -285,6 +285,10 @@ const CanvasWrap = styled.div`
   flex: 1;
   position: relative;
   margin-top: 90px;
+  min-height: 380px;
+  @media screen and (min-width: ${breakpoints.desktop}px) {
+    min-height: 460px;
+  }
 `;
 
 const Canvas = styled.div`
