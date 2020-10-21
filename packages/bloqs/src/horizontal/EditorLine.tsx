@@ -106,7 +106,7 @@ const EditorLine: React.FunctionComponent<IEditorLineProps> = ({
           activeBloq={activeBloq}
           activeIndicator={
             <ActiveIndicator>
-              <Icon name="programming-preview" />
+              <Icon name="flag" />
             </ActiveIndicator>
           }
         />

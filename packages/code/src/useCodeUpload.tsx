@@ -272,6 +272,7 @@ export const useCodeUpload = (options): ICodeUploadResult => {
       setUploading(false);
       setUploadSuccess(true);
       setUploadText(t("code.compile-success"));
+      return hex;
     } catch (e) {
       console.log("compile error", e);
       setUploading(false);

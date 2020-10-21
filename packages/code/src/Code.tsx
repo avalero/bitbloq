@@ -240,7 +240,8 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
 
   const onCompile = async () => {
     try {
-      await compile(content.current!.files, libraries, board);
+      const hex = await compile(content.current!.files, libraries, board);
+      console.log(hex);
       setErrors([]);
     } catch (e) {
       switch (e.type) {

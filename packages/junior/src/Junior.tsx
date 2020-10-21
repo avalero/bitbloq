@@ -69,12 +69,10 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
     components: []
   };
   const extraData: IExtraData = content.extraData || {};
-  const {
-    activeBloqs,
-    isDebugging,
-    startDebugging,
-    stopDebugging
-  } = useDebug();
+  const { activeBloqs, isDebugging, startDebugging, stopDebugging } = useDebug(
+    program,
+    extraData
+  );
 
   const [undoPast, setUndoPast] = useState<any[]>([]);
   const [undoFuture, setUndoFuture] = useState<any[]>([]);
@@ -186,7 +184,7 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
   );
 
   const onStartDebugging = () => {
-    startDebugging(program, hardware);
+    startDebugging(hardware);
   };
 
   const onUpload = async (onPortOpen?: () => void) => {
@@ -206,13 +204,13 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
       extraData
     );
     try {
-      console.log(code);
-      /*upload(
+      //console.log(code);
+      upload(
         [{ name: "main.ino", content: code }],
         juniorLibraries,
         "zumjunior",
         onPortOpen
-      );*/
+      );
     } catch (e) {
       console.error(e.data);
     }
