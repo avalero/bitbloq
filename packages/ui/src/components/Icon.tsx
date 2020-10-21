@@ -41,6 +41,7 @@ import ExerciseResources from "./icons/ExerciseResources";
 import ExportSTL from "./icons/ExportSTL";
 import Eye from "./icons/Eye";
 import EyeClose from "./icons/EyeClose";
+import Flag from "./icons/Flag";
 import Folder from "./icons/Folder";
 import FullScreen from "./icons/FullScreen";
 import Group from "./icons/Group";
@@ -82,6 +83,7 @@ import ProgrammingBloqs from "./icons/ProgrammingBloqs";
 import ProgrammingBoard from "./icons/ProgrammingBoard";
 import ProgrammingDiagram from "./icons/ProgrammingDiagram";
 import ProgrammingDuplicate from "./icons/ProgrammingDuplicate";
+import ProgrammingPreview from "./icons/ProgrammingPreview";
 import ProgrammingQuestion from "./icons/ProgrammingQuestion";
 import ProgrammingUpload from "./icons/ProgrammingUpload";
 import Publish from "./icons/Publish";
@@ -220,6 +222,8 @@ const Icon: React.SFC<IIconProps> = ({ name, className }) => {
       return <Eye className={className} />;
     case "eye-close":
       return <EyeClose className={className} />;
+    case "flag":
+      return <Flag className={className} />;
     case "full-screen":
       return <FullScreen className={className} />;
     case "group":
@@ -296,6 +300,8 @@ const Icon: React.SFC<IIconProps> = ({ name, className }) => {
       return <ProgrammingDiagram className={className} />;
     case "programming-duplicate":
       return <ProgrammingDuplicate className={className} />;
+    case "programming-preview":
+      return <ProgrammingPreview className={className} />;
     case "programming-question":
       return <ProgrammingQuestion className={className} />;
     case "programming-upload":

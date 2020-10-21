@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
 import { colors, Icon, JuniorButton } from "@bitbloq/ui";
-import HorizontalBloq from "./HorizontalBloq";
-import BloqPlaceholder from "./BloqPlaceholder";
 import BloqsLine from "./BloqsLine";
 
 import { IBloq, IBloqLine, IBloqType } from "../index";
@@ -25,6 +23,7 @@ interface IEditorLineProps {
   onDelete: (line: IBloqLine) => void;
   onSelectedPositionChange: (scrollLeft: number) => void;
   readOnly?: boolean;
+  activeBloq?: number;
 }
 
 const EditorLine: React.FunctionComponent<IEditorLineProps> = ({
@@ -43,7 +42,8 @@ const EditorLine: React.FunctionComponent<IEditorLineProps> = ({
   onToggle,
   onDelete,
   onSelectedPositionChange,
-  readOnly
+  readOnly,
+  activeBloq
 }) => {
   const [showOptions, setShowOptions] = useState(false);
   const optionsRef = useRef<HTMLDivElement>(null);
@@ -103,6 +103,12 @@ const EditorLine: React.FunctionComponent<IEditorLineProps> = ({
           getBloqPort={getBloqPort}
           onSelectedPositionChange={onSelectedPositionChange}
           readOnly={readOnly}
+          activeBloq={activeBloq}
+          activeIndicator={
+            <ActiveIndicator>
+              <Icon name="flag" />
+            </ActiveIndicator>
+          }
         />
         {showOptions && (
           <Options ref={optionsRef}>
@@ -255,4 +261,23 @@ const ShowOptionsButton = styled(JuniorButton)`
 const ShowOptionsPlaceholder = styled.div`
   margin-left: 10px;
   width: 40px;
+`;
+
+const ActiveIndicator = styled.div`
+  width: 24px;
+  height: 20px;
+  border-radius: 2px;
+  position: absolute;
+  top: -8px;
+  right: 12px;
+  background-color: ${colors.brandOrange};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
 `;

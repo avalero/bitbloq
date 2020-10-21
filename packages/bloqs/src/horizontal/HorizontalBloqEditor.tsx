@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
 import { v1 as uuid } from "uuid";
 import update from "immutability-helper";
-import { Icon, JuniorButton, useTranslate } from "@bitbloq/ui";
+import { Icon, JuniorButton } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import EditorLine from "./EditorLine";
 import BloqConfigPanel from "./BloqConfigPanel";
@@ -25,6 +25,9 @@ interface IHorizontalBloqEditorProps {
   availableBloqs?: IBloqType[];
   onLinesChange?: (lines: IBloqLine[]) => any;
   onUpload?: () => any;
+  isDebugging?: boolean;
+  onStartDebugging?: () => any;
+  onStopDebugging?: () => any;
   getComponents?: (types: string[]) => IComponentInstance[];
   getBloqPort?: (bloq: IBloq) => string | undefined;
   board: IBoard;
@@ -33,6 +36,7 @@ interface IHorizontalBloqEditorProps {
   readOnly?: boolean;
   extraData?: IExtraData;
   onExtraDataChange?: (extraData: IExtraData) => void;
+  activeBloqs?: number[];
 }
 
 const HorizontalBloqEditor: React.FunctionComponent<IHorizontalBloqEditorProps> = ({
@@ -41,6 +45,9 @@ const HorizontalBloqEditor: React.FunctionComponent<IHorizontalBloqEditorProps> 
   availableBloqs = [],
   onLinesChange = () => null,
   onUpload = () => null,
+  isDebugging,
+  onStartDebugging,
+  onStopDebugging,
   getComponents = () => [],
   getBloqPort = () => "",
   board,
@@ -48,7 +55,8 @@ const HorizontalBloqEditor: React.FunctionComponent<IHorizontalBloqEditorProps> 
   externalUpload,
   readOnly,
   extraData,
-  onExtraDataChange
+  onExtraDataChange,
+  activeBloqs = []
 }) => {
   const [selectedLineIndex, setSelectedLine] = useState(-1);
   const [selectedBloqIndex, setSelectedBloq] = useState(-1);
@@ -61,8 +69,6 @@ const HorizontalBloqEditor: React.FunctionComponent<IHorizontalBloqEditorProps> 
 
   const selectedLine: IBloqLine = lines[selectedLineIndex];
   const selectedBloq = selectedLine && selectedLine.bloqs[selectedBloqIndex];
-
-  const t = useTranslate();
 
   const deselectEverything = () => {
     setSelectedLine(-1);
@@ -268,6 +274,7 @@ const HorizontalBloqEditor: React.FunctionComponent<IHorizontalBloqEditorProps> 
                 onDelete={onDeleteLine}
                 onSelectedPositionChange={setSelectedLeft}
                 readOnly={readOnly}
+                activeBloq={activeBloqs[i]}
               />
             )
           )}
@@ -291,6 +298,15 @@ const HorizontalBloqEditor: React.FunctionComponent<IHorizontalBloqEditorProps> 
               <Icon name="redo" />
             </JuniorButton>
           </ToolbarLeft>
+          {onStartDebugging && (
+            <UploadButton
+              onClick={isDebugging ? onStopDebugging : onStartDebugging}
+              orange={!isDebugging}
+              tertiary={isDebugging}
+            >
+              <Icon name="programming-preview" />
+            </UploadButton>
+          )}
           <UploadButton onClick={onUpload}>
             <Icon name="programming-upload" />
           </UploadButton>
@@ -371,7 +387,8 @@ const ToolbarLeft = styled.div`
 `;
 
 const UploadButton = styled(JuniorButton)`
-  padding: 0px 34px;
+  padding: 0px 24px;
+  margin-left: 10px;
   svg {
     width: 32px;
     height: 32px;

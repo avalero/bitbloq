@@ -6,6 +6,7 @@ export interface IButtonProps {
   secondary?: boolean;
   tertiary?: boolean;
   red?: boolean;
+  orange?: boolean;
   active?: boolean;
 }
 
@@ -33,6 +34,9 @@ const Button = styled.button<IButtonProps>`
     if (props.red) {
       bgColor = colors.red;
       darkColor = colors.redPressed;
+    } else if (props.orange) {
+      bgColor = colors.brandOrange;
+      darkColor = colors.brandOrangePressed;
     } else if (props.secondary) {
       color = colors.black;
       bgColor = "#ffffff";
