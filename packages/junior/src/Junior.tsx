@@ -43,6 +43,7 @@ export interface IJuniorProps {
   uploadOptions: ICodeUploadOptions;
   externalUpload?: boolean;
   readOnly?: boolean;
+  debugSpeed?: number;
 }
 
 const bloqTypes = partialBloqTypes as IBloqType[];
@@ -55,7 +56,8 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
   onContentChange,
   uploadOptions,
   externalUpload,
-  readOnly
+  readOnly,
+  debugSpeed = 1000
 }) => {
   const { upload, cancel, uploadContent } = useCodeUpload(uploadOptions);
 
@@ -71,7 +73,8 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
   const extraData: IExtraData = content.extraData || {};
   const { activeBloqs, isDebugging, startDebugging, stopDebugging } = useDebug(
     program,
-    extraData
+    extraData,
+    debugSpeed
   );
 
   const [undoPast, setUndoPast] = useState<any[]>([]);
