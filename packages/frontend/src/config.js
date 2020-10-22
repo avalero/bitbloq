@@ -220,7 +220,8 @@ export const signupSteps = {
 };
 
 const defaultFlags = {
-  SHOW_GRAPHQL_LOGS: false
+  SHOW_GRAPHQL_LOGS: false,
+  JUNIOR_DEBUG_SPEED: 1000
 };
 
 let savedFlags = {};

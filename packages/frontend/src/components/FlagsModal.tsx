@@ -15,6 +15,11 @@ const flagFields = [
     key: "SHOW_GRAPHQL_LOGS",
     label: "Mostrar logs de graphql",
     type: "boolean"
+  },
+  {
+    key: "JUNIOR_DEBUG_SPEED",
+    label: "Velocidad depuración Junior",
+    type: "number"
   }
 ];
 

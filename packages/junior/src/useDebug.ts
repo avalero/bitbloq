@@ -26,6 +26,7 @@ enum Command {
   START_COMMAND = 20,
   SET_PIN_MODE = 21,
   ANALOG_WRITE = 22,
+  DIGITAL_WRITE = 23,
   DIGITAL_READ = 30,
   SEVEN_SEGMENT_SETUP = 40,
   SEVEN_SEGMENT_DISPLAY = 41,
@@ -64,7 +65,6 @@ const notes = {
   NOTE_B5: 988
 };
 
-const DEBUG_SPEED = 1000;
 const READ_PIN_SPEED = 10;
 
 const bloqTypesMap = bloqTypes.reduce((map, b) => {
@@ -130,7 +130,11 @@ const uploadFirmware = async (usbVendorId: string) => {
   return new Promise(resolve => setTimeout(resolve, 1000));
 };
 
-const useDebug = (program: IBloqLine[], extraData: IExtraData) => {
+const useDebug = (
+  program: IBloqLine[],
+  extraData: IExtraData,
+  debugSpeed: number
+) => {
   const portRef = useRef<any | null>(null);
   const readerRef = useRef<ReadableStreamDefaultReader | null>(null);
   const writerRef = useRef<WritableStreamDefaultWriter | null>(null);
@@ -200,7 +204,7 @@ const useDebug = (program: IBloqLine[], extraData: IExtraData) => {
     writerRef.current = writer;
 
     const updatingBloq = programRef.current.map(() => false);
-    const nextBloq = (i: number, delay = DEBUG_SPEED) => {
+    const nextBloq = (i: number, delay = debugSpeed) => {
       updatingBloq[i] = true;
       setTimeout(() => {
         debugBloq(i, activeBloqs[i] + 1);
@@ -227,7 +231,7 @@ const useDebug = (program: IBloqLine[], extraData: IExtraData) => {
       if (!melody) return;
       countPlaying++;
       const playNote = (i: number) => {
-        if (stop || i >= melody.length) {
+        if (stop || i >= melody.length || !isDebuggingRef.current) {
           countPlaying--;
           cb();
           if (countPlaying === 0) {
@@ -288,6 +292,16 @@ const useDebug = (program: IBloqLine[], extraData: IExtraData) => {
               }
               break;
             }
+
+            case "WaitDoubleSwitchOnOff":
+            case "OnDoubleSwitchOnOff": {
+              const pins = pinsMap[bloq.parameters.component];
+              pins.forEach(pin => {
+                writer.write(
+                  new Uint8Array([Command.DIGITAL_READ, pin.pinValue])
+                );
+              });
+            }
           }
         }
       });
@@ -296,6 +310,7 @@ const useDebug = (program: IBloqLine[], extraData: IExtraData) => {
     const executeCount = programRef.current.map(() => 0);
 
     const debugBloq = async (i: number, bloqIndex: number) => {
+      if (!isDebuggingRef.current) return;
       const line = programRef.current[i];
       activeBloqs[i] = bloqIndex % line.bloqs.length;
       const bloq = line.bloqs[activeBloqs[i]];
@@ -381,6 +396,20 @@ const useDebug = (program: IBloqLine[], extraData: IExtraData) => {
             );
             break;
           }
+
+          case "SetDoubleLedOnOff": {
+            const { component, value, led } = bloq.parameters;
+            const pins = pinsMap[bloq.parameters.component];
+            const pin = led === "White" ? pins[0] : pins[1];
+            writer.write(
+              new Uint8Array([
+                Command.DIGITAL_WRITE,
+                pin.pinValue,
+                value === "on" ? 0 : 1
+              ])
+            );
+            break;
+          }
         }
         if (
           bloqType.category === BloqCategory.Action &&
@@ -422,6 +451,11 @@ const useDebug = (program: IBloqLine[], extraData: IExtraData) => {
                   pin.mode === ConnectorPinMode.INPUT ? 0 : 1
                 ])
               );
+              if (instance.component === "ZumjuniorDoubleLed") {
+                writer.write(
+                  new Uint8Array([Command.DIGITAL_WRITE, pin.pinValue, 1])
+                );
+              }
             });
           }
         });
@@ -433,7 +467,6 @@ const useDebug = (program: IBloqLine[], extraData: IExtraData) => {
       const result = await reader.read();
       if (result && result.value) {
         const command = result.value[0];
-        // console.log("RECEIVED", result.value);
 
         if (command === Command.START_COMMAND) {
           startDebugging();
@@ -457,6 +490,19 @@ const useDebug = (program: IBloqLine[], extraData: IExtraData) => {
                   ) {
                     nextBloq(i);
                   }
+                  break;
+                }
+
+                case "WaitDoubleSwitchOnOff":
+                case "OnDoubleSwitchOnOff": {
+                  const pins = pinsMap[bloq.parameters.component];
+                  const switchPin =
+                    bloq.parameters.switch === "0" ? pins[0] : pins[1];
+                  const pos = bloq.parameters.value === "pos1" ? 0 : 1;
+                  if (pin === switchPin.pinValue && value === pos) {
+                    nextBloq(i);
+                  }
+                  break;
                 }
               }
             }

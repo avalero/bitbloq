@@ -3,6 +3,7 @@ import { Junior } from "@bitbloq/junior";
 import { Icon, useTranslate } from "@bitbloq/ui";
 import { IEditorProps } from "../types";
 import useDocumentContent from "../lib/useDocumentContent";
+import { flags } from "../config";
 
 const JuniorEditor: React.FunctionComponent<IEditorProps> = ({
   document,
@@ -32,6 +33,7 @@ const JuniorEditor: React.FunctionComponent<IEditorProps> = ({
       uploadOptions={{
         filesRoot: `${window.location.origin}/_next/static/borndate`
       }}
+      debugSpeed={flags.JUNIOR_DEBUG_SPEED}
     >
       {({ hardware, software }) =>
         children({
