@@ -207,7 +207,6 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
       extraData
     );
     try {
-      //console.log(code);
       upload(
         [{ name: "main.ino", content: code }],
         juniorLibraries,
