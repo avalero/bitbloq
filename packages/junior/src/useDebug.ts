@@ -30,7 +30,14 @@ enum Command {
   DIGITAL_READ = 30,
   SEVEN_SEGMENT_SETUP = 40,
   SEVEN_SEGMENT_DISPLAY = 41,
-  PLAY_TONE = 50
+  PLAY_TONE = 50,
+  SERVO_SETUP = 60,
+  SERVO_WRITE = 61,
+  MULTISENSOR_SETUP = 70,
+  MULTISENSOR_GET_DISTANCE = 71,
+  MULTISENSOR_GET_COLOR = 72,
+  MULTISENSOR_GET_AL = 73,
+  MULTISENSOR_GET_TEMP = 74
 }
 
 const portMap = {
@@ -46,6 +53,15 @@ const portMap = {
   "BQ::ZUMJunior::ports[A][1]": 19,
   "BQ::ZUMJunior::ports[B][0]": 22,
   "BQ::ZUMJunior::ports[B][1]": 23
+};
+
+const portNumberMap = {
+  "1": 1,
+  "2": 2,
+  "3": 3,
+  "4": 4,
+  A: 5,
+  B: 6
 };
 
 const notes = {
@@ -65,7 +81,26 @@ const notes = {
   NOTE_B5: 988
 };
 
-const READ_PIN_SPEED = 10;
+const colors = {
+  red: 0,
+  green: 1,
+  blue: 2,
+  white: 3,
+  black: 4
+};
+
+const multiSensorCommands = {
+  WaitObstacle: Command.MULTISENSOR_GET_DISTANCE,
+  OnObstacle: Command.MULTISENSOR_GET_DISTANCE,
+  WaitDetectColor: Command.MULTISENSOR_GET_COLOR,
+  OnDetectColor: Command.MULTISENSOR_GET_COLOR,
+  WaitDetectLight: Command.MULTISENSOR_GET_AL,
+  OnDetectLight: Command.MULTISENSOR_GET_AL,
+  WaitDetectTemperature: Command.MULTISENSOR_GET_TEMP,
+  OnDetectTemperature: Command.MULTISENSOR_GET_TEMP
+};
+
+const READ_PIN_SPEED = 30;
 
 const bloqTypesMap = bloqTypes.reduce((map, b) => {
   map[b.name] = b;
@@ -225,17 +260,17 @@ const useDebug = (
     };
 
     let countPlaying = 0;
-    let stop = false;
+    let stopMelody = false;
     const playMelody = (melodyIndex: number, cb: () => void) => {
       const melody = extraDataRef.current.melodies?.[melodyIndex];
       if (!melody) return;
       countPlaying++;
       const playNote = (i: number) => {
-        if (stop || i >= melody.length || !isDebuggingRef.current) {
+        if (stopMelody || i >= melody.length || !isDebuggingRef.current) {
           countPlaying--;
           cb();
           if (countPlaying === 0) {
-            stop = false;
+            stopMelody = false;
           }
           return;
         }
@@ -301,6 +336,29 @@ const useDebug = (
                   new Uint8Array([Command.DIGITAL_READ, pin.pinValue])
                 );
               });
+              break;
+            }
+
+            case "WaitObstacle":
+            case "OnObstacle":
+            case "WaitDetectColor":
+            case "OnDetectColor":
+            case "WaitDetectLight":
+            case "OnDetectLight":
+            case "WaitDetectTemperature":
+            case "OnDetectTemperature": {
+              const { component } = bloq.parameters;
+              const instance = hardware.components.find(
+                c => c.name === component
+              );
+
+              writer.write(
+                new Uint8Array([
+                  multiSensorCommands[bloq.type],
+                  instance?.ports?.main === "A" ? 0 : 1
+                ])
+              );
+              break;
             }
           }
         }
@@ -308,6 +366,8 @@ const useDebug = (
     }, READ_PIN_SPEED);
 
     const executeCount = programRef.current.map(() => 0);
+
+    let tempThreshold = 0;
 
     const debugBloq = async (i: number, bloqIndex: number) => {
       if (!isDebuggingRef.current) return;
@@ -338,21 +398,21 @@ const useDebug = (
               new Uint8Array([
                 Command.ANALOG_WRITE,
                 2,
-                value === "blue" ? 0 : 255
+                value === "blue" || value === "white" ? 0 : 255
               ])
             );
             writer.write(
               new Uint8Array([
                 Command.ANALOG_WRITE,
                 7,
-                value === "red" ? 0 : 255
+                value === "red" || value === "white" ? 0 : 255
               ])
             );
             writer.write(
               new Uint8Array([
                 Command.ANALOG_WRITE,
                 8,
-                value === "green" ? 0 : 255
+                value === "green" || value === "white" ? 0 : 255
               ])
             );
             break;
@@ -391,9 +451,14 @@ const useDebug = (
           }
 
           case "Music": {
-            playMelody(bloq.parameters.melodyIndex as number, () =>
-              nextBloq(i)
-            );
+            if (bloq.parameters.melodyIndex === "stop") {
+              stopMelody = true;
+              nextBloq(i);
+            } else {
+              playMelody(bloq.parameters.melodyIndex as number, () =>
+                nextBloq(i)
+              );
+            }
             break;
           }
 
@@ -408,6 +473,37 @@ const useDebug = (
                 value === "on" ? 0 : 1
               ])
             );
+            break;
+          }
+
+          case "ContRotServo": {
+            const { component, rotation, speed } = bloq.parameters;
+            const instance = hardware.components.find(
+              c => c.name === component
+            );
+            const port = portNumberMap[instance?.ports?.main || ""];
+            const value =
+              (rotation === "clockwise" ? 1 : -1) *
+              (rotation === "stop"
+                ? 0
+                : speed === "slow"
+                ? 10
+                : speed === "medium"
+                ? 20
+                : 30);
+            writer.write(
+              new Uint8Array([Command.SERVO_WRITE, port, 90 + value])
+            );
+            break;
+          }
+
+          case "ServoPosition": {
+            const { component, value } = bloq.parameters;
+            const instance = hardware.components.find(
+              c => c.name === component
+            );
+            const port = portNumberMap[instance?.ports?.main || ""];
+            writer.write(new Uint8Array([Command.SERVO_WRITE, port, value]));
             break;
           }
         }
@@ -441,6 +537,28 @@ const useDebug = (
                 instance.ports?.main === "A" ? 0 : 1
               ])
             );
+          } else if (instance.component === "ZumjuniorMultiSensor") {
+            writer.write(
+              new Uint8Array([
+                Command.MULTISENSOR_SETUP,
+                instance.ports?.main === "A" ? 0 : 1
+              ])
+            );
+            writer.write(
+              new Uint8Array([
+                Command.MULTISENSOR_GET_TEMP,
+                instance.ports?.main === "A" ? 0 : 1
+              ])
+            );
+          } else if (
+            instance.component === "ZumjuniorServo" ||
+            instance.component === "ZumjuniorMiniservo"
+          ) {
+            const port = portNumberMap[instance.ports?.main || ""];
+            writer.write(new Uint8Array([Command.SERVO_SETUP, port]));
+            if (instance.component === "ZumjuniorServo") {
+              writer.write(new Uint8Array([Command.SERVO_WRITE, port, 90]));
+            }
           } else {
             const pins = pinsMap[instance.name];
             pins.forEach(pin => {
@@ -470,6 +588,70 @@ const useDebug = (
 
         if (command === Command.START_COMMAND) {
           startDebugging();
+        }
+        if (command === Command.MULTISENSOR_GET_TEMP && !tempThreshold) {
+          tempThreshold = result.value[2];
+        }
+        if (
+          command === Command.MULTISENSOR_GET_DISTANCE ||
+          command === Command.MULTISENSOR_GET_COLOR ||
+          command === Command.MULTISENSOR_GET_AL ||
+          command === Command.MULTISENSOR_GET_TEMP
+        ) {
+          const port = result.value[1];
+          const value = result.value[2];
+          programRef.current.forEach((line, i) => {
+            const bloq = line.bloqs[activeBloqs[i]];
+
+            if (bloq && multiSensorCommands[bloq.type] === command) {
+              const instance = hardware.components.find(
+                c => c.name === bloq.parameters.component
+              );
+              let matches = false;
+              if (bloq.type === "OnObstacle" || bloq.type === "WaitObstacle") {
+                matches =
+                  bloq.parameters.value === "obstacle"
+                    ? value < 20
+                    : value >= 20;
+              } else if (
+                bloq.type === "WaitDetectColor" ||
+                bloq.type === "OnDetectColor"
+              ) {
+                const colorValue = colors[bloq.parameters.color];
+                matches =
+                  bloq.parameters.detect === "=="
+                    ? colorValue === value
+                    : colorValue !== value;
+              } else if (
+                bloq.type === "OnDetectTemperature" ||
+                bloq.type === "WaitDetectTemperature"
+              ) {
+                matches =
+                  bloq.parameters.value === "cold"
+                    ? value < tempThreshold
+                    : value > tempThreshold;
+              } else if (
+                bloq.type === "OnDetectLight" ||
+                bloq.type === "WaitDetectLight"
+              ) {
+                matches =
+                  bloq.parameters.value === "light"
+                    ? value > 60
+                    : bloq.parameters.value === "dark"
+                    ? value <= 40
+                    : value <= 60 && value > 40;
+              }
+
+              if (
+                (port === 0
+                  ? instance?.ports?.main === "A"
+                  : instance?.ports?.main === "B") &&
+                matches
+              ) {
+                nextBloq(i);
+              }
+            }
+          });
         }
         if (command === Command.DIGITAL_READ) {
           const pin = result.value[1];
