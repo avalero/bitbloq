@@ -46,6 +46,18 @@ export const boards: IBoard[] = [
         "NOTE_B5  988"
       ]
     },
+    libraries: [
+      {
+        zipURL:
+          "https://storage.googleapis.com/bitbloq-prod/arduino-libraries/BQZUMJunior.zip",
+        precompiled: true
+      },
+      {
+        zipURL:
+          "https://storage.googleapis.com/bitbloq-prod/arduino-libraries/ArduinoEventsLib.zip",
+        precompiled: true
+      }
+    ],
     image: {
       url: BoardImage,
       width: 300,

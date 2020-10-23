@@ -69,9 +69,7 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
     const bloqsWidth = bloqsRef.current.clientWidth;
     const containerWidth = containerRef.current.clientWidth;
 
-    const selectedElement = bloqsRef.current.querySelector(
-      "[data-selected],[data-active=true]"
-    );
+    const selectedElement = bloqsRef.current.querySelector("[data-selected]");
     let newScrollLeft = sl;
     if (selectedElement && !editInPlace) {
       const {

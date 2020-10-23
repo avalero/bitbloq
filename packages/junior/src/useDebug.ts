@@ -11,6 +11,7 @@ import {
   IExtraData,
   getBoardDefinition
 } from "@bitbloq/bloqs";
+import { UploadError } from "@bitbloq/code/src/useCodeUpload";
 import { knownBoards } from "@bitbloq/code";
 import { bloqTypes as partialBloqTypes } from "./bloqTypes";
 import { boards as partialBoards } from "./boards";
@@ -119,57 +120,19 @@ const getPort = async (usbVendorId: string) => {
   });
 };
 
-const uploadFirmware = async (usbVendorId: string) => {
-  const avrgirl = new Avrgirl({ board: "zumjunior" });
-  const enc = new TextEncoder();
-  const port = await getPort(usbVendorId);
-
-  const connection = avrgirl.connection;
-  connection._init(() => null);
-  connection._init = cb => cb(null);
-
-  connection.serialPort.open = async function(callback) {
-    try {
-      this.port = port;
-      await this.port.open({ baudrate: 115200, baudRate: 115200 });
-      this.writer = this.port.writable.getWriter();
-      this.reader = this.port.readable.getReader();
-      this.emit("open");
-      this.isOpen = true;
-      callback(null);
-      while (this.port.readable.locked) {
-        try {
-          const { value, done } = await this.reader.read();
-          if (done) {
-            break;
-          }
-          this.emit("data", Buffer.from(value));
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    } catch (e) {
-      callback(e);
-    }
-  };
-
-  avrgirl.protocol.chip.verifyPage = (_a, _b, _c, _d, cb) => cb();
-  avrgirl.protocol.chip.verify = (_a, _b, _c, _d, cb) => cb();
-
-  await new Promise((resolve, reject) => {
-    (avrgirl as Avrgirl).flash(enc.encode(debugFirmware), error =>
-      error ? reject(error) : resolve()
-    );
-  });
-
-  return new Promise(resolve => setTimeout(resolve, 1000));
-};
+interface IUseDebugResult {
+  activeBloqs: Record<string, number>;
+  isDebugging: boolean;
+  startDebugging: (hardware: IHardware) => void;
+  stopDebugging: () => void;
+  uploadFirmware: (hardware: IHardware) => void;
+}
 
 const useDebug = (
   program: IBloqLine[],
   extraData: IExtraData,
   debugSpeed: number
-) => {
+): IUseDebugResult => {
   const portRef = useRef<any | null>(null);
   const readerRef = useRef<ReadableStreamDefaultReader | null>(null);
   const writerRef = useRef<WritableStreamDefaultWriter | null>(null);
@@ -178,7 +141,7 @@ const useDebug = (
   const extraDataRef = useRef<IExtraData>({});
   const isDebuggingRef = useRef<boolean>(false);
   const [isDebugging, setIsDebugging] = useState(false);
-  const [activeBloqs, setActiveBloqs] = useState<number[]>([]);
+  const [activeBloqs, setActiveBloqs] = useState<Record<string, number>>({});
 
   useEffect(() => {
     programRef.current = program;
@@ -188,7 +151,61 @@ const useDebug = (
     extraDataRef.current = extraData;
   }, [extraData]);
 
+  const uploadFirmware = useCallback(async (hardware: IHardware) => {
+    const usbVendorId = knownBoards[hardware.board].vendorId;
+    const avrgirl = new Avrgirl({ board: "zumjunior" });
+    const enc = new TextEncoder();
+    let port;
+    try {
+      port = await getPort(usbVendorId);
+    } catch (e) {
+      throw new UploadError("board-not-found");
+    }
+
+    const connection = avrgirl.connection;
+    connection._init(() => null);
+    connection._init = cb => cb(null);
+
+    connection.serialPort.open = async function(callback) {
+      try {
+        this.port = port;
+        await this.port.open({ baudrate: 115200, baudRate: 115200 });
+        this.writer = this.port.writable.getWriter();
+        this.reader = this.port.readable.getReader();
+        this.emit("open");
+        this.isOpen = true;
+        callback(null);
+        while (this.port.readable.locked) {
+          try {
+            const { value, done } = await this.reader.read();
+            if (done) {
+              break;
+            }
+            this.emit("data", Buffer.from(value));
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      } catch (e) {
+        callback(e);
+      }
+    };
+
+    avrgirl.protocol.chip.verifyPage = (_a, _b, _c, _d, cb) => cb();
+    avrgirl.protocol.chip.verify = (_a, _b, _c, _d, cb) => cb();
+
+    await new Promise((resolve, reject) => {
+      (avrgirl as Avrgirl).flash(enc.encode(debugFirmware), error =>
+        error ? reject(error) : resolve()
+      );
+    });
+
+    return new Promise(resolve => setTimeout(resolve, 1000));
+  }, []);
+
   const startDebugging = useCallback(async (hardware: IHardware) => {
+    const activeBloqs = {};
+
     const board = getBoardDefinition(boards, hardware);
     if (!knownBoards[hardware.board] || !board) return;
 
@@ -224,11 +241,15 @@ const useDebug = (
 
     const usbVendorId = knownBoards[hardware.board].vendorId;
 
-    await uploadFirmware(usbVendorId);
-
     const port = await getPort(usbVendorId);
     portRef.current = port;
     await port.open({ baudrate: 115200, baudRate: 115200 });
+
+    navigator.serial.addEventListener("disconnect", e => {
+      if (e.port === port) {
+        stopDebugging();
+      }
+    });
 
     setIsDebugging(true);
     isDebuggingRef.current = true;
@@ -238,22 +259,23 @@ const useDebug = (
     const writer = port.writable.getWriter();
     writerRef.current = writer;
 
-    const updatingBloq = programRef.current.map(() => false);
-    const nextBloq = (i: number, delay = debugSpeed) => {
-      updatingBloq[i] = true;
+    const updatingBloq = {};
+
+    const nextBloq = (id: string, delay = debugSpeed) => {
+      updatingBloq[id] = true;
       setTimeout(() => {
-        debugBloq(i, activeBloqs[i] + 1);
-        updatingBloq[i] = false;
+        debugBloq(id, activeBloqs[id] + 1);
+        updatingBloq[id] = false;
       }, delay);
     };
 
     const sendMessage = (value: string) => {
-      programRef.current.forEach((line, i) => {
-        if (updatingBloq[i]) return;
-        const bloq = line.bloqs[activeBloqs[i]];
+      programRef.current.forEach(line => {
+        if (updatingBloq[line.id]) return;
+        const bloq = line.bloqs[activeBloqs[line.id]];
         if (bloq.type === "WaitMessage" || bloq.type === "OnMessage") {
           if (value === bloq.parameters.value) {
-            nextBloq(i);
+            nextBloq(line.id);
           }
         }
       });
@@ -296,12 +318,19 @@ const useDebug = (
       playNote(0);
     };
 
+    const executeCount = {};
+
     // Ping values
     intervalRef.current = window.setInterval(() => {
-      programRef.current.forEach((line, i) => {
-        if (updatingBloq[i]) return;
+      programRef.current.forEach(line => {
+        if (activeBloqs[line.id] === undefined) {
+          executeCount[line.id] = 0;
+          activeBloqs[line.id] = 0;
+          debugBloq(line.id, 0);
+        }
+        if (updatingBloq[line.id]) return;
 
-        const bloq = line.bloqs[activeBloqs[i]];
+        const bloq = line.bloqs[activeBloqs[line.id]];
         if (bloq) {
           switch (bloq.type) {
             case "WaitButtonPressed":
@@ -323,7 +352,7 @@ const useDebug = (
               );
               const port = instance?.ports?.main || "A";
               if (value === sevenSegmentValues[port]) {
-                nextBloq(i);
+                nextBloq(line.id);
               }
               break;
             }
@@ -360,38 +389,37 @@ const useDebug = (
               );
               break;
             }
+
+            case "OnStart": {
+              const { times, type } = bloq.parameters;
+              if (type === "loop" || executeCount[line.id] < times) {
+                executeCount[line.id] = executeCount[line.id] + 1;
+                nextBloq(line.id);
+              }
+              break;
+            }
+
+            case "WaitSeconds": {
+              const { value } = bloq.parameters;
+              nextBloq(line.id, (value as number) * 1000);
+              break;
+            }
           }
         }
       });
     }, READ_PIN_SPEED);
 
-    const executeCount = programRef.current.map(() => 0);
-
     let tempThreshold = 0;
 
-    const debugBloq = async (i: number, bloqIndex: number) => {
+    const debugBloq = async (id: string, bloqIndex: number) => {
       if (!isDebuggingRef.current) return;
-      const line = programRef.current[i];
-      activeBloqs[i] = bloqIndex % line.bloqs.length;
-      const bloq = line.bloqs[activeBloqs[i]];
+      const line = programRef.current.find(l => l.id === id);
+      if (!line) return;
+      activeBloqs[id] = bloqIndex % line.bloqs.length;
+      const bloq = line.bloqs[activeBloqs[id]];
       if (bloq) {
         const bloqType = bloqTypesMap[bloq.type] as IBloqType;
         switch (bloq.type) {
-          case "OnStart": {
-            const { times, type } = bloq.parameters;
-            if (type === "loop" || executeCount[i] < times) {
-              executeCount[i] = executeCount[i] + 1;
-              nextBloq(i);
-            }
-            break;
-          }
-
-          case "WaitSeconds": {
-            const { value } = bloq.parameters;
-            nextBloq(i, (value as number) * 1000);
-            break;
-          }
-
           case "RGBLed": {
             const { value } = bloq.parameters;
             writer.write(
@@ -453,17 +481,17 @@ const useDebug = (
           case "Music": {
             if (bloq.parameters.melodyIndex === "stop") {
               stopMelody = true;
-              nextBloq(i);
+              nextBloq(id);
             } else {
               playMelody(bloq.parameters.melodyIndex as number, () =>
-                nextBloq(i)
+                nextBloq(id)
               );
             }
             break;
           }
 
           case "SetDoubleLedOnOff": {
-            const { component, value, led } = bloq.parameters;
+            const { value, led } = bloq.parameters;
             const pins = pinsMap[bloq.parameters.component];
             const pin = led === "White" ? pins[0] : pins[1];
             writer.write(
@@ -511,11 +539,10 @@ const useDebug = (
           bloqType.category === BloqCategory.Action &&
           bloq.type !== "Music"
         ) {
-          nextBloq(i);
+          nextBloq(id);
         }
       }
-
-      setActiveBloqs([...activeBloqs]);
+      setActiveBloqs(Object.assign({}, activeBloqs));
     };
 
     const startDebugging = () => {
@@ -577,8 +604,6 @@ const useDebug = (
             });
           }
         });
-
-      programRef.current.forEach((line, i) => debugBloq(i, 0));
     };
 
     const read = async () => {
@@ -600,8 +625,8 @@ const useDebug = (
         ) {
           const port = result.value[1];
           const value = result.value[2];
-          programRef.current.forEach((line, i) => {
-            const bloq = line.bloqs[activeBloqs[i]];
+          programRef.current.forEach(line => {
+            const bloq = line.bloqs[activeBloqs[line.id]];
 
             if (bloq && multiSensorCommands[bloq.type] === command) {
               const instance = hardware.components.find(
@@ -648,7 +673,7 @@ const useDebug = (
                   : instance?.ports?.main === "B") &&
                 matches
               ) {
-                nextBloq(i);
+                nextBloq(line.id);
               }
             }
           });
@@ -656,10 +681,10 @@ const useDebug = (
         if (command === Command.DIGITAL_READ) {
           const pin = result.value[1];
           const value = result.value[2];
-          programRef.current.forEach((line, i) => {
-            if (updatingBloq[i]) return;
+          programRef.current.forEach(line => {
+            if (updatingBloq[line.id]) return;
 
-            const bloq = line.bloqs[activeBloqs[i]];
+            const bloq = line.bloqs[activeBloqs[line.id]];
             if (bloq) {
               switch (bloq.type) {
                 case "WaitButtonPressed":
@@ -670,7 +695,7 @@ const useDebug = (
                     pin === pins[0].pinValue &&
                     ((value === 1 && pressed) || (value === 0 && !pressed))
                   ) {
-                    nextBloq(i);
+                    nextBloq(line.id);
                   }
                   break;
                 }
@@ -682,7 +707,7 @@ const useDebug = (
                     bloq.parameters.switch === "0" ? pins[0] : pins[1];
                   const pos = bloq.parameters.value === "pos1" ? 0 : 1;
                   if (pin === switchPin.pinValue && value === pos) {
-                    nextBloq(i);
+                    nextBloq(line.id);
                   }
                   break;
                 }
@@ -703,7 +728,7 @@ const useDebug = (
   const stopDebugging = useCallback(async () => {
     setIsDebugging(false);
     isDebuggingRef.current = false;
-    setActiveBloqs([]);
+    setActiveBloqs({});
     clearInterval(intervalRef.current);
 
     try {
@@ -733,7 +758,8 @@ const useDebug = (
     activeBloqs,
     isDebugging,
     startDebugging,
-    stopDebugging
+    stopDebugging,
+    uploadFirmware
   };
 };
 

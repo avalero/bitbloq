@@ -36,7 +36,7 @@ interface IHorizontalBloqEditorProps {
   readOnly?: boolean;
   extraData?: IExtraData;
   onExtraDataChange?: (extraData: IExtraData) => void;
-  activeBloqs?: number[];
+  activeBloqs?: Record<string, number>;
 }
 
 const HorizontalBloqEditor: React.FunctionComponent<IHorizontalBloqEditorProps> = ({
@@ -56,7 +56,7 @@ const HorizontalBloqEditor: React.FunctionComponent<IHorizontalBloqEditorProps> 
   readOnly,
   extraData,
   onExtraDataChange,
-  activeBloqs = []
+  activeBloqs = {}
 }) => {
   const [selectedLineIndex, setSelectedLine] = useState(-1);
   const [selectedBloqIndex, setSelectedBloq] = useState(-1);
@@ -274,7 +274,7 @@ const HorizontalBloqEditor: React.FunctionComponent<IHorizontalBloqEditorProps> 
                 onDelete={onDeleteLine}
                 onSelectedPositionChange={setSelectedLeft}
                 readOnly={readOnly}
-                activeBloq={activeBloqs[i]}
+                activeBloq={activeBloqs[line.id]}
               />
             )
           )}
