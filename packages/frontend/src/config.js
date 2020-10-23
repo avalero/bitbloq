@@ -221,7 +221,7 @@ export const signupSteps = {
 
 const defaultFlags = {
   SHOW_GRAPHQL_LOGS: false,
-  JUNIOR_DEBUG_SPEED: 1000
+  JUNIOR_DEBUG_SPEED: 0
 };
 
 let savedFlags = {};

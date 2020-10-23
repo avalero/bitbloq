@@ -125,7 +125,7 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
     }
   }));
 
-  const { upload, compile, uploadContent } = useCodeUpload({
+  const { upload, compile } = useCodeUpload({
     filesRoot: borndateFilesRoot
   });
 
@@ -315,7 +315,6 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
         )}
         <StatusBar></StatusBar>
       </Main>
-      {uploadContent}
       <NewFileModal
         isOpen={newFileOpen}
         fileExtension={newFileExtension}

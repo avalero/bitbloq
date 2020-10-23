@@ -1,10 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import Borndate from "@bitbloq/borndate";
-import { DialogModal, useTranslate } from "@bitbloq/ui";
 import Avrgirl from "avrgirl-arduino";
-import UploadSpinner from "./UploadSpinner";
 import { knownBoards } from "./config";
-declare let chrome: any;
 
 export enum UploadErrorType {
   CHROME_APP_MISSING = "chrome-app-missing",
@@ -19,9 +16,7 @@ const errorMessages = {
   [UploadErrorType.BOARD_NOT_FOUND]: "Can't connect with board"
 };
 
-const CHROME_APP_TIMEOUT = 1000;
-
-class UploadError extends Error {
+export class UploadError extends Error {
   public type: string;
   public data?: any;
 
@@ -33,6 +28,10 @@ class UploadError extends Error {
   }
 }
 
+interface Navigator {
+  serial: any;
+}
+
 class Uploader {
   private borndate: Borndate;
   private lastSendPromise: Promise<unknown> = Promise.resolve();
@@ -41,34 +40,24 @@ class Uploader {
     this.borndate = new Borndate({ filesRoot });
   }
 
-  public openPort(board: string) {
-    return new Promise((resolve, reject) => {
-      const avrgirl = new Avrgirl({
-        board
-      });
-      const connection = avrgirl.connection;
-      let serialPortError = null;
-      connection._init(() => null);
-      connection._init = cb => cb(null);
-      const boardConfig = knownBoards[board];
-      if (boardConfig) {
-        connection.serialPort.requestOptions = {
-          filters: [
-            {
-              usbVendorId: boardConfig.vendorId
-            }
-          ]
-        };
-      }
-      connection.serialPort.open(error => {
-        if (error) {
-          serialPortError = error;
-          reject(error);
-        } else {
-          resolve(avrgirl);
+  public async openPort(board: string) {
+    const ports = await ((navigator as unknown) as Navigator).serial.getPorts();
+    const port = ports.find(
+      p =>
+        p.getInfo().usbVendorId === knownBoards[board].vendorId &&
+        p.getInfo().usbProductId === knownBoards[board].productId
+    );
+    if (port) {
+      return port;
+    }
+
+    return ((navigator as unknown) as Navigator).serial.requestPort({
+      filters: [
+        {
+          usbVendorId: knownBoards[board].vendorId,
+          usbProductId: knownBoards[board].productId
         }
-      });
-      connection.serialPort.open = cb => cb(serialPortError);
+      ]
     });
   }
 
@@ -80,6 +69,52 @@ class Uploader {
         .then(resolve)
         .catch(e => reject(new UploadError("compile-error", e.errors)));
     });
+  }
+
+  public async uploadHex(hex: string, board: string, openPort: any) {
+    const port = openPort || (await this.openPort(board));
+    const avrgirl = new Avrgirl({ board });
+    const enc = new TextEncoder();
+
+    const connection = avrgirl.connection;
+    connection._init(() => null);
+    connection._init = cb => cb(null);
+
+    connection.serialPort.open = async function(callback) {
+      try {
+        this.port = port;
+        await this.port.open({ baudrate: 115200, baudRate: 115200 });
+        this.writer = this.port.writable.getWriter();
+        this.reader = this.port.readable.getReader();
+        this.emit("open");
+        this.isOpen = true;
+        callback(null);
+        while (this.port.readable.locked) {
+          try {
+            const { value, done } = await this.reader.read();
+            if (done) {
+              break;
+            }
+            this.emit("data", Buffer.from(value));
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      } catch (e) {
+        callback(e);
+      }
+    };
+
+    avrgirl.protocol.chip.verifyPage = (_a, _b, _c, _d, cb) => cb();
+    avrgirl.protocol.chip.verify = (_a, _b, _c, _d, cb) => cb();
+
+    await new Promise((resolve, reject) => {
+      (avrgirl as Avrgirl).flash(enc.encode(hex), error =>
+        error ? reject(error) : resolve()
+      );
+    });
+
+    return new Promise(resolve => setTimeout(resolve, 1000));
   }
 
   public upload(
@@ -94,61 +129,30 @@ class Uploader {
       isCanceled = true;
     };
 
-    const promise = new Promise<void>((resolve, reject) => {
+    const doUpload = async () => {
       const boardConfig = knownBoards[board];
-      this.openPort(board)
-        .then((avrgirl: Avrgirl) => {
+      const port = await this.openPort(board)
+        .then(port => {
           if (onPortOpen) {
             onPortOpen();
           }
-
-          return this.borndate
-            .compile(boardConfig.borndateId, code, libraries)
-            .then(hex => [avrgirl, hex])
-            .catch(e => {
-              try {
-                avrgirl.connection.serialPort.reader.cancel();
-                avrgirl.connection.serialPort.close();
-              } catch (e) {
-                console.log(e.errors);
-              }
-              console.log("Compile errors", e.errors);
-              reject(new UploadError("compile-error", e.errors));
-            });
+          return port;
         })
         .catch(e => {
-          if (isCanceled) {
-            reject(new UploadError("canceled"));
-            return;
-          }
-          reject(new UploadError("board-not-found"));
-        })
-        .then(([avrgirl, hex]) => {
-          if (isCanceled) {
-            avrgirl.connection.serialPort.reader.cancel();
-            avrgirl.connection.serialPort.close();
-            reject(new UploadError("canceled"));
-            return;
-          }
-
-          const enc = new TextEncoder();
-          avrgirl.protocol.chip.verifyPage = (_a, _b, _c, _d, cb) => cb();
-          avrgirl.protocol.chip.verify = (_a, _b, _c, _d, cb) => cb();
-
-          (avrgirl as Avrgirl).flash(enc.encode(hex as string), error => {
-            if (error) {
-              avrgirl.connection.serialPort.reader.cancel();
-              avrgirl.connection.serialPort.close();
-              reject(error);
-              return;
-            } else {
-              resolve();
-            }
-          });
+          throw new UploadError("board-not-found");
         });
-    });
+      const hex = await this.borndate
+        .compile(boardConfig.borndateId, code, libraries)
+        .catch(e => {
+          throw new UploadError("compile-error", e.errors);
+        });
+      if (isCanceled) {
+        throw new UploadError("canceled");
+      }
+      return this.uploadHex(hex, board, port);
+    };
 
-    return [promise, cancel];
+    return [doUpload(), cancel];
   }
 
   public destroy() {
@@ -171,23 +175,19 @@ export interface ICodeUploadResult {
     onPortOpen?: () => void
   ) => void;
   compile: (code: any[], libraries: any[], board: string) => void;
-  uploadContent: React.ReactElement;
   cancel: () => void;
 }
 
-export const useCodeUpload = (options): ICodeUploadResult => {
+export const useCodeUpload = (
+  options: ICodeUploadOptions
+): ICodeUploadResult => {
   const {
     filesRoot,
     onBoardNotFound,
     onUploadError,
     onUploadSuccess
   } = options;
-  const t = useTranslate();
-  const [uploading, setUploading] = useState(false);
   const cancelRef = useRef<any | null>(null);
-  const [uploadSuccess, setUploadSuccess] = useState(false);
-  const [noBoard, setNoBoard] = useState(false);
-  const [uploadText, setUploadText] = useState("");
   const uploaderRef = useRef<Uploader | null>(null);
 
   useEffect(() => {
@@ -210,11 +210,6 @@ export const useCodeUpload = (options): ICodeUploadResult => {
       return;
     }
 
-    setUploading(true);
-    setNoBoard(false);
-    setUploadSuccess(false);
-    setUploadText(t("code.uploading-to-board"));
-
     try {
       const [uploadPromise, uploadCancel] = uploaderRef.current.upload(
         code,
@@ -223,29 +218,19 @@ export const useCodeUpload = (options): ICodeUploadResult => {
         onPortOpen
       );
       cancelRef.current = uploadCancel;
-      const hex = await uploadPromise;
-      setUploading(false);
-      setUploadSuccess(true);
-      setUploadText(t("code.uploading-success"));
+      await uploadPromise;
       if (onUploadSuccess) {
         onUploadSuccess();
       }
     } catch (e) {
-      setUploading(false);
-      setUploadSuccess(false);
-
       if (e.type === "board-not-found") {
-        setNoBoard(true);
-        setUploadText(t("code.board-not-found"));
         if (onBoardNotFound) {
           onBoardNotFound();
         }
-      } else if (e.type === "compile-error") {
-        setUploadText(t("code.uploading-error"));
       }
 
       if (e.type !== "board-not-found" && onUploadError) {
-        onUploadError();
+        onUploadError(e);
       }
 
       throw e;
@@ -258,45 +243,20 @@ export const useCodeUpload = (options): ICodeUploadResult => {
     if (cancelRef.current) {
       cancelRef.current();
     }
-    setUploading(false);
   };
 
   const compile = async (code: any[], libraries: any[], board: string) => {
-    setUploading(true);
-    setNoBoard(false);
-    setUploadSuccess(false);
-    setUploadText(t("code.compiling"));
-
+    if (!uploaderRef.current) return;
     try {
-      const hex = await uploaderRef.current!.compile(code, libraries, board);
-      setUploading(false);
-      setUploadSuccess(true);
-      setUploadText(t("code.compile-success"));
+      const hex = await uploaderRef.current.compile(code, libraries, board);
       return hex;
     } catch (e) {
       console.log("compile error", e);
-      setUploading(false);
-      setUploadSuccess(false);
-
-      if (e.type === "compile-error") {
-        setUploadText(t("code.uploading-error"));
-      }
-
       throw e;
     }
   };
 
-  const uploadContent = (
-    <UploadSpinner
-      uploading={uploading}
-      success={uploadSuccess}
-      noBoard={noBoard}
-      closeOnNoBoard={true}
-      text={uploadText}
-    />
-  );
-
-  return { upload, compile, uploadContent, cancel };
+  return { upload, compile, cancel };
 };
 
 export default useCodeUpload;

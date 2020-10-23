@@ -1,51 +1,23 @@
-import React, { FC, useEffect, useRef, useState } from "react";
+import React, { FC } from "react";
 import styled from "@emotion/styled";
 import { css, keyframes } from "@emotion/core";
 import { Icon, colors } from "@bitbloq/ui";
 
 export interface IUploadSpinnerProps {
+  visible: boolean;
   uploading: boolean;
   success: boolean;
-  noBoard: boolean;
-  closeOnNoBoard?: boolean;
   text: string;
+  onClick: () => void;
 }
 
 const UploadSpinner: FC<IUploadSpinnerProps> = ({
+  visible,
   uploading,
   success,
-  noBoard,
-  closeOnNoBoard,
-  text
+  text,
+  onClick
 }) => {
-  const [visible, setVisible] = useState(false);
-
-  const hideTimeout = useRef(0);
-  useEffect(() => {
-    if (uploading) {
-      setVisible(true);
-    }
-
-    if (!uploading) {
-      hideTimeout.current = window.setTimeout(() => {
-        setVisible(false);
-      }, 5000);
-    }
-  }, [uploading]);
-
-  useEffect(() => {
-    if (closeOnNoBoard && noBoard) {
-      setVisible(false);
-    }
-  }, [closeOnNoBoard, noBoard]);
-
-  useEffect(() => {
-    if (!visible && hideTimeout.current) {
-      clearTimeout(hideTimeout.current);
-      hideTimeout.current = 0;
-    }
-  }, [visible]);
-
   if (!visible) {
     return null;
   }
@@ -53,8 +25,6 @@ const UploadSpinner: FC<IUploadSpinnerProps> = ({
   let icon = "";
   if (uploading) {
     icon = "programming-board";
-  } else if (noBoard) {
-    icon = "board-not-found";
   } else if (success) {
     icon = "tick";
   } else if (!success) {
@@ -62,10 +32,10 @@ const UploadSpinner: FC<IUploadSpinnerProps> = ({
   }
 
   return (
-    <Overlay onClick={() => !uploading && setVisible(false)}>
-      <Container uploading={uploading} success={success} noBoard={noBoard}>
+    <Overlay onClick={onClick}>
+      <Container uploading={uploading} success={success}>
         <Icon name={icon} />
-        <Spinner uploading={uploading} success={success} noBoard={noBoard} />
+        <Spinner uploading={uploading} success={success} />
         <Text>{text}</Text>
       </Container>
     </Overlay>
@@ -90,7 +60,6 @@ const Overlay = styled.div`
 interface IContainerProps {
   uploading: boolean;
   success: boolean;
-  noBoard: boolean;
 }
 const Container = styled.div<IContainerProps>`
   width: 200px;
@@ -102,7 +71,7 @@ const Container = styled.div<IContainerProps>`
       return "white";
     } else if (props.success) {
       return colors.green;
-    } else if (!props.success || props.noBoard) {
+    } else if (!props.success) {
       return colors.red;
     } else {
       return "white";
@@ -131,7 +100,6 @@ const rotation = keyframes`
 interface ISpinnerProps {
   uploading: boolean;
   success: boolean;
-  noBoard: boolean;
 }
 const Spinner = styled.div<ISpinnerProps>`
   position: absolute;
@@ -148,11 +116,6 @@ const Spinner = styled.div<ISpinnerProps>`
       return css`
         animation: ${rotation} 2s ease infinite;
         border-color: white white white rgba(255, 255, 255, 0.4);
-      `;
-    }
-    if (props.noBoard) {
-      return css`
-        border-color: rgba(255, 255, 255, 0.4);
       `;
     }
     if (props.success) {

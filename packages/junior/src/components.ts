@@ -161,7 +161,14 @@ export const components: Array<Partial<IComponent>> = [
       url: ServoSnapshotImage,
       width: 80,
       height: 80
-    }
+    },
+    libraries: [
+      {
+        zipURL:
+          "https://storage.googleapis.com/bitbloq-prod/arduino-libraries/Servo.zip",
+        precompiled: true
+      }
+    ]
   },
   {
     name: "DigitalRGBLED",
@@ -370,7 +377,14 @@ export const components: Array<Partial<IComponent>> = [
         {{pin.pinVarName}}Obj.displayInt(0);
         {% endfor %}`
       ]
-    }
+    },
+    libraries: [
+      {
+        zipURL:
+          "https://storage.googleapis.com/bitbloq-prod/arduino-libraries/BQZUMI2C7SegmentDisplay.zip",
+        precompiled: true
+      }
+    ]
   },
   {
     name: "ZumjuniorMiniservo",
@@ -392,6 +406,13 @@ export const components: Array<Partial<IComponent>> = [
             portPin: "0"
           }
         ]
+      }
+    ],
+    libraries: [
+      {
+        zipURL:
+          "https://storage.googleapis.com/bitbloq-prod/arduino-libraries/Servo.zip",
+        precompiled: true
       }
     ],
     image: {
@@ -461,6 +482,23 @@ export const components: Array<Partial<IComponent>> = [
         ___tempThreshold{{pin.pinVarName}}Temp = {{pin.pinVarName}}Temp.getTemp();
         {% endfor %}`
       ]
-    }
+    },
+    libraries: [
+      {
+        zipURL:
+          "https://storage.googleapis.com/bitbloq-prod/arduino-libraries/BQZUMI2CALPSSensor.zip",
+        precompiled: true
+      },
+      {
+        zipURL:
+          "https://storage.googleapis.com/bitbloq-prod/arduino-libraries/BQZUMI2CColorSensor.zip",
+        precompiled: true
+      },
+      {
+        zipURL:
+          "https://storage.googleapis.com/bitbloq-prod/arduino-libraries/BQZUMI2CTempSensor.zip",
+        precompiled: true
+      }
+    ]
   }
 ];
