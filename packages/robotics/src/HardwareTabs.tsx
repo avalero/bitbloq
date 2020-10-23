@@ -1,6 +1,13 @@
 import React, { FC } from "react";
 import styled from "@emotion/styled";
-import { breakpoints, Draggable, Icon, Tabs, useTranslate } from "@bitbloq/ui";
+import {
+  breakpoints,
+  colors,
+  Draggable,
+  Icon,
+  Tabs,
+  useTranslate
+} from "@bitbloq/ui";
 import { useRecoilValue } from "recoil";
 import {
   boardState,
@@ -116,6 +123,7 @@ const HardwareDeleteDroppable: FC = () => {
 const Container = styled.div`
   position: relative;
   display: flex;
+  border-left: 1px solid ${colors.gray3};
 `;
 
 const Content = styled.div`

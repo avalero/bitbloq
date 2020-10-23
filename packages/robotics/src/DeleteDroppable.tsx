@@ -24,7 +24,6 @@ const Container = styled(Droppable)`
   display: flex;
   align-items: center;
   justify-content: center;
-  border-left: 1px solid #cfcfcf;
 
   svg {
     width: 100px;

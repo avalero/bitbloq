@@ -18,11 +18,13 @@ const ExpandablePanel: FC<IExpandablePanelProps> = ({
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (contentRef.current && open) {
-      const { height } = contentRef.current.getBoundingClientRect();
-      setHeight(height);
-    } else {
-      setHeight(0);
+    if (contentRef.current) {
+      if (open) {
+        const { height } = contentRef.current.getBoundingClientRect();
+        setTimeout(() => setHeight(height), 0);
+      } else {
+        setTimeout(() => setHeight(0), 0);
+      }
     }
   }, [open]);
 

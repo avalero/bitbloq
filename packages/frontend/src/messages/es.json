@@ -801,7 +801,9 @@
       "con": "Con",
       "control": "Control",
       "fun": "Fun",
-      "functions": "Funciones"
+      "functions": "Funciones",
+      "mat": "Mat",
+      "math": "Matemáticas"
     },
     "bloqs": "Bloques",
     "blue": "azul",
@@ -829,7 +831,10 @@
     "robots": "Robots",
     "setup-instructions": "Instrucciones iniciales (Setup)",
     "tab-header": {
-      "component": "Bloques de componentes"
+      "component": "Bloques de componentes",
+      "control": "Bloqs de control",
+      "functions": "Bloques de funciones",
+      "math": "Bloques de matemáticas"
     },
     "tabs": {
       "advanced": "Avanzados",

@@ -168,6 +168,15 @@ export const compilingState = atom<CompilingState>({
   default: {}
 });
 
+export const getBloq = (bloqs: IBloq[], path: number[]): IBloq => {
+  const [first, ...rest] = path;
+  if (path.length > 1) {
+    return getBloq(bloqs[first].children || [], rest);
+  } else {
+    return bloqs[first];
+  }
+};
+
 export const replaceBloqs = (
   bloqs: IBloq[],
   path: number[],

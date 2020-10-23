@@ -30,7 +30,7 @@ const Tabs: React.FunctionComponent<ITabsProps> = ({
   }, [currentTab, onTabChange]);
 
   return (
-    <Container className={className}>
+    <Container className={className} isOpen={activeTab >= 0}>
       <TabsContainer isOpen={activeTab >= 0}>
         {tabs.map((tab, i) => (
           <Tab key={i} onClick={() => setActiveTab(i)}>
@@ -50,11 +50,11 @@ export default Tabs;
 
 /* styled components */
 
-const Container = styled.div`
+const Container = styled.div<{ isOpen: boolean }>`
   display: flex;
   background-color: white;
   min-width: 180px;
-  border-left: 1px solid ${colors.gray3};
+  flex: ${props => (props.isOpen ? 1 : "inherit")};
 
   @media screen and (min-width: ${breakpoints.desktop}px) {
     min-width: 200px;

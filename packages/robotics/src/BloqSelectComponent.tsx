@@ -27,12 +27,23 @@ const BloqSelectComponent: FC<IBloqSelectComponentProps> = ({
         )
         .map(c => ({
           label: c.name,
-          value: c
+          value: c.name
         })),
     [components, componentTypes]
   );
 
-  return <BloqSelect options={options} value={value} onChange={onChange} />;
+  return (
+    <BloqSelect
+      options={options}
+      value={value?.name}
+      onChange={name => {
+        const component = components.find(c => c.name === name);
+        if (component) {
+          onChange(component);
+        }
+      }}
+    />
+  );
 };
 
 export default BloqSelectComponent;

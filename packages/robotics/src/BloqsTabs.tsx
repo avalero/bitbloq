@@ -3,6 +3,7 @@ import { useRecoilValue } from "recoil";
 import styled from "@emotion/styled";
 import {
   breakpoints,
+  colors,
   Draggable,
   Icon,
   HorizontalTabs,
@@ -116,6 +117,8 @@ const BloqsDeleteDroppable: FC = () => {
 const Container = styled.div`
   position: relative;
   display: flex;
+  flex-direction: column;
+  border-left: 1px solid ${colors.gray3};
 `;
 
 const Tab = styled.div`
