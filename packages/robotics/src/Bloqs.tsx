@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useState } from "react";
 import styled from "@emotion/styled";
 import {
   breakpoints,
@@ -14,10 +14,13 @@ import {
   BloqSection,
   draggingBloqsState,
   isDraggingParameterState,
-  replaceBloqs
+  getBloq,
+  replaceBloqs,
+  replaceParameter
 } from "./state";
 import BloqCanvas from "./BloqCanvas";
 import BloqsTabs from "./BloqsTabs";
+import CodeViewer from "./CodeViewer";
 import DraggingBloq from "./DraggingBloq";
 import ExpandablePanel from "./ExpandablePanel";
 import useCodeGeneration from "./useCodeGeneration";
@@ -36,6 +39,8 @@ const Bloqs: FC<IBloqsProps> = ({ borndateFilesRoot }) => {
   const setDraggingBloq = useSetRecoilState(draggingBloqsState);
   const setIsDraggingParameter = useSetRecoilState(isDraggingParameterState);
   const resetDraggingBloq = useResetRecoilState(draggingBloqsState);
+
+  const [viewCode, setViewCode] = useState(false);
 
   const { compile, upload } = useCodeGeneration({
     filesRoot: borndateFilesRoot
@@ -56,6 +61,23 @@ const Bloqs: FC<IBloqsProps> = ({ borndateFilesRoot }) => {
             draggableData.path,
             draggableData.bloqs.length,
             []
+          )
+        });
+      }
+      if (draggableData.type === "bloq-parameter") {
+        setBloqs({
+          ...bloqs,
+          [draggableData.section]: replaceBloqs(
+            bloqs[draggableData.section],
+            draggableData.path,
+            1,
+            [
+              replaceParameter(
+                getBloq(bloqs[draggableData.section], draggableData.path),
+                draggableData.parameterPath,
+                undefined
+              )
+            ]
           )
         });
       }
@@ -94,13 +116,11 @@ const Bloqs: FC<IBloqsProps> = ({ borndateFilesRoot }) => {
         droppableData.path,
         1,
         [
-          {
-            ...droppableData.bloq,
-            parameters: {
-              ...droppableData.bloq.parameters,
-              [droppableData.parameterName]: draggableData.bloqs[0]
-            }
-          }
+          replaceParameter(
+            getBloq(sectionBloqs, droppableData.path),
+            droppableData.parameterPath,
+            draggableData.bloqs[0]
+          )
         ]
       );
       setBloqs({
@@ -160,7 +180,11 @@ const Bloqs: FC<IBloqsProps> = ({ borndateFilesRoot }) => {
             </ExpandablePanel>
           </BloqsContent>
         </Main>
-        <BloqsTabs />
+        <BloqsTabs
+          onViewCode={() => setViewCode(true)}
+          viewingCode={viewCode}
+        />
+        {viewCode && <CodeViewer onClose={() => setViewCode(false)} />}
         <DraggingBloq />
       </Container>
     </DragAndDropProvider>
@@ -172,12 +196,14 @@ export default Bloqs;
 const Container = styled.div`
   flex: 1;
   display: flex;
+  max-width: 100%;
 `;
 
 const Main = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 `;
 
 const Toolbar = styled.div`

@@ -23,7 +23,9 @@ const BloqSelectComponent: FC<IBloqSelectComponentProps> = ({
     () =>
       components
         .filter(c =>
-          componentTypes.some(type => isInstanceOf(c.component, type))
+          componentTypes
+            ? componentTypes.some(type => isInstanceOf(c.component, type))
+            : true
         )
         .map(c => ({
           label: c.name,

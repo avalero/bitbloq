@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useRef } from "react";
-import { colors } from "@bitbloq/ui";
+import colors from "../colors";
 import styled from "@emotion/styled";
 import * as monaco from "monaco-editor";
 import {
@@ -22,7 +22,7 @@ monaco.editor.defineTheme("bitbloqTheme", {
     { token: "string", foreground: colors.brandOrange }
   ],
   colors: {
-    [editorBackground]: colors.gray1,
+    [editorBackground]: "#ffffff",
     [editorForeground]: colors.black,
     [editorLineNumbers]: colors.gray5,
     [editorActiveLineNumber]: colors.black
@@ -35,15 +35,33 @@ interface IError {
   message: string;
 }
 
-interface IEditorProps {
-  code: string;
-  onChange: (newCode: string) => void;
-  errors: IError[];
+interface IRange {
+  startLine: number;
+  startColumn: number;
+  endLine: number;
+  endColumn: number;
 }
 
-const Editor: FC<IEditorProps> = ({ code, onChange, errors }) => {
+interface ICodeEditorProps {
+  code: string;
+  onChange?: (newCode: string) => void;
+  errors?: IError[];
+  readOnly?: boolean;
+  disableMinimap?: boolean;
+  selectedRange?: IRange;
+}
+
+const CodeEditor: FC<ICodeEditorProps> = ({
+  code,
+  onChange,
+  errors = [],
+  readOnly = false,
+  disableMinimap = false,
+  selectedRange
+}) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<monaco.editor.ICodeEditor | null>(null);
+  const decorationsRef = useRef<string[]>([]);
 
   useEffect(() => {
     const onWindowResize = () => {
@@ -60,17 +78,28 @@ const Editor: FC<IEditorProps> = ({ code, onChange, errors }) => {
   }, []);
 
   useEffect(() => {
+    if (readOnly && editorRef.current) {
+      editorRef.current.getModel()?.setValue(code);
+    }
+  }, [code]);
+
+  useEffect(() => {
     if (containerRef.current) {
       const editor = monaco.editor.create(containerRef.current, {
         value: code,
         language: "cpp",
         fontFamily: "Roboto Mono",
         theme: "bitbloqTheme",
-        automaticLayout: true
+        automaticLayout: true,
+        scrollBeyondLastLine: false,
+        readOnly,
+        minimap: {
+          enabled: !disableMinimap
+        }
       });
 
       const subscription = editor.onDidChangeModelContent(event => {
-        onChange(editor.getValue());
+        onChange && onChange(editor.getValue());
       });
 
       editorRef.current = editor;
@@ -105,13 +134,47 @@ const Editor: FC<IEditorProps> = ({ code, onChange, errors }) => {
         }))
       );
     }
+
+    setSelection(selectedRange);
   }, [errors, editorRef.current]);
+
+  useEffect(() => {
+    setSelection(selectedRange);
+  }, [selectedRange]);
+
+  const setSelection = (range?: IRange) => {
+    if (editorRef.current) {
+      decorationsRef.current = editorRef.current.deltaDecorations(
+        decorationsRef.current,
+        range
+          ? [
+              {
+                range: new monaco.Range(
+                  range.startLine,
+                  range.startColumn,
+                  range.endLine,
+                  range.endColumn
+                ),
+                options: {
+                  inlineClassName: "selected-range"
+                }
+              }
+            ]
+          : []
+      );
+    }
+  };
 
   return <Container ref={containerRef} key="editor" />;
 };
 
-export default Editor;
+export default CodeEditor;
 
 const Container = styled.div`
   flex: 1;
+
+  .selected-range {
+    background-color: ${colors.black};
+    color: white;
+  }
 `;

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import colors from "../colors";
 import breakpoints from "../breakpoints";
+import useClickOutside from "../hooks/useClickOutside";
 
 export interface ITabsProps {
   tabs: Array<{
@@ -13,15 +14,20 @@ export interface ITabsProps {
   currentTab?: number;
   onTabChange?: (newTab: number) => void;
   className?: string;
+  closeOnClickOutside?: boolean;
 }
 
 const Tabs: React.FunctionComponent<ITabsProps> = ({
   className,
   currentTab,
   onTabChange,
+  closeOnClickOutside,
   tabs
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState(currentTab || -1);
+
+  useClickOutside(containerRef, () => closeOnClickOutside && setActiveTab(-1));
 
   useEffect(() => {
     if (currentTab !== undefined && onTabChange) {
@@ -29,11 +35,19 @@ const Tabs: React.FunctionComponent<ITabsProps> = ({
     }
   }, [currentTab, onTabChange]);
 
+  const onTabClick = (i: number) => {
+    if (onTabChange) {
+      onTabChange(i);
+    } else {
+      setActiveTab(i);
+    }
+  };
+
   return (
-    <Container className={className} isOpen={activeTab >= 0}>
+    <Container className={className} isOpen={activeTab >= 0} ref={containerRef}>
       <TabsContainer isOpen={activeTab >= 0}>
         {tabs.map((tab, i) => (
-          <Tab key={i} onClick={() => setActiveTab(i)}>
+          <Tab key={i} onClick={() => onTabClick(i)}>
             <TabIcon active={i === activeTab} color={tab.color || "#b9bdc8"}>
               {tab.icon}
             </TabIcon>

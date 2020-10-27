@@ -1,8 +1,8 @@
 import React, { FC, useMemo } from "react";
-import { useRecoilCallback } from "recoil";
+import { useRecoilCallback, useRecoilState } from "recoil";
 import styled from "@emotion/styled";
 import { IComponentInstance } from "@bitbloq/bloqs";
-import { useTranslate } from "@bitbloq/ui";
+import { colors, useTranslate } from "@bitbloq/ui";
 import { bloqCategories } from "./config";
 import { IBloq, InstructionType } from "./types";
 import BloqList from "./BloqList";
@@ -10,7 +10,13 @@ import BloqParameter from "./BloqParameter";
 import BloqSelect from "./BloqSelect";
 import BloqSelectComponent from "./BloqSelectComponent";
 import BloqTextInput from "./BloqTextInput";
-import { getBloq, replaceBloqs, bloqsState } from "./state";
+import {
+  getBloq,
+  replaceBloqs,
+  replaceParameter,
+  bloqsState,
+  selectedBloqState
+} from "./state";
 import useBloqsDefinition from "./useBloqsDefinition";
 import useUpdateContent from "./useUpdateContent";
 
@@ -18,13 +24,16 @@ export interface IBloqProps {
   bloq: IBloq;
   section: string;
   path: number[];
-  parameterName?: string;
+  parameterPath?: string[];
 }
 
-const Bloq: FC<IBloqProps> = ({ bloq, section, parameterName, path }) => {
+const Bloq: FC<IBloqProps> = ({ bloq, section, parameterPath = [], path }) => {
   const t = useTranslate();
   const updateContent = useUpdateContent();
   const { getBloqType } = useBloqsDefinition();
+
+  const [selectedBloq, setSelectedBloq] = useRecoilState(selectedBloqState);
+  const isSelected = selectedBloq === bloq;
 
   const type = getBloqType(bloq.type);
 
@@ -42,22 +51,14 @@ const Bloq: FC<IBloqProps> = ({ bloq, section, parameterName, path }) => {
     ({ set, snapshot }) => async (newBloq: IBloq) => {
       const bloqs = await snapshot.getPromise(bloqsState);
       const sectionBloqs = bloqs[section];
-      let updatedBloq;
-      if (isParameter && parameterName) {
-        const parentBloq = getBloq(sectionBloqs, path);
-        updatedBloq = {
-          ...parentBloq,
-          parameters: {
-            ...(parentBloq.parameters || {}),
-            [parameterName]: newBloq
-          }
-        };
-      } else {
-        updatedBloq = newBloq;
-      }
-      console.log("UPDATE BLOQ", updatedBloq);
       const newSectionBloqs = replaceBloqs(sectionBloqs, path, 1, [
-        updatedBloq
+        isParameter
+          ? replaceParameter(
+              getBloq(sectionBloqs, path),
+              parameterPath,
+              newBloq
+            )
+          : newBloq
       ]);
       set(bloqsState, {
         ...bloqs,
@@ -67,112 +68,136 @@ const Bloq: FC<IBloqProps> = ({ bloq, section, parameterName, path }) => {
     }
   );
 
+  const onClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedBloq(bloq);
+  };
+
   return (
-    <Container>
+    <Container onClick={onClick}>
       {false && <ErrorContainer />}
       <Header>
-        {isParameter && <HeaderNodge style={{ backgroundColor: color }} />}
-        <HeaderContent
-          style={{
-            backgroundColor: color,
-            borderBottomLeftRadius: isBlock ? 0 : 4
-          }}
-        >
-          {type.uiElements.map((uiElement, i) => {
-            switch (uiElement.type) {
-              case "label":
-                return <Label key={i}>{t(uiElement.text)}</Label>;
+        {isParameter && (
+          <HeaderNodgeWrap>
+            {isSelected && <HeaderNodgeSelected />}
+            <HeaderNodge style={{ backgroundColor: color }} />
+          </HeaderNodgeWrap>
+        )}
+        <HeaderContentWrap>
+          {isSelected && (
+            <HeaderContentSelected
+              style={{ borderBottomLeftRadius: isBlock ? 0 : 4 }}
+            />
+          )}
+          <HeaderContent
+            style={{
+              backgroundColor: color,
+              borderBottomLeftRadius: isBlock ? 0 : 4
+            }}
+          >
+            {type.uiElements.map((uiElement, i) => {
+              switch (uiElement.type) {
+                case "label":
+                  return <Label key={i}>{t(uiElement.text)}</Label>;
 
-              case "select": {
-                return (
-                  <BloqSelect
-                    key={i}
-                    options={uiElement.options.map(option => ({
-                      value: option.value,
-                      label: t(option.label)
-                    }))}
-                    value={bloq.parameters?.[uiElement.parameterName]}
-                    onChange={newValue =>
-                      onBloqChange({
-                        ...bloq,
-                        parameters: {
-                          ...(bloq.parameters || {}),
-                          [uiElement.parameterName]: newValue
-                        }
-                      })
-                    }
-                  />
-                );
+                case "select": {
+                  return (
+                    <BloqSelect
+                      key={i}
+                      options={uiElement.options.map(option => ({
+                        value: option.value,
+                        label: t(option.label)
+                      }))}
+                      value={bloq.parameters?.[uiElement.parameterName]}
+                      onChange={newValue =>
+                        onBloqChange({
+                          ...bloq,
+                          parameters: {
+                            ...(bloq.parameters || {}),
+                            [uiElement.parameterName]: newValue
+                          }
+                        })
+                      }
+                    />
+                  );
+                }
+
+                case "select-component": {
+                  return (
+                    <BloqSelectComponent
+                      key={i}
+                      componentTypes={uiElement.componentTypes}
+                      value={
+                        bloq.parameters?.[uiElement.parameterName] as
+                          | IComponentInstance
+                          | undefined
+                      }
+                      onChange={newValue =>
+                        onBloqChange({
+                          ...bloq,
+                          parameters: {
+                            ...(bloq.parameters || {}),
+                            [uiElement.parameterName]: newValue
+                          }
+                        })
+                      }
+                    />
+                  );
+                }
+
+                case "parameter": {
+                  return (
+                    <BloqParameter
+                      key={i}
+                      bloq={bloq}
+                      section={section}
+                      path={path}
+                      parameterPath={[
+                        ...parameterPath,
+                        uiElement.parameterName
+                      ]}
+                    />
+                  );
+                }
+
+                case "text-input": {
+                  return (
+                    <BloqTextInput
+                      size={2}
+                      type="text"
+                      key={i}
+                      value={
+                        (bloq.parameters?.[
+                          uiElement.parameterName
+                        ] as string) || ""
+                      }
+                      onChange={e =>
+                        onBloqChange({
+                          ...bloq,
+                          parameters: {
+                            ...(bloq.parameters || {}),
+                            [uiElement.parameterName]: e.target.value
+                          }
+                        })
+                      }
+                    />
+                  );
+                }
+
+                default:
+                  return null;
               }
-
-              case "select-component": {
-                return (
-                  <BloqSelectComponent
-                    key={i}
-                    componentTypes={uiElement.componentTypes}
-                    value={
-                      bloq.parameters?.[uiElement.parameterName] as
-                        | IComponentInstance
-                        | undefined
-                    }
-                    onChange={newValue =>
-                      onBloqChange({
-                        ...bloq,
-                        parameters: {
-                          ...(bloq.parameters || {}),
-                          [uiElement.parameterName]: newValue
-                        }
-                      })
-                    }
-                  />
-                );
-              }
-
-              case "parameter": {
-                return (
-                  <BloqParameter
-                    key={i}
-                    bloq={bloq}
-                    section={section}
-                    path={path}
-                    parameterName={uiElement.parameterName}
-                  />
-                );
-              }
-
-              case "text-input": {
-                return (
-                  <BloqTextInput
-                    size={2}
-                    type="text"
-                    key={i}
-                    value={
-                      (bloq.parameters?.[uiElement.parameterName] as string) ||
-                      ""
-                    }
-                    onChange={e =>
-                      onBloqChange({
-                        ...bloq,
-                        parameters: {
-                          ...(bloq.parameters || {}),
-                          [uiElement.parameterName]: e.target.value
-                        }
-                      })
-                    }
-                  />
-                );
-              }
-
-              default:
-                return null;
-            }
-          })}
-        </HeaderContent>
+            })}
+          </HeaderContent>
+        </HeaderContentWrap>
       </Header>
       {isBlock && (
         <>
           <ChildrenWrap>
-            <ChildrenLeft style={{ backgroundColor: color }} />
+            <ChildrenLeftWrap>
+              {isSelected && <ChildrenLeftSelected />}
+              <ChildrenLeft style={{ backgroundColor: color }} />
+            </ChildrenLeftWrap>
             <Children>
               <BloqList
                 bloqs={children}
@@ -181,7 +206,10 @@ const Bloq: FC<IBloqProps> = ({ bloq, section, parameterName, path }) => {
               />
             </Children>
           </ChildrenWrap>
-          <Footer style={{ backgroundColor: color }} />
+          <FooterWrap>
+            {isSelected && <FooterSelected />}
+            <Footer style={{ backgroundColor: color }} />
+          </FooterWrap>
         </>
       )}
     </Container>
@@ -193,6 +221,7 @@ export default Bloq;
 const Container = styled.div`
   display: inline-block;
   margin-bottom: 2px;
+  cursor: pointer;
 `;
 
 const Header = styled.div`
@@ -201,20 +230,56 @@ const Header = styled.div`
   align-items: center;
 `;
 
-const HeaderNodge = styled.div`
-  border-radius: 7px;
+const HeaderNodgeWrap = styled.div`
   width: 14px;
   height: 14px;
-  overflow: hidden;
+  display: flex;
+  position: relative;
   margin-right: -7px;
+`;
+
+const HeaderNodgeSelected = styled.div`
+  content: "";
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  top: -2px;
+  bottom: -2px;
+  background-color: ${colors.black};
+  border-radius: 9px;
+`;
+
+const HeaderNodge = styled.div`
+  position: relative;
+  border-radius: 7px;
+  overflow: hidden;
+  flex: 1;
+  z-index: 1;
+`;
+
+const HeaderContentWrap = styled.div`
+  position: relative;
+  display: flex;
+  height: 40px;
+`;
+
+const HeaderContentSelected = styled.div`
+  content: "";
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  top: -2px;
+  bottom: -2px;
+  background-color: ${colors.black};
+  border-radius: 6px;
 `;
 
 const HeaderContent = styled.div`
   display: flex;
+  position: relative;
   border-radius: 4px;
   padding: 0px 10px;
   font-size: 14px;
-  height: 40px;
   align-items: center;
 
   > * + * {
@@ -226,8 +291,25 @@ const ChildrenWrap = styled.div`
   display: flex;
 `;
 
+const ChildrenLeftWrap = styled.div`
+  position: relative;
+  display: flex;
+`;
+
+const ChildrenLeftSelected = styled.div`
+  content: "";
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  top: 0;
+  bottom: 0;
+  background-color: ${colors.black};
+`;
+
 const ChildrenLeft = styled.div`
+  position: relative;
   width: 20px;
+  z-index: 1;
 `;
 
 const Children = styled.div`
@@ -236,8 +318,28 @@ const Children = styled.div`
   padding: 2px 2px 18px 2px;
 `;
 
-const Footer = styled.div`
+const FooterWrap = styled.div`
+  position: relative;
   height: 20px;
+  width: 140px;
+  display: flex;
+`;
+
+const FooterSelected = styled.div`
+  content: "";
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  top: -2px;
+  bottom: -2px;
+  background-color: ${colors.black};
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+  border-bottom-left-radius: 6px;
+`;
+
+const Footer = styled.div`
+  position: relative;
   width: 140px;
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;

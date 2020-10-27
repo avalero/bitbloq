@@ -41,6 +41,7 @@ const Container = styled.div`
   padding: 20px;
   min-height: 260px;
   position: relative;
+  overflow-x: auto;
 `;
 
 const InitialDroppable = styled(Droppable)`

@@ -100,6 +100,14 @@ const createController = ({
         if (draggingCallback) {
           draggingCallback(true);
         }
+
+        setTimeout(() => {
+          droppableHandlers.forEach(handler => {
+            const { x, y } = handler.element.getBoundingClientRect();
+            handler.x = x;
+            handler.y = y;
+          });
+        }, 100);
       } else {
         return;
       }
@@ -190,12 +198,6 @@ const createController = ({
       document.body.style.cursor = "grabbing";
       window.addEventListener("mousemove", onMouseMove);
       window.addEventListener("mouseup", onMouseUp);
-
-      droppableHandlers.forEach(handler => {
-        const { x, y } = handler.element.getBoundingClientRect();
-        handler.x = x;
-        handler.y = y;
-      });
     }
   };
 };

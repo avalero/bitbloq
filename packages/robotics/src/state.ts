@@ -153,6 +153,16 @@ export const bloqsState = atom<BloqState>({
   }
 });
 
+interface ISelectedBloqState {
+  section: BloqSection | null;
+  path: number[];
+}
+
+export const selectedBloqState = atom<IBloq | null>({
+  key: "selectedBloqState",
+  default: null
+});
+
 export interface CompilingState {
   compiling?: boolean;
   uploading?: boolean;
@@ -206,3 +216,22 @@ export const replaceBloqs = (
     ];
   }
 };
+
+export const replaceParameter = (
+  bloq: IBloq,
+  [parameterName, ...restPath]: string[],
+  value: string | number | IBloq | IComponentInstance | undefined
+): IBloq => ({
+  ...bloq,
+  parameters: {
+    ...bloq.parameters,
+    [parameterName]:
+      restPath.length > 0 && bloq.parameters && bloq.parameters[parameterName]
+        ? replaceParameter(
+            bloq.parameters[parameterName] as IBloq,
+            restPath,
+            value
+          )
+        : value
+  }
+});

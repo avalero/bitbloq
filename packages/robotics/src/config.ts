@@ -32,3 +32,6 @@ export const bloqSubCategories = [
   BloqSubCategory.Basic,
   BloqSubCategory.Advanced
 ];
+
+export const selectedCodeStartToken = "___SELECTED_CODE";
+export const selectedCodeEndToken = "SELECTED_CODE___";

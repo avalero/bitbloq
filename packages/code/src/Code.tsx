@@ -11,7 +11,7 @@ import update from "immutability-helper";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
 import { useTranslate, Button, Icon, Select } from "@bitbloq/ui";
-import Editor from "./Editor";
+import Editor from "@bitbloq/ui/src/components/CodeEditor";
 import FileTree from "./FileTree";
 import NewFileModal from "./NewFileModal";
 import NewFolderModal from "./NewFolderModal";
