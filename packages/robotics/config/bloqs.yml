@@ -1,18 +1,53 @@
 ---
-- name: turn-led
-  instructionType: statement
+
+# Generic bloqs
+
+## Component
+
+- name: read
+  instructionType: parameter
   category: component
   subCategory: basic
+  code:
+    main: |-
+      digitalRead({{getPinName(parameters.component, 0, 0)}})
   uiElements:
-    - type: select
-      parameterName: turnOn
-      options:
-        - value: true
-          label: robotics.turn-on
-        - value: false
-          label: robotics.turn-off
     - type: label
-      text: robotics.the-led
+      text: robotics.read
+    - type: select-component
+      parameterName: component
+      componentTypes:
+        - digital-input
+
+- name: variable-components
+  instructionType: parameter
+  category: component
+  subCategory: advanced
+  code:
+    main: |-
+      {{parameters.component.name}}
+  uiElements:
+    - type: label
+      text: robotics.variable-components
+    - type: select-component
+      parameterName: component
+
+- name: digital-read
+  instructionType: parameter
+  category: component
+  subCategory: advanced
+  code:
+    main: |-
+      digitalRead({{getBloqCode(parameters.pin)}})
+  uiElements:
+    - type: label
+      text: robotics.read-digital-pin
+    - type: parameter
+      parameterName: pin
+
+
+
+## Control
 
 - name: if
   instructionType: block
@@ -43,19 +78,6 @@
     - type: label
       text: robotics.execute
 
-- name: read
-  instructionType: parameter
-  category: component
-  subCategory: basic
-  uiElements:
-    - type: label
-      text: robotics.read
-    - type: select
-      parameterName: component
-      options:
-        - value: component1
-          label: Component
-
 - name: number
   instructionType: parameter
   category: math
@@ -76,7 +98,7 @@
   forComponents:
     - zumjunior-rgb-led
   code:
-    main: >
+    main: |-
       zumJunior.setRGBLEDColor(BQ::ZUMJunior::{{parameters.color}});
   uiElements:
     - type: label
@@ -104,7 +126,7 @@
   forComponents:
     - zumjunior-rgb-led
   code:
-    main: >
+    main: |-
       zumJunior.setRGBLED({{getBloqCode(parameters.r)}}, {{getBloqCode(parameters.g)}}, {{getBloqCode(parameters.b)}});
   uiElements:
     - type: label
@@ -123,7 +145,7 @@
   forComponents:
     - zumjunior-rgb-led
   code:
-    main: >
+    main: |-
       zumJunior.setRGBLEDColor(BQ::ZUMJunior::BLACK);
   uiElements:
     - type: label
@@ -136,7 +158,7 @@
   forComponents:
     - zumjunior-buzzer
   code:
-    main: >
+    main: |-
       zumJunior.play(BQ::ZUMJunior::{{parameters.note}}, {{parameters.duration}});
       delay({{parameters.duration}});
   uiElements:
@@ -166,7 +188,27 @@
     - type: label
       text: robotics.milliseconds
 
-
+- name: play-zumjunior-buzz-with-params
+  instructionType: statement
+  category: component
+  subCategory: junior
+  forComponents:
+    - zumjunior-buzzer
+  code:
+    main: |-
+      zumJunior.play({{getBloqCode(parameters.note)}}, {{getBloqCode(parameters.duration)}});
+      delay({{getBloqCode(parameters.duration)}});
+  uiElements:
+    - type: label
+      text: robotics.play-buzzer-with-note
+    - type: parameter
+      parameterName: note
+    - type: label
+      text: robotics.during
+    - type: parameter
+      parameterName: duration
+    - type: label
+      text: robotics.milliseconds
 
 - name: if-zumjunior-button-pressed
   instructionType: block
@@ -175,9 +217,9 @@
   forComponents:
     - zumjunior-button
   code:
-    main: >
+    main: |-
       if ({{"!" if not parameters.pressed}}digitalRead({{parameters.component.name}}Pin)) {
-        {{getBloqsCode(children)}}
+      {{getBloqsCode(children) | indent(4, true)}}
       }
   uiElements:
     - type: label

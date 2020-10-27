@@ -1,6 +1,6 @@
 import React, { FC } from "react";
 import { useRecoilValue } from "recoil";
-import { Droppable } from "@bitbloq/ui";
+import { Draggable, Droppable } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import { IBloq } from "./types";
 import { isDraggingParameterState } from "./state";
@@ -8,17 +8,18 @@ import Bloq from "./Bloq";
 
 interface IBloqParameterProps {
   bloq: IBloq;
-  parameterName: string;
+  parameterPath: string[];
   section: string;
   path: number[];
 }
 
 const BloqParameter: FC<IBloqParameterProps> = ({
   bloq,
-  parameterName,
+  parameterPath,
   section,
   path
 }) => {
+  const parameterName = parameterPath[parameterPath.length - 1];
   const isDraggingParameter = useRecoilValue(isDraggingParameterState);
   const { parameters = {} } = bloq;
   const param = parameters[parameterName] as IBloq | undefined;
@@ -29,10 +30,9 @@ const BloqParameter: FC<IBloqParameterProps> = ({
       active={!param && isDraggingParameter}
       data={{
         type: "bloq-parameter",
-        bloq,
         section,
         path,
-        parameterName: parameterName
+        parameterPath
       }}
     >
       {active => (
@@ -40,14 +40,29 @@ const BloqParameter: FC<IBloqParameterProps> = ({
           <Nodge />
           <Content>
             {param && (
-              <BloqWrap>
-                <Bloq
-                  bloq={param}
-                  section={section}
-                  path={path}
-                  parameterName={parameterName}
-                />
-              </BloqWrap>
+              <Draggable
+                data={{
+                  type: "bloq-parameter",
+                  bloqs: [param],
+                  section,
+                  path,
+                  parameterPath
+                }}
+                draggableHeight={0}
+                draggableWidth={0}
+                dragThreshold={10}
+              >
+                {props => (
+                  <BloqWrap {...props}>
+                    <Bloq
+                      bloq={param}
+                      section={section}
+                      path={path}
+                      parameterPath={parameterPath}
+                    />
+                  </BloqWrap>
+                )}
+              </Draggable>
             )}
             {active && <Active />}
           </Content>

@@ -7,6 +7,7 @@ import { useSetRecoilState, useRecoilCallback, Snapshot } from "recoil";
 import bloqTypes from "../config/bloqs.yml";
 import boards from "../config/boards.yml";
 import components from "../config/components.yml";
+import { selectedCodeStartToken, selectedCodeEndToken } from "./config";
 import { IBoard, IComponent, IComponentInstance } from "@bitbloq/bloqs";
 import { IBloq, InstructionType } from "./types";
 import {
@@ -30,34 +31,25 @@ const componentsMap: Record<string, IComponent> = components.reduce(
 
 const codeTemplate = `
 /***   Included libraries  ***/
-
-{% for include in includes 
-%}#include {{include | safe}}
+{% for include in includes -%}
+#include {{include | safe}}
 {% endfor %}
-
-
-
 /***   Global variables and function definition  ***/
-{% for g in globals
-%}{{g | safe}}
+{% for g in globals -%}
+{{g | safe}}
 {% endfor %}
-
-
-
-
 /***   Setup  ***/
 void setup() {
-    {% for s in setup %}
-    {{s | safe}}
-    {% endfor %}
+{% for s in setup -%}
+{{ s | safe | indent(4, true) }}
+{% endfor -%}
 }
-
 
 /***   Loop  ***/
 void loop() {
-    {% for l in loop %}
-    {{l | safe}}
-    {% endfor %}
+{% for l in loop -%}
+{{l | safe | indent(4, true) }}
+{% endfor -%}
 }
 `;
 
@@ -129,13 +121,25 @@ const getComponentCode = (
 export const getCode = (
   boardName: string,
   componentInstances: IComponentInstance[],
-  bloqs: BloqState
+  bloqs: BloqState,
+  selectedBloq?: IBloq | null
 ): string => {
   const board = boardsMap[boardName];
 
   const templateFunctions = {
     getComponentType: (instance: IComponentInstance) =>
-      componentsMap[instance.component],
+      instance && componentsMap[instance.component],
+    getPinName: (
+      instance: IComponentInstance,
+      connectorIndex: number,
+      pinIndex: number
+    ) => {
+      if (!instance) return "";
+      const componentType = componentsMap[instance.component];
+      const connector = componentType.connectors[connectorIndex];
+      const pin = connector && connector.pins[pinIndex];
+      return pin ? `${instance.name}${pin.name}` : "";
+    },
     getPinValue: (
       instance: IComponentInstance,
       connectorName: string,
@@ -147,9 +151,9 @@ export const getCode = (
       return portPin && portPin.value;
     },
     getBloqCode: (bloq: IBloq) =>
-      bloq && getBloqsCode([bloq], templateFunctions)[0],
+      bloq && getBloqsCode([bloq], templateFunctions, selectedBloq)[0],
     getBloqsCode: (bloqs: IBloq[]) =>
-      bloqs && getBloqsCode(bloqs, templateFunctions).join("\n")
+      bloqs && getBloqsCode(bloqs, templateFunctions, selectedBloq).join("\n")
   };
 
   const componentsSections = componentInstances.map(instance =>
@@ -169,7 +173,7 @@ export const getCode = (
   const bloqSections = Object.values(BloqSection).reduce(
     (acc, section) => ({
       ...acc,
-      [section]: getBloqsCode(bloqs[section], templateFunctions)
+      [section]: getBloqsCode(bloqs[section], templateFunctions, selectedBloq)
     }),
     {}
   );
@@ -197,7 +201,8 @@ const bloqTypesMap = bloqTypes.reduce(
 
 export const getBloqsCode = (
   bloqs: IBloq[],
-  templateFunctions: Record<string, any>
+  templateFunctions: Record<string, any>,
+  selectedBloq?: IBloq | null
 ): string[] =>
   bloqs.map(bloq => {
     const bloqType = bloqTypesMap[bloq.type];
@@ -205,10 +210,14 @@ export const getBloqsCode = (
       return "";
     }
 
-    return nunjucks.renderString(bloqType.code.main, {
+    const code = nunjucks.renderString(bloqType.code.main, {
       ...bloq,
       ...templateFunctions
     });
+
+    return bloq === selectedBloq
+      ? `${selectedCodeStartToken}${code}${selectedCodeEndToken}`
+      : code;
   });
 
 interface IUseCodeGeneration {

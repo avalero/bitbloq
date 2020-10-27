@@ -16,6 +16,7 @@ import CityElements from "./icons/CityElements";
 import Clock from "./icons/Clock";
 import Close from "./icons/Close";
 import CloudLogo from "./icons/CloudLogo";
+import Code from "./icons/Code";
 import Column from "./icons/Column";
 import Cone from "./icons/Cone";
 import Crotchet from "./icons/Crotchet";
@@ -176,6 +177,8 @@ const Icon: React.SFC<IIconProps> = ({ name, className }) => {
       return <Close className={className} />;
     case "cloud-logo":
       return <CloudLogo className={className} />;
+    case "code":
+      return <Code className={className} />;
     case "column":
       return <Column className={className} />;
     case "crotchet":

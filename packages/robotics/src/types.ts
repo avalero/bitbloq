@@ -79,7 +79,10 @@ export interface IBloqType {
 export interface IBloq {
   type: string;
   children?: IBloq[];
-  parameters?: Record<string, string | number | IBloq | IComponentInstance>;
+  parameters?: Record<
+    string,
+    string | number | IBloq | IComponentInstance | undefined
+  >;
 }
 
 export enum BloqSection {

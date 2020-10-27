@@ -3,34 +3,34 @@
 - name: base-component
   code:
     globals:
-      - >
-        {% for connector in getComponentType(component).connectors %}
-        {% for pin in connector.pins %}
+      - |-
+        {%- for connector in getComponentType(component).connectors -%}
+        {%- for pin in connector.pins -%}
         uint8_t {{component.name}}{{pin.name}} = {{getPinValue(component, connector.name, pin.portPin)}};
-        {% endfor %}
-        {% endfor %}
+        {%- endfor -%}
+        {%- endfor -%}
 
 - name: digital-input
   extends: base-component
   code:
     setup:
-      - >
-        {% for connector in getComponentType(component).connectors %}
-        {% for pin in connector.pins %}
+      - |-
+        {%- for connector in getComponentType(component).connectors -%}
+        {%- for pin in connector.pins -%}
         pinMode({{component.name}}{{pin.name}}, INPUT);
-        {% endfor %}
-        {% endfor %}
+        {%- endfor -%}
+        {%- endfor -%}
 
 - name: digital-output
   extends: base-component
   code:
     setup:
-      - >
-        {% for connector in getComponentType(component).connectors %}
-        {% for pin in connector.pins %}
-        pinMode({{component.name}}{{pin.name}}, INPUT);
-        {% endfor %}
-        {% endfor %}
+      - |-
+        {%- for connector in getComponentType(component).connectors -%}
+        {%- for pin in connector.pins -%}
+        pinMode({{component.name}}{{pin.name}}, OUTPUT);
+        {%- endfor -%}
+        {%- endfor -%}
 
 - name: button
   label: hardware.component.button
@@ -123,10 +123,10 @@
     includes:
       - <BQZUMI2C7SegmentDisplay.h>
     globals:
-      - >
+      - |-
         BQ::ZUM::I2C7SegmentDisplay {{component.name}}Obj({{component.name}}i2c);
     setup:
-      - >
+      - |-
         {{component.name}}Obj.setup();
         {{component.name}}Obj.displayChar(' ', ' ');
 
