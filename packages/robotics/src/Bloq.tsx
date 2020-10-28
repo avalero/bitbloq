@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from "react";
+import React, { FC, useMemo, useRef } from "react";
 import { useRecoilCallback, useRecoilState } from "recoil";
 import styled from "@emotion/styled";
 import { IComponentInstance } from "@bitbloq/bloqs";
@@ -31,6 +31,8 @@ const Bloq: FC<IBloqProps> = ({ bloq, section, parameterPath = [], path }) => {
   const t = useTranslate();
   const updateContent = useUpdateContent();
   const { getBloqType } = useBloqsDefinition();
+
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const [selectedBloq, setSelectedBloq] = useRecoilState(selectedBloqState);
   const isSelected = selectedBloq === bloq;
@@ -73,8 +75,14 @@ const Bloq: FC<IBloqProps> = ({ bloq, section, parameterPath = [], path }) => {
     setSelectedBloq(bloq);
   };
 
+  const onMouseDown = (e: React.MouseEvent) => {
+    if (containerRef.current === e.target) {
+      e.stopPropagation();
+    }
+  };
+
   return (
-    <Container onClick={onClick}>
+    <Container onClick={onClick} onMouseDown={onMouseDown} ref={containerRef}>
       {false && <ErrorContainer />}
       <Header>
         {isParameter && (
@@ -164,7 +172,7 @@ const Bloq: FC<IBloqProps> = ({ bloq, section, parameterPath = [], path }) => {
                   return (
                     <BloqTextInput
                       size={2}
-                      type="text"
+                      type={uiElement.inputType || "text"}
                       key={i}
                       value={
                         (bloq.parameters?.[
@@ -219,15 +227,17 @@ const Bloq: FC<IBloqProps> = ({ bloq, section, parameterPath = [], path }) => {
 export default Bloq;
 
 const Container = styled.div`
-  display: inline-block;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: start;
   margin-bottom: 2px;
-  cursor: pointer;
 `;
 
 const Header = styled.div`
   position: relative;
   display: flex;
   align-items: center;
+  cursor: pointer;
 `;
 
 const HeaderNodgeWrap = styled.div`
@@ -289,6 +299,7 @@ const HeaderContent = styled.div`
 
 const ChildrenWrap = styled.div`
   display: flex;
+  cursor: pointer;
 `;
 
 const ChildrenLeftWrap = styled.div`
@@ -344,6 +355,7 @@ const Footer = styled.div`
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
   border-bottom-left-radius: 4px;
+  cursor: pointer;
 `;
 
 const Label = styled.div`

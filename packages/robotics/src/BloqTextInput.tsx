@@ -10,9 +10,10 @@ const BloqTextInput = styled.input`
   color: white;
   font-size: 14px;
   cursor: pointer;
-  padding-right: 30px;
   position: relative;
   text-align: left;
+  box-sizing: border-box;
+  width: 100px;
 
   &:focus {
     outline: none;

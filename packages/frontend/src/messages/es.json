@@ -766,6 +766,14 @@
     "code": "Código",
     "compile": "Compilar",
     "compiling": "Compilando",
+    "compiling-alert": {
+      "compile-error": "Error al compilar",
+      "compile-success": "Compilado con exito",
+      "compiling": "Compilando la programación…",
+      "upload-error": "Error al cargar",
+      "upload-success": "Cargada con exito",
+      "uploading": "Cargando en la placa…"
+    },
     "compile-success": "Compilado correctamente",
     "create-file": "Crear archivo",
     "create-folder": "Crear carpeta",

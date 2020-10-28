@@ -1,20 +1,34 @@
-import React, { FC } from "react";
+import React, { FC, useRef } from "react";
 import { useRecoilValue } from "recoil";
 import styled from "@emotion/styled";
-import { IBloq } from "./types";
+import { IBloq, InstructionType } from "./types";
 import { colors, Draggable, Droppable } from "@bitbloq/ui";
 import Bloq from "./Bloq";
 import { isDraggingParameterState } from "./state";
+import useBloqsDefinition from "./useBloqsDefinition";
 
 export interface IBloqListProps {
   bloqs: IBloq[];
   section: string;
-  path: number[];
+  path?: number[];
+  readOnly?: boolean;
 }
 
-const BloqList: FC<IBloqListProps> = ({ bloqs, section, path }) => {
+const BloqList: FC<IBloqListProps> = ({
+  bloqs,
+  section,
+  path = [],
+  readOnly = false
+}) => {
   const isDraggingParamater = useRecoilValue(isDraggingParameterState);
   const [first, ...rest] = bloqs;
+
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  const { getBloqType } = useBloqsDefinition();
+  const firstType = first && getBloqType(first.type);
+  const isParameter =
+    firstType && firstType.instructionType === InstructionType.Parameter;
 
   return (
     <Draggable
@@ -24,35 +38,51 @@ const BloqList: FC<IBloqListProps> = ({ bloqs, section, path }) => {
       dragThreshold={10}
     >
       {props => (
-        <div {...props}>
-          <Droppable
-            active={!isDraggingParamater}
-            data={{ type: "bloq-droppable", bloqs, section, path }}
-            margin={30}
+        <Container {...props}>
+          <div
+            ref={wrapRef}
+            onMouseDown={e =>
+              wrapRef.current === e.target && e.stopPropagation()
+            }
           >
-            {active => (
-              <BloqDroppable>{active && <DropIndicator />}</BloqDroppable>
+            {!readOnly && !isParameter && (
+              <BloqDroppable
+                active={!isDraggingParamater}
+                data={{ type: "bloq-droppable", bloqs, section, path }}
+                margin={30}
+              >
+                {active => active && <DropIndicator />}
+              </BloqDroppable>
             )}
-          </Droppable>
-          {first && (
-            <>
-              <Bloq bloq={first} section={section} path={path} />
-              <BloqList
-                bloqs={rest}
-                section={section}
-                path={[...path.slice(0, -1), path.slice(-1)[0] + 1]}
-              />
-            </>
-          )}
-        </div>
+            {first && (
+              <>
+                <Bloq bloq={first} section={section} path={path} />
+                {!isParameter && (
+                  <BloqList
+                    bloqs={rest}
+                    section={section}
+                    path={[...path.slice(0, -1), path.slice(-1)[0] + 1]}
+                    readOnly={readOnly}
+                  />
+                )}
+              </>
+            )}
+          </div>
+        </Container>
       )}
     </Draggable>
   );
 };
 
-export default BloqList;
+export default React.memo(BloqList);
 
-const BloqDroppable = styled.div`
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+`;
+
+const BloqDroppable = styled(Droppable)`
   width: 180px;
 `;
 
