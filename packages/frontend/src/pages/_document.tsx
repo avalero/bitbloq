@@ -6,6 +6,8 @@ import { getBrowserEnv } from "../lib/env";
 
 export default class BitbloqDocument extends Document {
   public render() {
+    const googleAnalyticsId = process.env.GOOGLE_ANALYTICS_ID;
+
     return (
       <Html>
         <Global styles={baseStyles} />
@@ -20,6 +22,27 @@ export default class BitbloqDocument extends Document {
             href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700&display=swap"
             rel="stylesheet"
           ></link>
+          {!!googleAnalyticsId && (
+            <>
+              <script
+                async
+                src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
+              />
+              <script
+                dangerouslySetInnerHTML={{
+                  __html: `
+                    window.dataLayer = window.dataLayer || [];
+                    function gtag(){dataLayer.push(arguments);}
+                    gtag('js', new Date());
+
+                    gtag('config', '${googleAnalyticsId}', {
+                      page_path: window.location.pathname,
+                    });
+                  `
+                }}
+              />
+            </>
+          )}
         </Head>
         <body>
           <Main />

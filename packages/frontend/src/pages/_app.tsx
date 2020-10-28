@@ -1,4 +1,5 @@
 import App from "next/app";
+import Router from "next/router";
 import cookie from "cookie";
 import acceptLanguageParser from "accept-language-parser";
 import { TranslateProvider } from "@bitbloq/ui";
@@ -13,10 +14,17 @@ import {
 import { getChromeVersion } from "../util";
 import FlagsModal from "../components/FlagsModal";
 import messages from "../messages";
+import env from "../lib/env";
 
 interface IBitbloqAppProps {
   language: string;
 }
+
+Router.events.on("routeChangeComplete", url => {
+  window.gtag("config", env.GOOGLE_ANALYTICS_ID, {
+    page_path: url
+  });
+});
 
 class BitbloqApp extends App<IBitbloqAppProps> {
   public static async getInitialProps(ctx) {
