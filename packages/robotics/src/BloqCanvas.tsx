@@ -42,6 +42,9 @@ const Container = styled.div`
   min-height: 260px;
   position: relative;
   overflow-x: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
 `;
 
 const InitialDroppable = styled(Droppable)`

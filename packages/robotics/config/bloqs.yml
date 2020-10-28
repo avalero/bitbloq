@@ -88,6 +88,7 @@
     - type: text-input
       parameterName: value
       text: robotics.read
+      inputType: number
 
 # Zumjunior
 
@@ -185,6 +186,7 @@
       text: robotics.during
     - type: text-input
       parameterName: duration
+      inputType: number
     - type: label
       text: robotics.milliseconds
 
@@ -254,8 +256,10 @@
       text: robotics.write
     - type: text-input
       parameterName: digit1
+      inputType: number
     - type: text-input
       parameterName: digit2
+      inputType: number
     - type: label
       text: robotics.to-display
     - type: select-component

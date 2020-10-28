@@ -19,7 +19,7 @@ const DraggingBloq: FC = () => {
         zIndex: 50
       }}
     >
-      <BloqList bloqs={draggingBloqs.bloqs} section="" path={[]} />
+      <BloqList bloqs={draggingBloqs.bloqs} section="" readOnly />
     </div>
   );
 };

@@ -230,8 +230,8 @@ const Content = styled.div<{ active: boolean }>`
 
 export interface IDocumentTab {
   label: string;
-  icon: JSX.Element;
-  content: JSX.Element | ((isActive: boolean) => JSX.Element | null);
+  icon: React.ReactNode;
+  content: React.ReactNode | ((isActive: boolean) => React.ReactNode);
 }
 
 export interface IDocumentProps {

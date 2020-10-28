@@ -31,6 +31,37 @@ const BloqsTabs: FC<IBloqsTabsProps> = ({ onViewCode, viewingCode }) => {
   const board = useRecoilValue(boardState);
   const boardObject = board && getBoard(board.name);
 
+  const getDefaultParameters = (type: IBloqType) =>
+    type.uiElements.reduce((acc, uiElement) => {
+      switch (uiElement.type) {
+        case "select":
+          if (uiElement.options[0]) {
+            acc[uiElement.parameterName] = uiElement.options[0].value;
+          }
+          break;
+
+        case "select-component": {
+          const component = components.find(c =>
+            uiElement.componentTypes
+              ? uiElement.componentTypes.some(type =>
+                  isInstanceOf(c.component, type)
+                )
+              : []
+          );
+          if (component) {
+            acc[uiElement.parameterName] = component;
+          }
+          break;
+        }
+
+        case "text-input":
+          acc[uiElement.parameterName] =
+            uiElement.inputType === "number" ? 0 : "";
+          break;
+      }
+      return acc;
+    }, {});
+
   const getSubTabs = (category: BloqCategory) => {
     const bloqs = getCategoryBloqs(category).filter(
       bloq =>
@@ -58,24 +89,27 @@ const BloqsTabs: FC<IBloqsTabsProps> = ({ onViewCode, viewingCode }) => {
             label: t(`robotics.tabs.${subCategory}`),
             content: (
               <SubTab>
-                {subCategoryBloqs[subCategory].map(bloqType => (
-                  <Draggable
-                    data={{ bloqs: [{ type: bloqType.name }] }}
-                    draggableHeight={0}
-                    draggableWidth={0}
-                    key={bloqType.name}
-                  >
-                    {props => (
-                      <BloqWrap {...props}>
-                        <Bloq
-                          bloq={{ type: bloqType.name }}
-                          section=""
-                          path={[0]}
-                        />
-                      </BloqWrap>
-                    )}
-                  </Draggable>
-                ))}
+                {subCategoryBloqs[subCategory].map(bloqType => {
+                  const bloq = {
+                    type: bloqType.name,
+                    parameters: getDefaultParameters(bloqType)
+                  };
+
+                  return (
+                    <Draggable
+                      data={{ bloqs: [bloq] }}
+                      draggableHeight={0}
+                      draggableWidth={0}
+                      key={bloqType.name}
+                    >
+                      {props => (
+                        <BloqWrap {...props}>
+                          <Bloq bloq={bloq} section="" path={[0]} />
+                        </BloqWrap>
+                      )}
+                    </Draggable>
+                  );
+                })}
               </SubTab>
             )
           }))}

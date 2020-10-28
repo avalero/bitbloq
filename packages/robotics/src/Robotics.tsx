@@ -21,9 +21,9 @@ import boards from "../config/boards.yml";
 import components from "../config/components.yml";
 
 export interface IRoboticsCallbackProps {
-  hardware: React.ReactElement;
-  bloqs: React.ReactElement;
-  diagram: React.ReactElement;
+  hardware: React.ReactNode;
+  bloqs: (isActive: boolean) => React.ReactNode;
+  diagram: React.ReactNode;
 }
 
 export interface IRoboticsProps {
@@ -76,7 +76,11 @@ const Robotics: FC<IRoboticsProps> = ({
         >
           {children({
             hardware: <Hardware />,
-            bloqs: <Bloqs borndateFilesRoot={borndateFilesRoot} />,
+            bloqs: function RoboticsBloqs(isActive: boolean) {
+              return isActive ? (
+                <Bloqs borndateFilesRoot={borndateFilesRoot} />
+              ) : null;
+            },
             diagram: <Diagram />
           })}
         </BloqsDefinitionProvider>

@@ -53,6 +53,7 @@ export interface IBloqUIParameter {
 export interface IBloqUITextInput {
   type: "text-input";
   parameterName: string;
+  inputType?: string;
 }
 
 type IBloqUIElement =

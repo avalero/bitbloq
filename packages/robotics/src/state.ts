@@ -153,6 +153,17 @@ export const bloqsState = atom<BloqState>({
   }
 });
 
+interface IDetachedBloq {
+  bloqs: IBloq[];
+  x: number;
+  y: number;
+}
+
+export const detachedBloqsState = atom<IDetachedBloq[]>({
+  key: "detachedBloqs",
+  default: []
+});
+
 interface ISelectedBloqState {
   section: BloqSection | null;
   path: number[];

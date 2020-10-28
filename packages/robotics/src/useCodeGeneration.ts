@@ -1,22 +1,22 @@
 import nunjucks from "nunjucks";
-import {
-  useCodeUpload,
-  ICodeUploadOptions
-} from "@bitbloq/code/src/useCodeUpload";
-import { useSetRecoilState, useRecoilCallback, Snapshot } from "recoil";
+import { useRecoilCallback } from "recoil";
 import bloqTypes from "../config/bloqs.yml";
 import boards from "../config/boards.yml";
 import components from "../config/components.yml";
 import { selectedCodeStartToken, selectedCodeEndToken } from "./config";
-import { IBoard, IComponent, IComponentInstance } from "@bitbloq/bloqs";
-import { IBloq, InstructionType } from "./types";
+import {
+  IBoard,
+  IComponent,
+  IComponentInstance,
+  ILibrary
+} from "@bitbloq/bloqs";
+import { IBloq } from "./types";
 import {
   BloqSection,
   BloqState,
   boardState,
   bloqsState,
-  componentsState,
-  compilingState
+  componentsState
 } from "./state";
 
 const boardsMap: Record<string, IBoard> = boards.reduce(
@@ -220,99 +220,38 @@ export const getBloqsCode = (
       : code;
   });
 
-interface IUseCodeGeneration {
-  compile: () => void;
-  upload: () => void;
+interface ICallbackResult {
+  code: string;
+  libraries: ILibrary[];
+  boardObject?: IBoard;
 }
 
-const useCodeGeneration = (
-  uploadOptions: ICodeUploadOptions
-): IUseCodeGeneration => {
-  const { compile, upload, cancel } = useCodeUpload(uploadOptions);
-  const setCompiling = useSetRecoilState(compilingState);
-
-  const generateCode = async (snapshot: Snapshot) => {
-    const board = await snapshot.getPromise(boardState);
-    const components = await snapshot.getPromise(componentsState);
-    const bloqs = await snapshot.getPromise(bloqsState);
-
-    if (!board) {
-      return "";
-    }
-
-    return getCode(board.name, components, bloqs);
-  };
-
-  const onCompile = useRecoilCallback(({ snapshot }) => async () => {
-    setCompiling({ compiling: true, visible: true });
-    const board = await snapshot.getPromise(boardState);
-    if (!board) {
-      return;
-    }
-    const code = await generateCode(snapshot);
-    try {
-      const boardObject = boardsMap[board.name];
-      const libraries = [...(boardObject.libraries || [])];
-      console.log(code);
-      /*await compile(
-        [{ name: "main.ino", content: code }],
-        libraries,
-        boardObject.borndateBoard || ""
-      );*/
-      setCompiling({ compileSuccess: true, visible: true });
-    } catch (e) {
-      console.log(e.data);
-      setCompiling({ compileError: true, visible: true });
-      /*switch (e.type) {
-        case UploadErrorType.COMPILE_ERROR:
-          setErrors(parseErrors(e.data));
-          break;
-
-        default:
-          console.log(e);
-      }*/
-    }
-  });
-
-  const onUpload = useRecoilCallback(({ snapshot }) => async () => {
-    setCompiling({ uploading: true, visible: true });
+const useCodeGeneration = (): (() => Promise<ICallbackResult>) => {
+  return useRecoilCallback(({ snapshot }) => async () => {
     const board = await snapshot.getPromise(boardState);
     const instances = await snapshot.getPromise(componentsState);
-    if (!board) {
-      return;
-    }
-    const code = await generateCode(snapshot);
+    const bloqs = await snapshot.getPromise(bloqsState);
+    const boardObject = board && boardsMap[board.name];
 
-    try {
-      const boardObject = boardsMap[board.name];
-      const components = instances.reduce((acc: IComponent[], instance) => {
-        const component = componentsMap[instance.component];
-        if (!acc.includes(component)) {
-          acc.push(component);
-        }
-        return acc;
-      }, []);
-      const libraries = [
-        ...(boardObject.libraries || []),
-        ...components.flatMap(c => c.libraries || [])
-      ];
-      console.log(libraries);
-
-      await upload(
-        [{ name: "main.ino", content: code }],
-        libraries,
-        boardObject.borndateBoard || ""
-      );
-      setCompiling({ uploadSuccess: true, visible: true });
-    } catch (e) {
-      setCompiling({ uploadError: true, visible: true });
+    if (!board || !boardObject) {
+      return { code: "", libraries: [] };
     }
+
+    const components = instances.reduce((acc: IComponent[], instance) => {
+      const component = componentsMap[instance.component];
+      if (!acc.includes(component)) {
+        acc.push(component);
+      }
+      return acc;
+    }, []);
+    const libraries = [
+      ...(boardObject.libraries || []),
+      ...components.flatMap(c => c.libraries || [])
+    ];
+
+    const code = getCode(board.name, instances, bloqs);
+    return { code, libraries, boardObject };
   });
-
-  return {
-    compile: onCompile,
-    upload: onUpload
-  };
 };
 
 export default useCodeGeneration;
