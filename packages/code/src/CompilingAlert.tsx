@@ -32,9 +32,13 @@ const CompilingAlert: FC<ICompilingAlertProps> = ({
     if (visible) {
       setShow(true);
     } else {
-      hideTimeout.current = window.setTimeout(() => {
+      if (uploadError || uploadSuccess || compileError || compileSuccess) {
+        hideTimeout.current = window.setTimeout(() => {
+          setShow(false);
+        }, 5000);
+      } else {
         setShow(false);
-      }, 5000);
+      }
     }
   }, [visible]);
 
@@ -76,7 +80,7 @@ const CompilingAlert: FC<ICompilingAlertProps> = ({
         ) : compileError || uploadError ? (
           <ErrorIcon name="close" />
         ) : null}
-        {t(`code.compiling-alert.${message}`)}
+        {message && t(`code.compiling-alert.${message}`)}
       </Message>
       <CloseButton onClick={onCloseClick}>
         <Icon name="close" />
