@@ -9,12 +9,14 @@ interface IBloqSelectComponentProps {
   value: IComponentInstance | undefined;
   onChange: (newValue: IComponentInstance) => void;
   componentTypes: string[];
+  inactive?: boolean;
 }
 
 const BloqSelectComponent: FC<IBloqSelectComponentProps> = ({
   value,
   onChange,
-  componentTypes
+  componentTypes,
+  inactive
 }) => {
   const components = useRecoilValue(componentsState);
   const { isInstanceOf } = useHardwareDefinition();
@@ -38,6 +40,7 @@ const BloqSelectComponent: FC<IBloqSelectComponentProps> = ({
     <BloqSelect
       options={options}
       value={value?.name}
+      inactive={inactive}
       onChange={name => {
         const component = components.find(c => c.name === name);
         if (component) {

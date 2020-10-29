@@ -12,13 +12,15 @@ export interface IBloqListProps {
   section: string;
   path?: number[];
   readOnly?: boolean;
+  inactive?: boolean;
 }
 
 const BloqList: FC<IBloqListProps> = ({
   bloqs,
   section,
   path = [],
-  readOnly = false
+  readOnly = false,
+  inactive
 }) => {
   const isDraggingParamater = useRecoilValue(isDraggingParameterState);
   const [first, ...rest] = bloqs;
@@ -56,13 +58,20 @@ const BloqList: FC<IBloqListProps> = ({
             )}
             {first && (
               <>
-                <Bloq bloq={first} section={section} path={path} />
+                <Bloq
+                  bloq={first}
+                  section={section}
+                  path={path}
+                  readOnly={readOnly}
+                  inactive={inactive}
+                />
                 {!isParameter && (
                   <BloqList
                     bloqs={rest}
                     section={section}
                     path={[...path.slice(0, -1), path.slice(-1)[0] + 1]}
                     readOnly={readOnly}
+                    inactive={inactive}
                   />
                 )}
               </>

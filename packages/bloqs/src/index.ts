@@ -198,6 +198,7 @@ export interface IBoard {
   avrgirlBoard?: string;
   borndateBoard?: string;
   libraries?: ILibrary[];
+  driversUrl?: string;
 }
 
 export enum ConnectorPinMode {

@@ -13,9 +13,15 @@ export interface IBloqSelectProps {
   value?: any;
   options: IOption[];
   onChange?: (value: any) => void;
+  inactive?: boolean;
 }
 
-const BloqSelect: FC<IBloqSelectProps> = ({ value, options, onChange }) => {
+const BloqSelect: FC<IBloqSelectProps> = ({
+  value,
+  options,
+  onChange,
+  inactive
+}) => {
   const menu = useMenuState();
   const [width, setWidth] = useState(0);
 
@@ -38,7 +44,14 @@ const BloqSelect: FC<IBloqSelectProps> = ({ value, options, onChange }) => {
 
   return (
     <Container visible={menu.visible}>
-      <Button {...menu} style={{ width }}>
+      <Button
+        {...menu}
+        style={{
+          width,
+          backgroundColor: inactive ? "white" : "rgba(0, 0, 0, 0.2)",
+          color: inactive ? colors.black : "white"
+        }}
+      >
         {selectedOption?.label}
         <Arrow name="triangle" />
       </Button>
@@ -82,13 +95,11 @@ const Container = styled.div<{ visible?: boolean }>`
     `}
 `;
 
-const Button = styled(MenuButton)`
+const Button = styled(MenuButton)<{ visible?: boolean }>`
   border-radius: 4px;
   box-shadow: inset 0 1px 3px 0 rgba(0, 0, 0, 0.24);
-  background-color: rgba(0, 0, 0, 0.2);
   height: 26px;
   border: none;
-  color: white;
   font-size: 14px;
   cursor: pointer;
   padding-right: 30px;

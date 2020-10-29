@@ -2,6 +2,7 @@ import React, { FC, useState } from "react";
 import styled from "@emotion/styled";
 import CompilingAlert from "@bitbloq/code/src/CompilingAlert";
 import { useCodeUpload } from "@bitbloq/code/src/useCodeUpload";
+import NoBoardWizard from "@bitbloq/code/src/NoBoardWizard";
 import {
   breakpoints,
   colors,
@@ -11,10 +12,16 @@ import {
   useTranslate
 } from "@bitbloq/ui";
 import { InstructionType } from "./types";
-import { useRecoilState, useResetRecoilState, useSetRecoilState } from "recoil";
+import {
+  useRecoilState,
+  useResetRecoilState,
+  useSetRecoilState,
+  useRecoilValue
+} from "recoil";
 import {
   bloqsState,
   BloqSection,
+  boardState,
   compilingState,
   detachedBloqsState,
   draggingBloqsState,
@@ -31,6 +38,7 @@ import DraggingBloq from "./DraggingBloq";
 import ExpandablePanel from "./ExpandablePanel";
 import useCodeGeneration from "./useCodeGeneration";
 import useBloqsDefinition from "./useBloqsDefinition";
+import useHardwareDefinition from "./useHardwareDefinition";
 import useUpdateContent from "./useUpdateContent";
 
 export interface IBloqsProps {
@@ -41,11 +49,14 @@ const Bloqs: FC<IBloqsProps> = ({ borndateFilesRoot }) => {
   const t = useTranslate();
   const updateContent = useUpdateContent();
   const { getBloqType } = useBloqsDefinition();
+  const { getBoard } = useHardwareDefinition();
 
   const [compiling, setCompiling] = useRecoilState(compilingState);
   const setDraggingBloq = useSetRecoilState(draggingBloqsState);
   const setIsDraggingParameter = useSetRecoilState(isDraggingParameterState);
   const resetDraggingBloq = useResetRecoilState(draggingBloqsState);
+  const board = useRecoilValue(boardState);
+  const boardObject = board && getBoard(board.name);
 
   const [viewCode, setViewCode] = useState(false);
 
@@ -53,6 +64,7 @@ const Bloqs: FC<IBloqsProps> = ({ borndateFilesRoot }) => {
   const { compile, upload, cancel } = useCodeUpload({
     filesRoot: borndateFilesRoot
   });
+  const [showNoBoardWizard, setShowNoBoardWizard] = useState(false);
 
   const [bloqs, setBloqs] = useRecoilState(bloqsState);
   const [detachedBloqs, setDetachedBloqs] = useRecoilState(detachedBloqsState);
@@ -113,17 +125,32 @@ const Bloqs: FC<IBloqsProps> = ({ borndateFilesRoot }) => {
 
   const onDrop = ({ draggableData, droppableData, x, y }) => {
     if (droppableData.type === "bloq-droppable") {
-      const newSectionBloqs = replaceBloqs(
-        bloqs[droppableData.section],
-        droppableData.path,
-        0,
-        draggableData.bloqs
-      );
-      setBloqs({
-        ...bloqs,
-        [droppableData.section]: newSectionBloqs
-      });
-      updateContent();
+      if (droppableData.section === "detached") {
+        const [index, ...path] = droppableData.path;
+        const newDetachedBloqs = replaceBloqs(
+          detachedBloqs[index].bloqs,
+          path,
+          0,
+          draggableData.bloqs
+        );
+        setDetachedBloqs(
+          detachedBloqs.map((d, i) =>
+            i === index ? { ...d, bloqs: newDetachedBloqs } : d
+          )
+        );
+      } else {
+        const newSectionBloqs = replaceBloqs(
+          bloqs[droppableData.section],
+          droppableData.path,
+          0,
+          draggableData.bloqs
+        );
+        setBloqs({
+          ...bloqs,
+          [droppableData.section]: newSectionBloqs
+        });
+        updateContent();
+      }
     }
     if (droppableData.type === "bloq-parameter") {
       const sectionBloqs = bloqs[droppableData.section];
@@ -161,8 +188,8 @@ const Bloqs: FC<IBloqsProps> = ({ borndateFilesRoot }) => {
   };
 
   const onCompileClick = async () => {
-    const { code, libraries, boardObject } = await generateCode();
     if (!boardObject) return;
+    const { code, libraries } = await generateCode();
     try {
       setCompiling({ compiling: true, visible: true });
       await compile(
@@ -178,8 +205,8 @@ const Bloqs: FC<IBloqsProps> = ({ borndateFilesRoot }) => {
   };
 
   const onUploadClick = async () => {
-    const { code, libraries, boardObject } = await generateCode();
     if (!boardObject) return;
+    const { code, libraries } = await generateCode();
     try {
       setCompiling({ uploading: true, visible: true });
       await upload(
@@ -189,7 +216,11 @@ const Bloqs: FC<IBloqsProps> = ({ borndateFilesRoot }) => {
       );
       setCompiling({ uploadSuccess: true, visible: false });
     } catch (e) {
-      setCompiling({ uploadError: true, visible: false });
+      setCompiling({ visible: false });
+      if (e.type === "board-not-found") {
+        setShowNoBoardWizard(true);
+      } else if (e.type === "compile-error") {
+      }
       console.log(e, e.data);
     }
   };
@@ -238,7 +269,12 @@ const Bloqs: FC<IBloqsProps> = ({ borndateFilesRoot }) => {
                 key={`detached-bloq-${i}`}
                 style={{ transform: `translate(${x}px, ${y}px)` }}
               >
-                <BloqList bloqs={bloqs} section="detached" path={[i]} />
+                <BloqList
+                  bloqs={bloqs}
+                  section="detached"
+                  path={[i, 0]}
+                  inactive
+                />
               </DetachedBloq>
             ))}
           </BloqsContent>
@@ -251,6 +287,11 @@ const Bloqs: FC<IBloqsProps> = ({ borndateFilesRoot }) => {
         <DraggingBloq />
       </Container>
       <CompilingAlert {...compiling} onCancel={cancel} />
+      <NoBoardWizard
+        driversUrl={(boardObject && boardObject.driversUrl) || ""}
+        isOpen={showNoBoardWizard}
+        onClose={() => setShowNoBoardWizard(false)}
+      />
     </DragAndDropProvider>
   );
 };

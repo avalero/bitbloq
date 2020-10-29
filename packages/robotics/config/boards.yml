@@ -4,6 +4,7 @@
   avrgirlBoard: zumjunior
   borndateBoard: zumjunior
   label: Zum Junior
+  driversUrl: https://storage.googleapis.com/bitbloq-qa/zumjunior_windows_drivers.zip
   libraries:
     - zipURL: https://storage.googleapis.com/bitbloq-prod/arduino-libraries/BQZUMJunior.zip
       precompiled: true
@@ -20,7 +21,6 @@
       - BQ::ZUMJunior zumJunior;
     setup:
       - zumJunior.setup();
-
   image:
     url: https://storage.googleapis.com/bitbloq-prod/images/hardware/board/zumjunior.svg
   ports:

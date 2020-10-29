@@ -19,15 +19,25 @@ import {
 } from "./state";
 import useBloqsDefinition from "./useBloqsDefinition";
 import useUpdateContent from "./useUpdateContent";
+import BackgroundInactive from "./images/background-inactive.svg";
 
 export interface IBloqProps {
   bloq: IBloq;
   section: string;
   path: number[];
   parameterPath?: string[];
+  readOnly?: boolean;
+  inactive?: boolean;
 }
 
-const Bloq: FC<IBloqProps> = ({ bloq, section, parameterPath = [], path }) => {
+const Bloq: FC<IBloqProps> = ({
+  bloq,
+  section,
+  parameterPath = [],
+  path,
+  readOnly,
+  inactive
+}) => {
   const t = useTranslate();
   const updateContent = useUpdateContent();
   const { getBloqType } = useBloqsDefinition();
@@ -71,6 +81,7 @@ const Bloq: FC<IBloqProps> = ({ bloq, section, parameterPath = [], path }) => {
   );
 
   const onClick = (e: React.MouseEvent) => {
+    if (readOnly) return;
     e.stopPropagation();
     setSelectedBloq(bloq);
   };
@@ -82,13 +93,20 @@ const Bloq: FC<IBloqProps> = ({ bloq, section, parameterPath = [], path }) => {
   };
 
   return (
-    <Container onClick={onClick} onMouseDown={onMouseDown} ref={containerRef}>
+    <Container
+      onClick={onClick}
+      onMouseDown={onMouseDown}
+      ref={containerRef}
+      inactive={inactive}
+    >
       {false && <ErrorContainer />}
       <Header>
         {isParameter && (
           <HeaderNodgeWrap>
             {isSelected && <HeaderNodgeSelected />}
-            <HeaderNodge style={{ backgroundColor: color }} />
+            <HeaderNodge
+              style={{ backgroundColor: inactive ? "#ffffff" : color }}
+            />
           </HeaderNodgeWrap>
         )}
         <HeaderContentWrap>
@@ -99,8 +117,10 @@ const Bloq: FC<IBloqProps> = ({ bloq, section, parameterPath = [], path }) => {
           )}
           <HeaderContent
             style={{
-              backgroundColor: color,
-              borderBottomLeftRadius: isBlock ? 0 : 4
+              backgroundColor: inactive ? "#ffffff" : color,
+              borderBottomLeftRadius: isBlock ? 0 : 4,
+              pointerEvents: readOnly ? "none" : "all",
+              backgroundImage: inactive ? `url(${BackgroundInactive})` : ""
             }}
           >
             {type.uiElements.map((uiElement, i) => {
@@ -116,6 +136,7 @@ const Bloq: FC<IBloqProps> = ({ bloq, section, parameterPath = [], path }) => {
                         value: option.value,
                         label: t(option.label)
                       }))}
+                      inactive={inactive}
                       value={bloq.parameters?.[uiElement.parameterName]}
                       onChange={newValue =>
                         onBloqChange({
@@ -135,6 +156,7 @@ const Bloq: FC<IBloqProps> = ({ bloq, section, parameterPath = [], path }) => {
                     <BloqSelectComponent
                       key={i}
                       componentTypes={uiElement.componentTypes}
+                      inactive={inactive}
                       value={
                         bloq.parameters?.[uiElement.parameterName] as
                           | IComponentInstance
@@ -204,19 +226,30 @@ const Bloq: FC<IBloqProps> = ({ bloq, section, parameterPath = [], path }) => {
           <ChildrenWrap>
             <ChildrenLeftWrap>
               {isSelected && <ChildrenLeftSelected />}
-              <ChildrenLeft style={{ backgroundColor: color }} />
+              <ChildrenLeft
+                style={{
+                  backgroundColor: inactive ? "#ffffff" : color,
+                  backgroundImage: inactive ? `url(${BackgroundInactive})` : ""
+                }}
+              />
             </ChildrenLeftWrap>
             <Children>
               <BloqList
                 bloqs={children}
                 section={section}
                 path={[...path, 0]}
+                inactive={inactive}
               />
             </Children>
           </ChildrenWrap>
           <FooterWrap>
             {isSelected && <FooterSelected />}
-            <Footer style={{ backgroundColor: color }} />
+            <Footer
+              style={{
+                backgroundColor: inactive ? "#ffffff" : color,
+                backgroundImage: inactive ? `url(${BackgroundInactive})` : ""
+              }}
+            />
           </FooterWrap>
         </>
       )}
@@ -226,11 +259,12 @@ const Bloq: FC<IBloqProps> = ({ bloq, section, parameterPath = [], path }) => {
 
 export default Bloq;
 
-const Container = styled.div`
+const Container = styled.div<{ inactive?: boolean }>`
   display: inline-flex;
   flex-direction: column;
   align-items: start;
   margin-bottom: 2px;
+  color: ${props => (props.inactive ? colors.black : "white")};
 `;
 
 const Header = styled.div`
@@ -359,7 +393,6 @@ const Footer = styled.div`
 `;
 
 const Label = styled.div`
-  color: white;
   white-space: nowrap;
 `;
 
