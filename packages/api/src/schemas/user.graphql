@@ -14,13 +14,17 @@ type Mutation {
   resendWelcomeEmail(email: String!): Boolean
   saveBirthDate(id: String!, birthDate: Date!): UserStep1
   activateAccount(token: String): String
+
   login(email: EmailAddress!, password: String!): String
   loginWithGoogle(token: String!): SocialLogin
   loginWithMicrosoft(token: String!): SocialLogin
+
   renewSession: String
+
   sendForgotPasswordEmail(email: EmailAddress!): String
   checkForgotPasswordToken(token: String): Boolean
   updateForgotPassword(token: String, newPassword: String): String
+  
   deleteMyUser(password: String!): String @authRequired(requires: [USER])
   updateUserData(id: ObjectID!, input: UpdateUserData!): User
     @authRequired(requires: [USER])

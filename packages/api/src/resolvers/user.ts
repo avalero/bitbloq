@@ -1,33 +1,9 @@
-import {
-  ApolloError,
-  AuthenticationError,
-  withFilter
-} from "apollo-server-koa";
-import {
-  contextController,
-  storeTokenInRedis,
-  updateExpireDateInRedis
-} from "../controllers/context";
-import { mailerController } from "../controllers/mailer";
-import { getMicrosoftUser, IMSData } from "../controllers/microsoftAuth";
-import { DocumentModel, IDocument } from "../models/document";
-import { ExerciseModel } from "../models/exercise";
-import { FolderModel, IFolder } from "../models/folder";
-import { SubmissionModel } from "../models/submission";
-import { IUser, UserModel } from "../models/user";
-
-import {
-  IEmailData,
-  IResetPasswordToken,
-  ISignUpToken,
-  IUserInToken,
-  IDataInRedis
-} from "../models/interfaces";
-import { redisClient, pubsub } from "../server";
-
-import { sign as jwtSign, verify as jwtVerify } from "jsonwebtoken";
+import { ApolloError, withFilter } from "apollo-server-koa";
 import { hash as bcryptHash, compare as bcryptCompare } from "bcrypt";
+import { sign as jwtSign, verify as jwtVerify } from "jsonwebtoken";
 
+import { SUBMISSION_SESSION_EXPIRES } from "./submission";
+import { uploadDocumentUserImage } from "./upload";
 import {
   IMutationActivateAccountArgs,
   IMutationSaveUserDataArgs,
@@ -44,19 +20,35 @@ import {
   IMutationDeleteMyUserArgs,
   IMutationResendWelcomeEmailArgs
 } from "../api-types";
-import { getGoogleUser, IGoogleData } from "../controllers/googleAuth";
-import { IUpload } from "../models/upload";
-import { uploadDocumentUserImage } from "./upload";
-
+import { SESSION } from "../config";
+import {
+  contextController,
+  storeTokenInRedis,
+  updateExpireDateInRedis
+} from "../controllers/context";
+import { getGoogleUser } from "../controllers/googleAuth";
+import { mailerController } from "../controllers/mailer";
+import { getMicrosoftUser, IMSData } from "../controllers/microsoftAuth";
 import {
   generateChangeEmailEmail,
   generateResetPasswordEmail,
   generateWelcomeEmail
 } from "../email/generateEmails";
+import { DocumentModel, IDocument } from "../models/document";
+import { ExerciseModel } from "../models/exercise";
+import { FolderModel, IFolder } from "../models/folder";
+import {
+  IEmailData,
+  IResetPasswordToken,
+  ISignUpToken,
+  IUserInToken,
+  IDataInRedis
+} from "../models/interfaces";
+import { SubmissionModel } from "../models/submission";
+import { IUpload } from "../models/upload";
+import { IUser, UserModel } from "../models/user";
+import { redisClient, pubsub, bitbloqAuthService } from "../server";
 
-import { SESSION } from "../config";
-
-import { SUBMISSION_SESSION_EXPIRES } from "./submission";
 const saltRounds = 7;
 
 export const USER_SESSION_EXPIRES = "USER_SESSION_EXPIRES";
@@ -73,12 +65,8 @@ const userResolver = {
           },
           variables,
           context: { user: IUserInToken }
-        ) => {
-          return (
-            String(context.user.userID) ===
-            String(payload.userSessionExpires.key)
-          );
-        }
+        ) =>
+          String(context.user.userID) === String(payload.userSessionExpires.key)
       )
     }
   },
@@ -288,9 +276,8 @@ const userResolver = {
           emailContent
         );
         return true;
-      } else {
-        return false;
       }
+      return false;
     },
 
     /**
@@ -353,6 +340,7 @@ const userResolver = {
         email,
         finishedSignUp: true
       });
+      bitbloqAuthService.login(email, password);
       if (!contactFound) {
         throw new ApolloError("Email or password incorrect", "LOGIN_ERROR");
       }
@@ -406,9 +394,8 @@ const userResolver = {
           { new: true }
         );
         return token;
-      } else {
-        throw new ApolloError("Email or password incorrect", "LOGIN_ERROR");
       }
+      throw new ApolloError("Email or password incorrect", "LOGIN_ERROR");
     },
 
     /**
@@ -721,12 +708,11 @@ const userResolver = {
         );
         await storeTokenInRedis(contactFound._id, token);
         return token;
-      } else {
-        return new ApolloError(
-          "Error with sign up token, try again",
-          "TOKEN_NOT_VALUE"
-        );
       }
+      return new ApolloError(
+        "Error with sign up token, try again",
+        "TOKEN_NOT_VALUE"
+      );
     },
 
     /**
@@ -836,9 +822,8 @@ const userResolver = {
           { $set: { password: hash } },
           { new: true }
         );
-      } else {
-        throw new ApolloError("Password incorrect", "INCORRECT_PASSWORD");
       }
+      throw new ApolloError("Password incorrect", "INCORRECT_PASSWORD");
     },
 
     /**
@@ -1017,9 +1002,8 @@ const userResolver = {
         );
         await storeTokenInRedis(user!._id, token);
         return token;
-      } else {
-        throw new ApolloError("Token not valid", "TOKEN_NOT_VALID");
       }
+      throw new ApolloError("Token not valid", "TOKEN_NOT_VALID");
     }
   },
 

@@ -1,6 +1,43 @@
 # import Upload, Number, ObjectID from "./scalars.graphql"
 # import Document from "./document.graphql"
 
+type Query {
+  uploads: [File] @authRequired(requires: [ADMIN])
+  cloudResources(
+    type: [String]
+    currentPage: Number
+    order: String
+    searchTitle: String
+    deleted: Boolean
+  ): CloudResourcesResult @authRequired(requires: [USER])
+}
+
+type Mutation {
+  singleUpload(file: Upload!, documentID: ObjectID): File
+    @authRequired(requires: [USER])
+
+  uploadCloudResource(file: Upload!, thumbnail: Upload): File
+    @authRequired(requires: [USER])
+
+  addResourceToDocument(resourceID: ID!, documentID: ID!): File
+    @authRequired(requires: [USER])
+  addResourceToExercises(resourceID: ID!, documentID: ID!): File
+    @authRequired(requires: [TEACHER])
+
+  deleteResourceFromExercises(resourceID: ID!, documentID: ID!): File
+    @authRequired(requires: [TEACHER])
+
+  uploadSTLFile(file: Upload!, documentID: ObjectID): File
+    @authRequired(requires: [USER])
+  uploadImageFile(file: Upload!, documentID: ObjectID): File
+    @authRequired(requires: [USER])
+
+  deleteUserFile(filename: String!): File @authRequired(requires: [USER])
+
+  moveToTrash(id: ObjectID): File @authRequired(requires: [USER])
+  restoreResource(id: ObjectID): File @authRequired(requires: [USER])
+}
+
 type File {
   id: ID!
   filename: String
@@ -26,35 +63,4 @@ type Resource {
   deleted: Boolean
   createdAt: Date
   documents: [Document]
-}
-
-type Query {
-  uploads: [File] @authRequired(requires: [ADMIN])
-  cloudResources(
-    type: [String]
-    currentPage: Number
-    order: String
-    searchTitle: String
-    deleted: Boolean
-  ): CloudResourcesResult @authRequired(requires: [USER])
-}
-
-type Mutation {
-  singleUpload(file: Upload!, documentID: ObjectID): File
-    @authRequired(requires: [USER])
-  uploadCloudResource(file: Upload!, thumbnail: Upload): File
-    @authRequired(requires: [USER])
-  addResourceToDocument(resourceID: ID!, documentID: ID!): File
-    @authRequired(requires: [USER])
-  addResourceToExercises(resourceID: ID!, documentID: ID!): File
-    @authRequired(requires: [TEACHER])
-  deleteResourceFromExercises(resourceID: ID!, documentID: ID!): File
-    @authRequired(requires: [TEACHER])
-  uploadSTLFile(file: Upload!, documentID: ObjectID): File
-    @authRequired(requires: [USER])
-  uploadImageFile(file: Upload!, documentID: ObjectID): File
-    @authRequired(requires: [USER])
-  deleteUserFile(filename: String!): File @authRequired(requires: [USER])
-  moveToTrash(id: ObjectID): File @authRequired(requires: [USER])
-  restoreResource(id: ObjectID): File @authRequired(requires: [USER])
 }
