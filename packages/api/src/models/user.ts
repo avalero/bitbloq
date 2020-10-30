@@ -4,8 +4,8 @@ import timestamps from "mongoose-timestamp";
 
 export interface IUser extends Document {
   _id: string;
-  email?: string;
-  password?: string;
+  email: string;
+  password: string;
   admin?: boolean;
   publisher?: boolean;
   teacher?: boolean;
@@ -15,7 +15,7 @@ export interface IUser extends Document {
   avatar?: string;
   surnames?: string;
   birthDate?: Date;
-  active?: boolean;
+  active: boolean;
   signUpToken?: string;
   authToken?: string;
   notifications?: boolean;

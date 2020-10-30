@@ -336,66 +336,66 @@ const userResolver = {
       args: email and password.
     */
     login: async (_, { email, password }) => {
-      const contactFound: IUser | null = await UserModel.findOne({
-        email,
-        finishedSignUp: true
-      });
-      bitbloqAuthService.login(email, password);
-      if (!contactFound) {
-        throw new ApolloError("Email or password incorrect", "LOGIN_ERROR");
-      }
-      if (!contactFound.active) {
-        throw new ApolloError(
-          "Not active user, please activate your account",
-          "NOT_ACTIVE_USER"
-        );
-      }
-      // Compare passwords from request and database
-      const valid: boolean = await bcryptCompare(
-        password,
-        contactFound.password
-      );
-      if (valid) {
-        const { token, role } = await contextController.generateLoginToken(
-          contactFound
-        );
-        if (!contactFound.rootFolder) {
-          const userDocs: IDocument[] = await DocumentModel.find({
-            user: contactFound._id
-          });
-          const userFols: IFolder[] = await FolderModel.find({
-            user: contactFound._id
-          });
-          const userFolder: IFolder = await FolderModel.create({
-            name: "root",
-            user: contactFound._id,
-            documentsID: userDocs.map(i => i._id),
-            foldersID: userFols.map(i => i._id)
-          });
-          await DocumentModel.updateMany(
-            { user: contactFound._id },
-            { $set: { parentFolder: userFolder._id } }
-          );
-          await FolderModel.updateMany(
-            { user: contactFound._id, name: { $ne: "root" } },
-            { $set: { parentFolder: userFolder._id } }
-          );
-          await UserModel.updateOne(
-            { _id: contactFound._id },
-            { $set: { rootFolder: userFolder._id } },
-            { new: true }
-          );
-        }
-        await storeTokenInRedis(contactFound._id, token);
-        // Update the user information in the database
-        await UserModel.updateOne(
-          { _id: contactFound._id },
-          { $set: { authToken: token, lastLogin: new Date() } },
-          { new: true }
-        );
-        return token;
-      }
-      throw new ApolloError("Email or password incorrect", "LOGIN_ERROR");
+      return bitbloqAuthService.login(email, password);
+      // const contactFound: IUser | null = await UserModel.findOne({
+      //   email,
+      //   finishedSignUp: true
+      // });
+      // if (!contactFound) {
+      //   throw new ApolloError("Email or password incorrect", "LOGIN_ERROR");
+      // }
+      // if (!contactFound.active) {
+      //   throw new ApolloError(
+      //     "Not active user, please activate your account",
+      //     "NOT_ACTIVE_USER"
+      //   );
+      // }
+      // // Compare passwords from request and database
+      // const valid: boolean = await bcryptCompare(
+      //   password,
+      //   contactFound.password
+      // );
+      // if (valid) {
+      //   const { token, role } = await contextController.generateLoginToken(
+      //     contactFound
+      //   );
+      //   if (!contactFound.rootFolder) {
+      //     const userDocs: IDocument[] = await DocumentModel.find({
+      //       user: contactFound._id
+      //     });
+      //     const userFols: IFolder[] = await FolderModel.find({
+      //       user: contactFound._id
+      //     });
+      //     const userFolder: IFolder = await FolderModel.create({
+      //       name: "root",
+      //       user: contactFound._id,
+      //       documentsID: userDocs.map(i => i._id),
+      //       foldersID: userFols.map(i => i._id)
+      //     });
+      //     await DocumentModel.updateMany(
+      //       { user: contactFound._id },
+      //       { $set: { parentFolder: userFolder._id } }
+      //     );
+      //     await FolderModel.updateMany(
+      //       { user: contactFound._id, name: { $ne: "root" } },
+      //       { $set: { parentFolder: userFolder._id } }
+      //     );
+      //     await UserModel.updateOne(
+      //       { _id: contactFound._id },
+      //       { $set: { rootFolder: userFolder._id } },
+      //       { new: true }
+      //     );
+      //   }
+      //   await storeTokenInRedis(contactFound._id, token);
+      //   // Update the user information in the database
+      //   await UserModel.updateOne(
+      //     { _id: contactFound._id },
+      //     { $set: { authToken: token, lastLogin: new Date() } },
+      //     { new: true }
+      //   );
+      //   return token;
+      // }
+      // throw new ApolloError("Email or password incorrect", "LOGIN_ERROR");
     },
 
     /**

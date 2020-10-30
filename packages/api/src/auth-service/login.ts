@@ -1,6 +1,6 @@
 import { sign as jwtSign, verify as jwtVerify } from "jsonwebtoken";
 import { compare as bcryptCompare } from "bcrypt";
-import { AuthSessionDuration, AuthRedisClient } from "./authService";
+import { redisClient } from "../server";
 
 const generateLoginToken = async (
   user
@@ -33,19 +33,21 @@ const generateLoginToken = async (
 };
 
 const storeTokenInRedis = async (
+  redisClient,
   id: string,
   token: string,
+  sessionDudation: number,
   subToken?: boolean
 ) => {
   if (id === undefined) {
     return undefined;
   }
   let date: Date = new Date();
-  date = new Date(date.setMinutes(date.getMinutes() + AuthSessionDuration));
+  date = new Date(date.setMinutes(date.getMinutes() + sessionDudation));
   if (process.env.USE_REDIS === "true") {
     try {
       if (subToken) {
-        return AuthRedisClient.hmset(
+        return redisClient.hmset(
           String(id),
           "subToken",
           String(token),
@@ -53,7 +55,7 @@ const storeTokenInRedis = async (
           date
         );
       }
-      return AuthRedisClient.hmset(
+      return redisClient.hmset(
         String(id),
         "authToken",
         String(token),
@@ -66,22 +68,4 @@ const storeTokenInRedis = async (
   }
 };
 
-const login = async (
-  email: string,
-  password: string
-): Promise<string | null> => {
-  const user = AuthRedisClient(email, password);
-  if (!user || !user.active) {
-    // send errors?
-    return null;
-  }
-  const valid: boolean = await bcryptCompare(password, user.password);
-  if (!valid) {
-    return null;
-  }
-  const { token } = await generateLoginToken(user);
-  await storeTokenInRedis(user._id, token);
-  return token;
-};
-
-export { login };
+export { generateLoginToken, storeTokenInRedis };

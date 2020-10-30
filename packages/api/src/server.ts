@@ -3,7 +3,7 @@ import { config } from "dotenv";
 import { set as mongooseSet, connect as mongooseConnect } from "mongoose";
 
 import koa from "koa";
-import { ApolloServer } from "apollo-server-koa";
+import { ApolloServer, ApolloError } from "apollo-server-koa";
 import { PubSub } from "apollo-server";
 import { RedisPubSub } from "graphql-redis-subscriptions";
 
@@ -14,6 +14,7 @@ import exSchema from "./schemas/allSchemas";
 import { contextController } from "./controllers/context";
 import { IUserInToken } from "./models/interfaces";
 import AuthService from "./auth-service/authService";
+import { UserModel, IUser } from "./models/user";
 
 config();
 
@@ -93,9 +94,23 @@ const server = new ApolloServer({
   schema: exSchema
 });
 
-const bitbloqAuthService = new AuthService(redisClient, 3600, true, email => {
-  console.log("holi", email);
-});
+const bitbloqAuthService = new AuthService(
+  redisClient,
+  3600,
+  true,
+  async email => {
+    const user: IUser | null = await UserModel.findOne({ email: email });
+    if (!user) {
+      throw new ApolloError("User not found", "USER_NOT_FOUND");
+    }
+    return {
+      active: user.active,
+      email: user.email,
+      id: user._id,
+      password: user.password
+    };
+  }
+);
 export { pubsub, redisClient, bitbloqAuthService };
 server.applyMiddleware({ app });
 server.installSubscriptionHandlers(httpServer);
