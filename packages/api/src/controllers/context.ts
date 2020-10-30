@@ -205,9 +205,10 @@ const contextController = {
           return undefined;
         }
         // check if there is another open session
-        if (user.role.indexOf("usr-") > -1 || user.role.indexOf("stu-") > -1) {
-          return checkOtherSessionOpen(user, justToken);
-        }
+        // if (user.role.indexOf("usr-") > -1 || user.role.indexOf("stu-") > -1) {
+        //   return checkOtherSessionOpen(user, justToken);
+        // }
+        return user;
       }
     } else if (type === "Basic") {
       const data:

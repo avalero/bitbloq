@@ -1,10 +1,11 @@
-import { sign as jwtSign, verify as jwtVerify } from "jsonwebtoken";
 import { compare as bcryptCompare } from "bcrypt";
-import { generateLoginToken, storeTokenInRedis } from "./login";
+import { generateLoginToken, storeTokenInRedis } from "./utils";
+import { getGoogleUser } from "./getGoogleData";
 
 interface IUser {
   active: boolean;
   email: string;
+  finishedSignUp: boolean;
   id: string;
   password: string;
 }
@@ -50,6 +51,25 @@ class AuthService {
     );
     console.log(token);
     return token;
+  }
+
+  async loginWithGoogle(token: string) {
+    const googleData = await getGoogleUser(token);
+    if (!googleData) {
+      return { error: "GOOGLE_ERROR" };
+    }
+    const user = await this.getUserData(googleData.email);
+    if (!user) {
+      return { error: "NOT_FOUND" };
+    }
+    const { token: loginToken } = await generateLoginToken(user);
+    await storeTokenInRedis(
+      this.redisClient,
+      user.id,
+      loginToken,
+      this.sessionDuration
+    );
+    return { loginToken, finishedSignUp: user.finishedSignUp, googleData };
   }
 }
 

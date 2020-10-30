@@ -336,66 +336,11 @@ const userResolver = {
       args: email and password.
     */
     login: async (_, { email, password }) => {
-      return bitbloqAuthService.login(email, password);
-      // const contactFound: IUser | null = await UserModel.findOne({
-      //   email,
-      //   finishedSignUp: true
-      // });
-      // if (!contactFound) {
-      //   throw new ApolloError("Email or password incorrect", "LOGIN_ERROR");
-      // }
-      // if (!contactFound.active) {
-      //   throw new ApolloError(
-      //     "Not active user, please activate your account",
-      //     "NOT_ACTIVE_USER"
-      //   );
-      // }
-      // // Compare passwords from request and database
-      // const valid: boolean = await bcryptCompare(
-      //   password,
-      //   contactFound.password
-      // );
-      // if (valid) {
-      //   const { token, role } = await contextController.generateLoginToken(
-      //     contactFound
-      //   );
-      //   if (!contactFound.rootFolder) {
-      //     const userDocs: IDocument[] = await DocumentModel.find({
-      //       user: contactFound._id
-      //     });
-      //     const userFols: IFolder[] = await FolderModel.find({
-      //       user: contactFound._id
-      //     });
-      //     const userFolder: IFolder = await FolderModel.create({
-      //       name: "root",
-      //       user: contactFound._id,
-      //       documentsID: userDocs.map(i => i._id),
-      //       foldersID: userFols.map(i => i._id)
-      //     });
-      //     await DocumentModel.updateMany(
-      //       { user: contactFound._id },
-      //       { $set: { parentFolder: userFolder._id } }
-      //     );
-      //     await FolderModel.updateMany(
-      //       { user: contactFound._id, name: { $ne: "root" } },
-      //       { $set: { parentFolder: userFolder._id } }
-      //     );
-      //     await UserModel.updateOne(
-      //       { _id: contactFound._id },
-      //       { $set: { rootFolder: userFolder._id } },
-      //       { new: true }
-      //     );
-      //   }
-      //   await storeTokenInRedis(contactFound._id, token);
-      //   // Update the user information in the database
-      //   await UserModel.updateOne(
-      //     { _id: contactFound._id },
-      //     { $set: { authToken: token, lastLogin: new Date() } },
-      //     { new: true }
-      //   );
-      //   return token;
-      // }
-      // throw new ApolloError("Email or password incorrect", "LOGIN_ERROR");
+      const token = await bitbloqAuthService.login(email, password);
+      if (!token) {
+        throw new ApolloError("Email or password incorrect", "LOGIN_ERROR");
+      }
+      return token;
     },
 
     /**
@@ -407,28 +352,24 @@ const userResolver = {
       args: IMutationLoginWithGoogleArgs,
       context: any
     ) => {
-      let idToken = "";
-      let finishedSignUp: boolean | undefined;
-      let token = "";
-      const userData = await getGoogleUser(args.token);
-      if (!userData) {
+      const {
+        loginToken,
+        finishedSignUp,
+        error,
+        googleData
+      } = await bitbloqAuthService.loginWithGoogle(args.token);
+      let idToken;
+      if (error === "GOOGLE_ERROR") {
         throw new ApolloError("Not valid token", "NOT_VALID_TOKEN");
       }
-      let user: IUser | null = await UserModel.findOne({
-        email: userData.email
-      });
-      if (user && (!user.finishedSignUp || !user.active)) {
-        await UserModel.deleteOne({ _id: user._id }); // Delete every data of the user
-        user = null;
-      }
-      if (!user) {
+      if (error === "NOT_FOUND" && googleData) {
         // guardar datos de usuario
-        user = await UserModel.create({
+        const newUser = await UserModel.create({
           password: "google",
-          googleID: userData.id || "google",
-          name: userData.given_name || userData.email,
-          surnames: userData.family_name || "google",
-          email: userData.email,
+          googleID: googleData.id || "google",
+          name: googleData.given_name || googleData.email,
+          surnames: googleData.family_name || "google",
+          email: googleData.email,
           active: false,
           authToken: " ",
           notifications: false,
@@ -437,27 +378,19 @@ const userResolver = {
           finishedSignUp: false,
           socialLogin: true
         } as IUser);
-        finishedSignUp = user.finishedSignUp;
         idToken = await jwtSign(
           {
-            saveUserData: user._id
+            saveUserData: newUser._id
           },
           process.env.JWT_SECRET || "",
           { expiresIn: "15m" }
         );
-      } else {
-        // usuario se logea sin más
-        token = (await contextController.generateLoginToken(user)).token;
-        finishedSignUp = user.finishedSignUp;
-        await UserModel.updateOne(
-          { _id: user._id },
-          { $set: { authToken: token, lastLogin: new Date() } },
-          { new: true }
-        );
-        await storeTokenInRedis(user._id, token);
       }
-
-      return { id: idToken, finishedSignUp, token };
+      return {
+        id: idToken,
+        finishedSignUp: finishedSignUp || false,
+        token: loginToken
+      };
     },
 
     /**

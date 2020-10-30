@@ -106,6 +106,7 @@ const bitbloqAuthService = new AuthService(
     return {
       active: user.active,
       email: user.email,
+      finishedSignUp: user.finishedSignUp || false,
       id: user._id,
       password: user.password
     };

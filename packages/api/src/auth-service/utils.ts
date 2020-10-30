@@ -1,6 +1,4 @@
-import { sign as jwtSign, verify as jwtVerify } from "jsonwebtoken";
-import { compare as bcryptCompare } from "bcrypt";
-import { redisClient } from "../server";
+import { sign as jwtSign } from "jsonwebtoken";
 
 const generateLoginToken = async (
   user
@@ -24,7 +22,7 @@ const generateLoginToken = async (
   const token: string = await jwtSign(
     {
       email: user.email,
-      userID: user._id,
+      userID: user.id,
       role: rolePerm
     },
     process.env.JWT_SECRET || ""
