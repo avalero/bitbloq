@@ -21,9 +21,11 @@ interface IBitbloqAppProps {
 }
 
 Router.events.on("routeChangeComplete", url => {
-  window.gtag("config", env.GOOGLE_ANALYTICS_ID, {
-    page_path: url
-  });
+  if (window.gtag && env.GOOGLE_ANALYTICS_ID) {
+    window.gtag("config", env.GOOGLE_ANALYTICS_ID, {
+      page_path: url
+    });
+  }
 });
 
 class BitbloqApp extends App<IBitbloqAppProps> {
