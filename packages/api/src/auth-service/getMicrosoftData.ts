@@ -1,21 +1,8 @@
 import axios from "axios";
 import { stringify } from "querystring";
-export interface IMSData {
-  error?: JSON;
-  displayName: string;
-  surname: string;
-  givenName: string;
-  id: string;
-  userPrincipalName: string;
-  businessPhones: string[];
-  jobTitle: string;
-  mail: string;
-  mobilePhone: string;
-  officeLocation: string;
-  preferredLanguage: string;
-}
+import { ISocialData } from "./authService";
 
-export const getMicrosoftUser = async (token): Promise<IMSData> => {
+const getMicrosoftUser = async (token): Promise<ISocialData> => {
   const queryData = {
     client_id: process.env.MICROSOFT_APP_ID,
     scope: "User.Read",
@@ -45,7 +32,14 @@ export const getMicrosoftUser = async (token): Promise<IMSData> => {
             headers: { Authorization: `Bearer ${accessToken}` }
           })
           .then(response => {
-            resolve(response.data);
+            resolve({
+              name: response.data.displayName,
+              surname: response.data.surname,
+              id: response.data.id,
+              email: response.data.mail
+                ? response.data.mail
+                : response.data.userPrincipalName
+            });
           });
       } catch (e) {
         console.log("error getting user data", e);
@@ -54,3 +48,5 @@ export const getMicrosoftUser = async (token): Promise<IMSData> => {
     }
   });
 };
+
+export { getMicrosoftUser };

@@ -1,6 +1,7 @@
 import { compare as bcryptCompare } from "bcrypt";
 import { generateLoginToken, storeTokenInRedis } from "./utils";
 import { getGoogleUser } from "./getGoogleData";
+import { getMicrosoftUser } from "./getMicrosoftData";
 
 interface IUser {
   active: boolean;
@@ -10,6 +11,13 @@ interface IUser {
   password: string;
 }
 
+export interface ISocialData {
+  name: string;
+  surname: string;
+  id: string;
+  email: string;
+}
+
 class AuthService {
   redisClient;
 
@@ -17,13 +25,13 @@ class AuthService {
 
   singleSession: boolean;
 
-  getUserData: (email: string) => Promise<IUser>;
+  getUserData: (email: string) => Promise<IUser | null>;
 
   constructor(
     redisClient,
     sessionDuration: number,
     singleSession: boolean,
-    getUserData: (email: string) => Promise<IUser>
+    getUserData: (email: string) => Promise<IUser | null>
   ) {
     this.redisClient = redisClient;
     this.sessionDuration = sessionDuration;
@@ -60,7 +68,7 @@ class AuthService {
     }
     const user = await this.getUserData(googleData.email);
     if (!user) {
-      return { error: "NOT_FOUND" };
+      return { error: "NOT_FOUND", googleData };
     }
     const { token: loginToken } = await generateLoginToken(user);
     await storeTokenInRedis(
@@ -70,6 +78,27 @@ class AuthService {
       this.sessionDuration
     );
     return { loginToken, finishedSignUp: user.finishedSignUp, googleData };
+  }
+
+  async loginWithMicrosoft(token: string) {
+    const microsoftData = await getMicrosoftUser(token);
+    console.log({ microsoftData });
+    if (!microsoftData) {
+      return { error: "MICROSOFT_ERROR" };
+    }
+    const user = await this.getUserData(microsoftData.email);
+    console.log(user);
+    if (!user) {
+      return { error: "NOT_FOUND", microsoftData };
+    }
+    const { token: loginToken } = await generateLoginToken(user);
+    await storeTokenInRedis(
+      this.redisClient,
+      user.id,
+      loginToken,
+      this.sessionDuration
+    );
+    return { loginToken, finishedSignUp: user.finishedSignUp, microsoftData };
   }
 }
 

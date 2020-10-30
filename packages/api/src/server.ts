@@ -100,16 +100,15 @@ const bitbloqAuthService = new AuthService(
   true,
   async email => {
     const user: IUser | null = await UserModel.findOne({ email: email });
-    if (!user) {
-      throw new ApolloError("User not found", "USER_NOT_FOUND");
-    }
-    return {
-      active: user.active,
-      email: user.email,
-      finishedSignUp: user.finishedSignUp || false,
-      id: user._id,
-      password: user.password
-    };
+    return user
+      ? {
+          active: user.active,
+          email: user.email,
+          finishedSignUp: user.finishedSignUp || false,
+          id: user._id,
+          password: user.password
+        }
+      : null;
   }
 );
 export { pubsub, redisClient, bitbloqAuthService };

@@ -1,4 +1,5 @@
 import { request } from "https";
+import { ISocialData } from "./authService";
 
 interface IGoogleData {
   error?: JSON;
@@ -11,7 +12,7 @@ interface IGoogleData {
   birthDate: string;
 }
 
-const getGoogleUser = (token): Promise<IGoogleData | undefined> => {
+const getGoogleUser = (token): Promise<ISocialData | undefined> => {
   const getOptions = {
     hostname: "www.googleapis.com",
     path: "/oauth2/v2/userinfo",
@@ -29,10 +30,15 @@ const getGoogleUser = (token): Promise<IGoogleData | undefined> => {
       res.setEncoding("utf8");
       res.on("data", data => {
         userData = JSON.parse(data);
-        if (userData && userData.error) {
-          userData = undefined;
+        if (!userData || (userData && userData.error)) {
+          reject("error with user data");
         }
-        resolve(userData);
+        resolve({
+          name: userData!.given_name || userData!.email,
+          surname: userData!.family_name,
+          id: userData!.id,
+          email: userData!.email
+        });
       });
     });
 

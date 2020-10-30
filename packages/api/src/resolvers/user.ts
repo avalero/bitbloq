@@ -26,15 +26,13 @@ import {
   storeTokenInRedis,
   updateExpireDateInRedis
 } from "../controllers/context";
-import { getGoogleUser } from "../controllers/googleAuth";
 import { mailerController } from "../controllers/mailer";
-import { getMicrosoftUser, IMSData } from "../controllers/microsoftAuth";
 import {
   generateChangeEmailEmail,
   generateResetPasswordEmail,
   generateWelcomeEmail
 } from "../email/generateEmails";
-import { DocumentModel, IDocument } from "../models/document";
+import { DocumentModel } from "../models/document";
 import { ExerciseModel } from "../models/exercise";
 import { FolderModel, IFolder } from "../models/folder";
 import {
@@ -366,9 +364,9 @@ const userResolver = {
         // guardar datos de usuario
         const newUser = await UserModel.create({
           password: "google",
-          googleID: googleData.id || "google",
-          name: googleData.given_name || googleData.email,
-          surnames: googleData.family_name || "google",
+          googleID: googleData.id,
+          name: googleData.name,
+          surnames: googleData.surname,
           email: googleData.email,
           active: false,
           authToken: " ",
@@ -402,28 +400,30 @@ const userResolver = {
       args: IMutationLoginWithMicrosoftArgs,
       ___
     ) => {
-      let idToken = "";
-      let finishedSignUp: boolean | undefined;
-      let token = "";
-      const userData: IMSData = await getMicrosoftUser(args.token);
-      if (!userData) {
+      const {
+        loginToken,
+        finishedSignUp,
+        error,
+        microsoftData
+      } = await bitbloqAuthService.loginWithMicrosoft(args.token);
+      console.log({
+        loginToken,
+        finishedSignUp,
+        error,
+        microsoftData
+      });
+      let idToken;
+      if (error === "MICROSOFT_ERROR") {
         throw new ApolloError("Not valid token", "NOT_VALID_TOKEN");
       }
-      let user: IUser | null = await UserModel.findOne({
-        email: userData.userPrincipalName
-      });
-      if (user && (!user.finishedSignUp || !user.active)) {
-        await UserModel.deleteOne({ _id: user._id }); // Delete every data of the user
-        user = null;
-      }
-      if (!user) {
+      if (error === "NOT_FOUND" && microsoftData) {
         // guardar datos de usuario
-        user = await UserModel.create({
+        const newUser = await UserModel.create({
           password: "microsoft",
-          microsoftID: userData.id || "microsoft",
-          name: userData.givenName || userData.userPrincipalName,
-          surnames: userData.surname || "microsoft",
-          email: userData.userPrincipalName,
+          microsoftID: microsoftData.id,
+          name: microsoftData.name,
+          surnames: microsoftData.surname,
+          email: microsoftData.email,
           active: false,
           authToken: " ",
           notifications: false,
@@ -432,26 +432,19 @@ const userResolver = {
           finishedSignUp: false,
           socialLogin: true
         } as IUser);
-        finishedSignUp = user.finishedSignUp;
         idToken = await jwtSign(
           {
-            saveUserData: user._id
+            saveUserData: newUser._id
           },
           process.env.JWT_SECRET || "",
           { expiresIn: "15m" }
         );
-      } else {
-        // usuario se logea sin más
-        token = (await contextController.generateLoginToken(user)).token;
-        finishedSignUp = user.finishedSignUp;
-        await UserModel.updateOne(
-          { _id: user._id },
-          { $set: { authToken: token, lastLogin: new Date() } },
-          { new: true }
-        );
-        await storeTokenInRedis(user._id, token);
       }
-      return { id: idToken, finishedSignUp, token };
+      return {
+        id: idToken,
+        finishedSignUp: finishedSignUp || false,
+        token: loginToken
+      };
     },
 
     /*
