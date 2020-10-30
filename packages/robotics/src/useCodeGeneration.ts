@@ -223,7 +223,6 @@ export const getBloqsCode = (
 interface ICallbackResult {
   code: string;
   libraries: ILibrary[];
-  boardObject?: IBoard;
 }
 
 const useCodeGeneration = (): (() => Promise<ICallbackResult>) => {
@@ -250,7 +249,7 @@ const useCodeGeneration = (): (() => Promise<ICallbackResult>) => {
     ];
 
     const code = getCode(board.name, instances, bloqs);
-    return { code, libraries, boardObject };
+    return { code, libraries };
   });
 };
 

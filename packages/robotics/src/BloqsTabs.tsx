@@ -104,7 +104,7 @@ const BloqsTabs: FC<IBloqsTabsProps> = ({ onViewCode, viewingCode }) => {
                     >
                       {props => (
                         <BloqWrap {...props}>
-                          <Bloq bloq={bloq} section="" path={[0]} />
+                          <Bloq bloq={bloq} section="" path={[0]} readOnly />
                         </BloqWrap>
                       )}
                     </Draggable>
