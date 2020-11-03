@@ -15,6 +15,8 @@ import { contextController } from "./controllers/context";
 import { IUserInToken } from "./models/interfaces";
 import AuthService from "./auth-service/authService";
 import { UserModel, IUser } from "./models/user";
+import { SESSION } from "./config";
+import { USER_SESSION_EXPIRES } from "./resolvers/user";
 
 config();
 
@@ -96,7 +98,8 @@ const server = new ApolloServer({
 
 const bitbloqAuthService = new AuthService(
   redisClient,
-  3600,
+  SESSION.DURATION_MINUTES,
+  SESSION.SHOW_WARNING_SECONDS,
   true,
   async email => {
     const user: IUser | null = await UserModel.findOne({ email: email });
@@ -109,6 +112,33 @@ const bitbloqAuthService = new AuthService(
           password: user.password
         }
       : null;
+  },
+  async (
+    key: string,
+    secondsRemaining: number,
+    expiredSession: boolean,
+    userId: string
+  ) => {
+    console.log(
+      { userId },
+
+      {
+        userSessionExpires: {
+          key: userId,
+          secondsRemaining,
+          expiredSession,
+          showSessionWarningSecs: SESSION.SHOW_WARNING_SECONDS
+        }
+      }
+    );
+    await pubsub.publish(USER_SESSION_EXPIRES, {
+      userSessionExpires: {
+        key: userId,
+        secondsRemaining,
+        expiredSession,
+        showSessionWarningSecs: SESSION.SHOW_WARNING_SECONDS
+      }
+    });
   }
 );
 export { pubsub, redisClient, bitbloqAuthService };

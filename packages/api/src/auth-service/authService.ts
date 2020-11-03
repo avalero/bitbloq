@@ -2,6 +2,10 @@ import { compare as bcryptCompare } from "bcrypt";
 import { generateLoginToken, storeTokenInRedis } from "./utils";
 import { getGoogleUser } from "./getGoogleData";
 import { getMicrosoftUser } from "./getMicrosoftData";
+import { IUserInToken } from "../models/interfaces";
+
+import { sign as jwtSign, verify as jwtVerify } from "jsonwebtoken";
+import checksSessionExpires from "./sessionExpires";
 
 interface IUser {
   active: boolean;
@@ -21,22 +25,50 @@ export interface ISocialData {
 class AuthService {
   redisClient;
   sessionDuration: number;
+  sessionWarning: number;
   singleSession: boolean;
   getUserData: (email: string) => Promise<IUser | null>;
+  onSessionExpires:
+    | ((
+        key: string,
+        secondsRemaining: number,
+        expiredSession: boolean,
+        userId: string
+      ) => Promise<void>)
+    | undefined;
 
   constructor(
     redisClient,
     sessionDuration: number,
+    sessionWarning: number,
     singleSession: boolean,
-    getUserData: (email: string) => Promise<IUser | null>
+    getUserData: (email: string) => Promise<IUser | null>,
+    onSessionExpires?: (
+      key: string,
+      secondsRemaining: number,
+      expiredSession: boolean,
+      userId: string
+    ) => Promise<void>
   ) {
     this.redisClient = redisClient;
     this.sessionDuration = sessionDuration;
+    this.sessionWarning = sessionWarning;
     this.singleSession = singleSession;
     this.getUserData = getUserData;
+    this.onSessionExpires = onSessionExpires;
+
+    onSessionExpires &&
+      setInterval(
+        checksSessionExpires,
+        5000,
+        this.redisClient,
+        this.onSessionExpires,
+        this.sessionWarning
+      );
   }
 
   async login(email: string, password: string) {
+    console.log(email);
     const user = await this.getUserData(email);
     console.log(user);
     if (!user || !user.active) {
@@ -99,16 +131,16 @@ class AuthService {
   }
 
   async userActivity(token: string) {
-    //TODO: function that registers user activity in platform and updates expiresAt
+    // Function that registers user activity in platform and updates expiresAt
     const result = await this.redisClient.hgetallAsync(token);
-    console.log({ result });
-    result &&
-      (await storeTokenInRedis(
-        this.redisClient,
-        result.userID,
-        token,
-        this.sessionDuration
-      ));
+    return result
+      ? await storeTokenInRedis(
+          this.redisClient,
+          result.userID,
+          token,
+          this.sessionDuration
+        )
+      : null;
   }
 
   async checkToken(token: string) {

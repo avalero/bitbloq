@@ -15,7 +15,6 @@ import {
 
 import { SESSION } from "../config";
 import { SubmissionModel } from "../models/submission";
-import { authService } from "../auth-service";
 
 const checkOtherSessionOpen = async (user: IUserInToken, justToken: string) => {
   let reply: string | undefined;
@@ -179,7 +178,7 @@ const checksSessionExpires = async () => {
   }
 };
 
-setInterval(checksSessionExpires, 5000);
+// setInterval(checksSessionExpires, 5000);
 
 const contextController = {
   getMyUser: async authorization => {

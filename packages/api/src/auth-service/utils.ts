@@ -30,6 +30,13 @@ const generateLoginToken = async (
   return { token, role: rolePerm };
 };
 
+export interface IDataInRedis {
+  token: string;
+  userId?: string;
+  submissionId?: string;
+  expiresAt: Date;
+}
+
 const storeTokenInRedis = async (
   redisClient,
   id: string,
@@ -42,27 +49,25 @@ const storeTokenInRedis = async (
   }
   let date: Date = new Date();
   date = new Date(date.setMinutes(date.getMinutes() + sessionDudation));
-  if (process.env.USE_REDIS === "true") {
-    try {
-      if (subToken) {
-        return redisClient.hmset(
-          String(id),
-          "subToken",
-          String(token),
-          "expiresAt",
-          date
-        );
-      }
+  try {
+    if (subToken) {
       return redisClient.hmset(
-        String(id),
-        "authToken",
         String(token),
+        "submissionId",
+        String(id),
         "expiresAt",
         date
       );
-    } catch (e) {
-      return undefined;
     }
+    return redisClient.hmset(
+      String(token),
+      "userId",
+      String(id),
+      "expiresAt",
+      date
+    );
+  } catch (e) {
+    return undefined;
   }
 };
 
