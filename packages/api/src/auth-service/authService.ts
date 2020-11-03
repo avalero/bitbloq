@@ -20,11 +20,8 @@ export interface ISocialData {
 
 class AuthService {
   redisClient;
-
   sessionDuration: number;
-
   singleSession: boolean;
-
   getUserData: (email: string) => Promise<IUser | null>;
 
   constructor(
@@ -100,6 +97,26 @@ class AuthService {
     );
     return { loginToken, finishedSignUp: user.finishedSignUp, microsoftData };
   }
+
+  async userActivity(token: string) {
+    //TODO: function that registers user activity in platform and updates expiresAt
+    const result = await this.redisClient.hgetallAsync(token);
+    console.log({ result });
+    result &&
+      (await storeTokenInRedis(
+        this.redisClient,
+        result.userID,
+        token,
+        this.sessionDuration
+      ));
+  }
+
+  async checkToken(token: string) {
+    //TODO: function that checks if token is valid or not
+  }
+
+  // onSessionExpireWarning(callback: (user: User, secondsRemaining: number) => void)
+  // onSessionExpired(callback: (user: User) => void)
 }
 
 export default AuthService;

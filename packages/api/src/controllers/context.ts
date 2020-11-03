@@ -4,7 +4,7 @@ import { IUserInToken, IDataInRedis } from "../models/interfaces";
 import { sign as jwtSign, verify as jwtVerify } from "jsonwebtoken";
 import { compare as bcryptCompare } from "bcrypt";
 
-import { redisClient, pubsub } from "../server";
+import { redisClient, pubsub, bitbloqAuthService } from "../server";
 import { IUser, ISubmission } from "../api-types";
 
 import { USER_SESSION_EXPIRES } from "../resolvers/user";
@@ -15,6 +15,7 @@ import {
 
 import { SESSION } from "../config";
 import { SubmissionModel } from "../models/submission";
+import { authService } from "../auth-service";
 
 const checkOtherSessionOpen = async (user: IUserInToken, justToken: string) => {
   let reply: string | undefined;
@@ -191,6 +192,7 @@ const contextController = {
       type = "";
       justToken = "";
     }
+    bitbloqAuthService.userActivity(justToken);
     // comprobar si el token que recibe es el que está guardado en la base de datos
     // -> sesión única simultánea
     if (type === "Bearer") {

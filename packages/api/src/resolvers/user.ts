@@ -368,12 +368,6 @@ const userResolver = {
           name: googleData.name,
           surnames: googleData.surname,
           email: googleData.email,
-          active: false,
-          authToken: " ",
-          notifications: false,
-          imTeacherCheck: false,
-          lastLogin: new Date(),
-          finishedSignUp: false,
           socialLogin: true
         } as IUser);
         idToken = await jwtSign(
@@ -424,12 +418,6 @@ const userResolver = {
           name: microsoftData.name,
           surnames: microsoftData.surname,
           email: microsoftData.email,
-          active: false,
-          authToken: " ",
-          notifications: false,
-          imTeacherCheck: false,
-          lastLogin: new Date(),
-          finishedSignUp: false,
           socialLogin: true
         } as IUser);
         idToken = await jwtSign(

@@ -88,7 +88,8 @@ export const contactSchema: Schema = new Schema({
   },
 
   active: {
-    type: Boolean
+    type: Boolean,
+    default: false
   },
 
   signUpToken: {
@@ -102,7 +103,8 @@ export const contactSchema: Schema = new Schema({
   },
 
   notifications: {
-    type: Boolean
+    type: Boolean,
+    default: false
   },
 
   imTeacherCheck: { type: Boolean, default: false },
@@ -113,7 +115,8 @@ export const contactSchema: Schema = new Schema({
   country: { type: String },
 
   lastLogin: {
-    type: Date
+    type: Date,
+    default: new Date()
   },
 
   finishedSignUp: {
