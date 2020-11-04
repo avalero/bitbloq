@@ -51,7 +51,6 @@ class AuthService {
       userId: string
     ) => Promise<void>
   ) {
-    console.log(typeof redisClient);
     this.redisClient = redisClient;
     this.sessionDuration = sessionDuration;
     this.sessionWarning = sessionWarning;
@@ -71,15 +70,11 @@ class AuthService {
   }
 
   async login(credentials) {
-    console.log(credentials);
     const userData = await this.getUserData(credentials);
-    console.log({ userData });
     if (!userData || !userData.active) {
-      console.log("error");
-      // send errors?
+      // TODO: send errors?
       return null;
     }
-    console.log(credentials.password, userData.password);
     const valid: boolean = await bcryptCompare(
       credentials.password,
       userData.password
@@ -95,7 +90,6 @@ class AuthService {
       this.sessionDuration,
       userData.permissions
     );
-    console.log(token);
     return token;
   }
 
@@ -121,12 +115,10 @@ class AuthService {
 
   async loginWithMicrosoft(token: string) {
     const microsoftData = await getMicrosoftUser(token);
-    console.log({ microsoftData });
     if (!microsoftData) {
       return { error: "MICROSOFT_ERROR" };
     }
     const user = await this.getUserData({ user: microsoftData.email });
-    console.log(user);
     if (!user) {
       return { error: "NOT_FOUND", microsoftData };
     }
@@ -159,17 +151,14 @@ class AuthService {
   }
 
   async checkToken(token: string) {
-    console.log("1", token);
     if (!token || !this.redisClient) {
-      console.log("err");
       return null;
     }
     let result;
     try {
       result = await this.redisClient.hgetallAsync(token);
-      console.log("2", result);
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
     return result;
   }

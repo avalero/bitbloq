@@ -28,7 +28,7 @@ const folderResolver = {
           context: { user: IUserInToken }
         ) => {
           return (
-            String(context.user.userID) === String(payload.folderUpdated.user)
+            String(context.user.userId) === String(payload.folderUpdated.user)
           );
         }
       )
@@ -46,7 +46,7 @@ const folderResolver = {
       context: { user: IUserInToken }
     ) => {
       const user: IUser | null = await UserModel.findOne({
-        _id: context.user.userID
+        _id: context.user.userId
       });
       if (args.input!.parentFolder) {
         if (!(await FolderModel.findOne({ _id: args.input!.parentFolder }))) {
@@ -58,7 +58,7 @@ const folderResolver = {
       }
       const folderNew: IFolder = new FolderModel({
         name: args.input!.name,
-        user: context.user.userID,
+        user: context.user.userId,
         parentFolder: args.input!.parentFolder || user!.rootFolder
       });
       const newFolder: IFolder = await FolderModel.create(folderNew);
@@ -84,7 +84,7 @@ const folderResolver = {
     ) => {
       const existFolder: IFolder | null = await FolderModel.findOne({
         _id: args.id,
-        user: context.user.userID
+        user: context.user.userId
       });
       if (!existFolder) {
         throw new ApolloError("Folder does not exist", "FOLDER_NOT_FOUND");
@@ -142,7 +142,7 @@ const folderResolver = {
     ) => {
       const existFolder: IFolder | null = await FolderModel.findOne({
         _id: args.id,
-        user: context.user.userID
+        user: context.user.userId
       });
       if (args.input!.parentFolder) {
         if (!(await FolderModel.findOne({ _id: args.input!.parentFolder }))) {
@@ -260,7 +260,7 @@ const folderResolver = {
      * args: nothing.
      */
     folders: async (_, __, context: { user: IUserInToken }) => {
-      return FolderModel.find({ user: context.user.userID });
+      return FolderModel.find({ user: context.user.userId });
     },
 
     /**
@@ -274,7 +274,7 @@ const folderResolver = {
     ) => {
       const existFolder: IFolder | null = await FolderModel.findOne({
         _id: args.id,
-        user: context.user.userID
+        user: context.user.userId
       });
       if (!existFolder) {
         throw new ApolloError("Folder does not exist", "FOLDER_NOT_FOUND");
@@ -289,7 +289,7 @@ const folderResolver = {
     rootFolder: async (_, __, context: { user: IUserInToken }) => {
       return FolderModel.findOne({
         name: "root",
-        user: context.user.userID
+        user: context.user.userId
       });
     }
   },

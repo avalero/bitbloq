@@ -1,7 +1,7 @@
 import { ApolloError, withFilter } from "apollo-server-koa";
 import { ExerciseModel, IExercise } from "../models/exercise";
 import { ISubmission, SubmissionModel } from "../models/submission";
-import { pubsub, redisClient } from "../server";
+import { pubsub, redisClient, studentAuthService } from "../server";
 
 import { sign as jwtSign } from "jsonwebtoken";
 import { hash as bcryptHash, compare as bcryptCompare } from "bcrypt";
@@ -26,7 +26,6 @@ import {
   contextController
 } from "../controllers/context";
 import { CONTENT_VERSION } from "../config";
-import { studentAuthService } from "../authServices";
 
 const saltRounds = 7;
 
@@ -45,9 +44,9 @@ const submissionResolver = {
           context: { user: IUserInToken }
         ) => {
           if (
-            String(context.user.userID) ===
+            String(context.user.userId) ===
               String(payload.submissionUpdated.user) ||
-            String(context.user.role).indexOf("stu") >= 0
+            String(context.user.permissions).indexOf("stu") >= 0
           ) {
             return (
               String(payload.submissionUpdated.exercise) ===
@@ -277,7 +276,7 @@ const submissionResolver = {
       const existSubmission: ISubmission | null = await SubmissionModel.findOne(
         {
           _id: args.submissionID,
-          user: context.user.userID
+          user: context.user.userId
         }
       );
       if (existSubmission) {
@@ -399,7 +398,7 @@ const submissionResolver = {
       const existSubmission: ISubmission | null = await SubmissionModel.findOneAndUpdate(
         {
           _id: args.submissionID,
-          user: context.user.userID
+          user: context.user.userId
         },
         {
           $set: { active: false }
@@ -431,7 +430,7 @@ const submissionResolver = {
       const existSubmission: ISubmission | null = await SubmissionModel.findOne(
         {
           _id: args.submissionID,
-          user: context.user.userID
+          user: context.user.userId
         }
       );
       if (!existSubmission) {
@@ -478,7 +477,7 @@ const submissionResolver = {
       const existSubmission: ISubmission | null = await SubmissionModel.findOne(
         {
           _id: args.submissionID,
-          user: context.user.userID
+          user: context.user.userId
         }
       );
       if (!existSubmission) {
@@ -508,7 +507,7 @@ const submissionResolver = {
      */
     // devuelve todas las entregas que los alumnos han realizado, necesita usuario logado
     submissions: async (_, __, context: { user: IUserInToken }) => {
-      return SubmissionModel.find({ user: context.user.userID });
+      return SubmissionModel.find({ user: context.user.userId });
     },
 
     /**
@@ -537,12 +536,12 @@ const submissionResolver = {
           );
         }
         return existSubmission;
-      } else if (context.user.userID) {
+      } else if (context.user.userId) {
         // token de profesor
         const existSubmission: ISubmission | null = await SubmissionModel.findOne(
           {
             _id: args.id,
-            user: context.user.userID
+            user: context.user.userId
           }
         );
         if (!existSubmission) {

@@ -2,7 +2,6 @@ import { ApolloError, withFilter } from "apollo-server-koa";
 import { hash as bcryptHash, compare as bcryptCompare } from "bcrypt";
 import { sign as jwtSign, verify as jwtVerify } from "jsonwebtoken";
 
-import { SUBMISSION_SESSION_EXPIRES } from "./submission";
 import { uploadDocumentUserImage } from "./upload";
 import {
   IMutationActivateAccountArgs,
@@ -20,12 +19,8 @@ import {
   IMutationDeleteMyUserArgs,
   IMutationResendWelcomeEmailArgs
 } from "../api-types";
-import { SESSION, USER_PERMISSIONS } from "../config";
-import {
-  contextController,
-  storeTokenInRedis,
-  updateExpireDateInRedis
-} from "../controllers/context";
+import { USER_PERMISSIONS } from "../config";
+import { contextController, storeTokenInRedis } from "../controllers/context";
 import { mailerController } from "../controllers/mailer";
 import {
   generateChangeEmailEmail,
@@ -39,14 +34,12 @@ import {
   IEmailData,
   IResetPasswordToken,
   ISignUpToken,
-  IUserInToken,
-  IDataInRedis
+  IUserInToken
 } from "../models/interfaces";
 import { SubmissionModel } from "../models/submission";
 import { IUpload } from "../models/upload";
 import { IUser, UserModel } from "../models/user";
-import { redisClient, pubsub } from "../server";
-import { userAuthService } from "../authServices";
+import { redisClient, pubsub, userAuthService } from "../server";
 
 const saltRounds = 7;
 
@@ -65,7 +58,7 @@ const userResolver = {
           variables,
           context: { user: IUserInToken }
         ) =>
-          String(context.user.userID) === String(payload.userSessionExpires.key)
+          String(context.user.userId) === String(payload.userSessionExpires.key)
       )
     }
   },
@@ -401,12 +394,6 @@ const userResolver = {
         error,
         microsoftData
       } = await userAuthService.loginWithMicrosoft(args.token);
-      console.log({
-        loginToken,
-        finishedSignUp,
-        error,
-        microsoftData
-      });
       let idToken;
       if (error === "MICROSOFT_ERROR") {
         throw new ApolloError("Not valid token", "NOT_VALID_TOKEN");
@@ -644,7 +631,7 @@ const userResolver = {
       context: { user: IUserInToken }
     ) => {
       const user: IUser | null = await UserModel.findOne({
-        _id: context.user.userID,
+        _id: context.user.userId,
         finishedSignUp: true,
         active: true
       });
@@ -682,7 +669,7 @@ const userResolver = {
 
       if (
         !contactFound ||
-        String(contactFound._id) !== String(context.user.userID)
+        String(contactFound._id) !== String(context.user.userId)
       ) {
         throw new ApolloError("User not found", "USER_NOT_FOUND");
       }
@@ -691,7 +678,7 @@ const userResolver = {
       if (args.input.avatar) {
         const imageUploaded: IUpload = await uploadDocumentUserImage(
           args.input.avatar,
-          context.user.userID
+          context.user.userId
         );
         image = imageUploaded.publicUrl;
       }
@@ -719,7 +706,7 @@ const userResolver = {
       context: { user: IUserInToken }
     ) => {
       const contactFound: IUser | null = await UserModel.findOne({
-        _id: context.user.userID
+        _id: context.user.userId
       });
       if (!contactFound) {
         throw new ApolloError("User not found", "USER_NOT_FOUND");
@@ -763,7 +750,7 @@ const userResolver = {
           throw new ApolloError("User plan is not valid", "PLAN_NOT_FOUND");
       }
       const user: IUser | null = await UserModel.findOneAndUpdate(
-        { _id: context.user.userID, finishedSignUp: true },
+        { _id: context.user.userId, finishedSignUp: true },
         { $set: { teacher } },
         { new: true }
       );
@@ -791,7 +778,7 @@ const userResolver = {
       context: { user: IUserInToken }
     ) => {
       const contactFound: IUser | null = await UserModel.findOne({
-        _id: context.user.userID,
+        _id: context.user.userId,
         finishedSignUp: true
       });
       if (!contactFound) {
@@ -931,8 +918,7 @@ const userResolver = {
      */
     me: async (_, __, context: { user: IUserInToken }) => {
       const contactFound: IUser | null = await UserModel.findOne({
-        email: context.user.email,
-        _id: context.user.userID
+        _id: context.user.userId
       });
       if (!contactFound) {
         return new ApolloError("Error with user in context", "USER_NOT_FOUND");

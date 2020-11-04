@@ -60,7 +60,7 @@ const documentResolver = {
           context: { user: IUserInToken }
         ) => {
           return (
-            String(context.user.userID) === String(payload.documentUpdated.user)
+            String(context.user.userId) === String(payload.documentUpdated.user)
           );
         }
       )
@@ -85,12 +85,12 @@ const documentResolver = {
         }
       }
       const documentNew: IDocument = new DocumentModel({
-        user: context.user.userID,
+        user: context.user.userId,
         name: args.input.name,
         type: args.input.type,
         parentFolder:
           args.input.parentFolder ||
-          ((await UserModel.findOne({ _id: context.user.userID })) as IUser)
+          ((await UserModel.findOne({ _id: context.user.userId })) as IUser)
             .rootFolder,
         content: args.input.content,
         advancedMode: args.input.advancedMode,
@@ -120,7 +120,7 @@ const documentResolver = {
       context: { user: IUserInToken }
     ) => {
       const user: IUser | null = await UserModel.findOne({
-        _id: context.user.userID
+        _id: context.user.userId
       });
       if (!user) {
         return new AuthenticationError("You need to be logged in");
@@ -169,7 +169,7 @@ const documentResolver = {
       });
       if (!location) {
         return new ApolloError("Location does not exists", "FOLDER_NOT_FOUND");
-      } else if (String(location.user) !== String(context.user.userID)) {
+      } else if (String(location.user) !== String(context.user.userId)) {
         return new AuthenticationError("Not your folder");
       }
       const itemsPerPage: number = (args.itemsPerPage as number) || 8;
@@ -177,7 +177,7 @@ const documentResolver = {
       const allDataSorted = await getSortedData(
         args!.order!,
         text,
-        context.user.userID,
+        context.user.userId,
         location._id
       );
 
@@ -201,7 +201,7 @@ const documentResolver = {
     ) => {
       const existDocument: IDocument | null = await DocumentModel.findOne({
         _id: args.id,
-        user: context.user.userID
+        user: context.user.userId
       });
       if (existDocument) {
         await FolderModel.updateOne(
@@ -234,7 +234,7 @@ const documentResolver = {
     ) => {
       const existDocument: IDocument | null = await DocumentModel.findOne({
         _id: args.id,
-        user: context.user.userID
+        user: context.user.userId
       });
       if (args.input && args.input!.parentFolder) {
         if (!(await FolderModel.findOne({ _id: args.input.parentFolder }))) {
@@ -318,7 +318,7 @@ const documentResolver = {
       }
       const imageUploaded: IUpload = await uploadDocumentUserImage(
         args.image,
-        context.user.userID,
+        context.user.userId,
         docFound._id
       );
       const image = imageUploaded.publicUrl;
@@ -368,7 +368,7 @@ const documentResolver = {
      * args: nothing.
      */
     documents: async (_, __, context: { user: IUserInToken }) => {
-      return DocumentModel.find({ user: context.user.userID });
+      return DocumentModel.find({ user: context.user.userId });
     },
 
     /**
@@ -389,7 +389,7 @@ const documentResolver = {
       if (!existDocument) {
         throw new ApolloError("Document does not exist", "DOCUMENT_NOT_FOUND");
       }
-      if (String(existDocument.user) !== context.user.userID) {
+      if (String(existDocument.user) !== context.user.userId) {
         throw new ApolloError(
           "This ID does not belong to one of your documents",
           "NOT_YOUR_DOCUMENT"
@@ -435,7 +435,7 @@ const documentResolver = {
       context: { user: IUserInToken }
     ) => {
       const user: IUser | null = await UserModel.findOne({
-        _id: context.user.userID
+        _id: context.user.userId
       });
       if (!user) {
         return new AuthenticationError("You need to be logged in");
@@ -449,7 +449,7 @@ const documentResolver = {
       });
       if (!location) {
         return new ApolloError("Location does not exists", "FOLDER_NOT_FOUND");
-      } else if (String(location.user) !== String(context.user.userID)) {
+      } else if (String(location.user) !== String(context.user.userId)) {
         return new AuthenticationError("Not your folder");
       }
       const itemsPerPage: number = args.itemsPerPage || 8;
@@ -459,14 +459,14 @@ const documentResolver = {
       const allDataSorted = await getSortedData(
         args!.order!,
         text,
-        context.user.userID,
+        context.user.userId,
         currentLocation
       );
       const pagesNumber: number = Math.ceil(
         allDataSorted.length / itemsPerPage
       );
       const nFolders: number = await FolderModel.countDocuments({
-        user: context.user.userID,
+        user: context.user.userId,
         parentFolder: currentLocation
       });
       const folderLoc: IFolder | null = await FolderModel.findOne({
@@ -494,7 +494,7 @@ const documentResolver = {
       if (args.type === "folder") {
         const fol: IFolder | null = await FolderModel.findOne({
           _id: args.id,
-          user: context.user.userID
+          user: context.user.userId
         });
         if (!fol) {
           throw new ApolloError("Folder not found");
@@ -505,7 +505,7 @@ const documentResolver = {
           (
             await ExerciseModel.find({
               document: args.id,
-              user: context.user.userID
+              user: context.user.userId
             })
           ).length > 0;
       }

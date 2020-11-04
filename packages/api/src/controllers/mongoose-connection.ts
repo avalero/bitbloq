@@ -11,9 +11,9 @@ const connectWithRetry = (mongoUrl: string) => {
     useCreateIndex: true,
     useUnifiedTopology: true
   })
-    .then(() => console.log("Successfully connected to Mongo"))
+    .then(() => console.info("Successfully connected to Mongo"))
     .catch(e => {
-      console.log("error with mongo", e);
+      console.error("error with mongo", e);
       setTimeout(connectWithRetry, 5000);
     });
 };

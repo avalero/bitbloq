@@ -344,7 +344,7 @@ const uploadResolver = {
           });
       const userUploads: IUpload[] = await UploadModel.find({
         filename: { $regex: `.*${text}.*`, $options: "i" },
-        user: context.user.userID,
+        user: context.user.userId,
         ...filtedOptions
       });
 
@@ -417,7 +417,7 @@ const uploadResolver = {
         }
         const uniqueNameUploadRsc: string =
           "thumbnail" + Date.now() + normalize(filenameUploadRsc);
-        const gcsNameUloadRsc = `${context.user.userID}/${encodeURIComponent(
+        const gcsNameUloadRsc = `${context.user.userId}/${encodeURIComponent(
           uniqueNameUploadRsc
         )}`;
         thumbnailUrl = (await uploadThumbnail(
@@ -450,7 +450,7 @@ const uploadResolver = {
         );
       }
       const uniqueName: string = Date.now() + normalize(filename);
-      const gcsName = `${context.user.userID}/${encodeURIComponent(
+      const gcsName = `${context.user.userId}/${encodeURIComponent(
         uniqueName
       )}`;
       const thumbnailUrlResult = await thumbnailUrl;
@@ -464,7 +464,7 @@ const uploadResolver = {
           filename,
           mimetype,
           encoding,
-          userID: context.user.userID,
+          userID: context.user.userId,
           thumbnailUrl: thumbnailUrlResult,
           type: fileType
         });
@@ -488,7 +488,7 @@ const uploadResolver = {
         );
       }
       const uniqueName: string = Date.now() + normalize(filename);
-      const gcsName = `${context.user.userID}/${encodeURIComponent(
+      const gcsName = `${context.user.userId}/${encodeURIComponent(
         uniqueName
       )}`;
       return new Promise((resolve, reject) => {
@@ -501,7 +501,7 @@ const uploadResolver = {
           filename,
           mimetype,
           encoding,
-          userID: context.user.userID,
+          userID: context.user.userId,
           type: "object3D"
         });
       });
@@ -560,7 +560,7 @@ const uploadResolver = {
         throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR");
       }
       const uniqueName: string = Date.now() + normalize(filename);
-      const gcsName = `${context.user.userID}/${encodeURIComponent(
+      const gcsName = `${context.user.userId}/${encodeURIComponent(
         uniqueName
       )}`;
       return new Promise((resolve, reject) => {
@@ -573,17 +573,17 @@ const uploadResolver = {
           filename,
           mimetype,
           encoding,
-          userID: context.user.userID,
+          userID: context.user.userId,
           type: "image"
         });
       });
     },
     deleteUserFile: async (_, args: any, context: { user: IUserInToken }) => {
       if (args.filename) {
-        await bucket.file(`${context.user.userID}/${args.filename}`).delete();
+        await bucket.file(`${context.user.userId}/${args.filename}`).delete();
         return UploadModel.deleteOne({
           publicUrl: {
-            $regex: `${context.user.userID}/${args.filename}`,
+            $regex: `${context.user.userId}/${args.filename}`,
             $options: "i"
           }
         });
@@ -597,7 +597,7 @@ const uploadResolver = {
     ) => {
       const uploaded: IUpload | null = await UploadModel.findOne({
         _id: args.id,
-        user: context.user.userID
+        user: context.user.userId
       });
       if (!uploaded) {
         throw new ApolloError("File not found", "FILE_NOT_FOUND");
@@ -615,7 +615,7 @@ const uploadResolver = {
     ) => {
       const uploaded: IUpload | null = await UploadModel.findOne({
         _id: args.id,
-        user: context.user.userID
+        user: context.user.userId
       });
       if (!uploaded) {
         throw new ApolloError("File not found", "FILE_NOT_FOUND");

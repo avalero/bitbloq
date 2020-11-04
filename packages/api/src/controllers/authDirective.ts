@@ -45,28 +45,24 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
         } else {
           let passed = false;
           for (const roleReq of requiredRole) {
-            console.log(context, context.user.role, roleReq);
-            if (roleReq === "USER" && context.user.role.indexOf("usr-") > -1) {
-              passed = true;
-              return resolve.apply(this, args);
-            }
+            console.log(context, context.user.permissions, roleReq);
             if (
-              roleReq === "ADMIN" &&
-              context.user.role.indexOf("admin-") > -1
+              roleReq === "USER" &&
+              context.user.permissions.includes("usr-")
             ) {
               passed = true;
               return resolve.apply(this, args);
             }
             if (
               roleReq === "PUBLISHER" &&
-              context.user.role.indexOf("pub-") > -1
+              context.user.permissions.includes("pub-")
             ) {
               passed = true;
               return resolve.apply(this, args);
             }
             if (
               roleReq === "STUDENT" &&
-              context.user.role.indexOf("stu-") > -1
+              context.user.permissions.includes("stu-")
             ) {
               if (!context.user.exerciseID) {
                 throw new AuthenticationError(
@@ -78,21 +74,7 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
             }
             if (
               roleReq === "TEACHER" &&
-              context.user.role.indexOf("tchr-") > -1
-            ) {
-              passed = true;
-              return resolve.apply(this, args);
-            }
-            if (
-              roleReq === "TEACHER_PRO" &&
-              context.user.role.indexOf("tchrPro-") > -1
-            ) {
-              passed = true;
-              return resolve.apply(this, args);
-            }
-            if (
-              roleReq === "FAMILY" &&
-              context.user.role.indexOf("fam-") > -1
+              context.user.permissions.includes("tchr-")
             ) {
               passed = true;
               return resolve.apply(this, args);
