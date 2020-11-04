@@ -20,7 +20,7 @@ import {
   IMutationDeleteMyUserArgs,
   IMutationResendWelcomeEmailArgs
 } from "../api-types";
-import { SESSION } from "../config";
+import { SESSION, USER_PERMISSIONS } from "../config";
 import {
   contextController,
   storeTokenInRedis,
@@ -45,7 +45,8 @@ import {
 import { SubmissionModel } from "../models/submission";
 import { IUpload } from "../models/upload";
 import { IUser, UserModel } from "../models/user";
-import { redisClient, pubsub, bitbloqAuthService } from "../server";
+import { redisClient, pubsub } from "../server";
+import { userAuthService } from "../authServices";
 
 const saltRounds = 7;
 
@@ -334,7 +335,7 @@ const userResolver = {
       args: email and password.
     */
     login: async (_, { email, password }) => {
-      const token = await bitbloqAuthService.login(email, password);
+      const token = await userAuthService.login({ user: email, password });
       if (!token) {
         throw new ApolloError("Email or password incorrect", "LOGIN_ERROR");
       }
@@ -355,7 +356,7 @@ const userResolver = {
         finishedSignUp,
         error,
         googleData
-      } = await bitbloqAuthService.loginWithGoogle(args.token);
+      } = await userAuthService.loginWithGoogle(args.token);
       let idToken;
       if (error === "GOOGLE_ERROR") {
         throw new ApolloError("Not valid token", "NOT_VALID_TOKEN");
@@ -399,7 +400,7 @@ const userResolver = {
         finishedSignUp,
         error,
         microsoftData
-      } = await bitbloqAuthService.loginWithMicrosoft(args.token);
+      } = await userAuthService.loginWithMicrosoft(args.token);
       console.log({
         loginToken,
         finishedSignUp,
@@ -442,51 +443,53 @@ const userResolver = {
       // authorization for queries and mutations
       const token1: string = context.headers.authorization || "";
       const justToken: string = token1.split(" ")[1];
-      const data:
-        | IUserInToken
-        | undefined = ((await contextController.getDataInToken(
-        justToken
-      )) as unknown) as IUserInToken;
+      await userAuthService.userActivity(justToken);
+      return "OK";
+      // const data:
+      //   | IUserInToken
+      //   | undefined = ((await contextController.getDataInToken(
+      //   justToken
+      // )) as unknown) as IUserInToken;
 
-      if (data && String(process.env.USE_REDIS) === "true") {
-        const now: Date = new Date();
-        let secondsRemaining = 0;
-        if (data.userID) {
-          await updateExpireDateInRedis(data.userID, false);
-          const result: IDataInRedis = await redisClient.hgetallAsync(
-            data.userID
-          );
-          const expiresAt: Date = new Date(result.expiresAt);
-          secondsRemaining = (expiresAt.getTime() - now.getTime()) / 1000;
-          pubsub.publish(USER_SESSION_EXPIRES, {
-            userSessionExpires: {
-              ...result,
-              key: data.userID,
-              secondsRemaining,
-              expiredSession: false,
-              showSessionWarningSecs: SESSION.SHOW_WARNING_SECONDS
-            }
-          });
-        } else if (data.submissionID) {
-          await updateExpireDateInRedis(data.submissionID, true);
-          const result: IDataInRedis = await redisClient.hgetallAsync(
-            data.submissionID
-          );
-          const expiresAt: Date = new Date(result.expiresAt);
-          secondsRemaining = (expiresAt.getTime() - now.getTime()) / 1000;
-          pubsub.publish(SUBMISSION_SESSION_EXPIRES, {
-            submissionSessionExpires: {
-              ...result,
-              key: data.submissionID,
-              secondsRemaining,
-              expiredSession: false,
-              showSessionWarningSecs: SESSION.SHOW_WARNING_SECONDS
-            }
-          });
-        }
-        return "OK";
-      }
-      throw new ApolloError("Not data in token", "TOKEN_NOT_VALID");
+      // if (data && String(process.env.USE_REDIS) === "true") {
+      //   const now: Date = new Date();
+      //   let secondsRemaining = 0;
+      //   if (data.userID) {
+      //     await updateExpireDateInRedis(data.userID, false);
+      //     const result: IDataInRedis = await redisClient.hgetallAsync(
+      //       data.userID
+      //     );
+      //     const expiresAt: Date = new Date(result.expiresAt);
+      //     secondsRemaining = (expiresAt.getTime() - now.getTime()) / 1000;
+      //     pubsub.publish(USER_SESSION_EXPIRES, {
+      //       userSessionExpires: {
+      //         ...result,
+      //         key: data.userID,
+      //         secondsRemaining,
+      //         expiredSession: false,
+      //         showSessionWarningSecs: SESSION.SHOW_WARNING_SECONDS
+      //       }
+      //     });
+      //   } else if (data.submissionID) {
+      //     await updateExpireDateInRedis(data.submissionID, true);
+      //     const result: IDataInRedis = await redisClient.hgetallAsync(
+      //       data.submissionID
+      //     );
+      //     const expiresAt: Date = new Date(result.expiresAt);
+      //     secondsRemaining = (expiresAt.getTime() - now.getTime()) / 1000;
+      //     pubsub.publish(SUBMISSION_SESSION_EXPIRES, {
+      //       submissionSessionExpires: {
+      //         ...result,
+      //         key: data.submissionID,
+      //         secondsRemaining,
+      //         expiredSession: false,
+      //         showSessionWarningSecs: SESSION.SHOW_WARNING_SECONDS
+      //       }
+      //     });
+      //   }
+      //   return "OK";
+      // }
+      // throw new ApolloError("Not data in token", "TOKEN_NOT_VALID");
     },
 
     /**
@@ -947,6 +950,8 @@ const userResolver = {
   },
 
   User: {
+    publisher: root => root.permissions.includes(USER_PERMISSIONS.publisher),
+    teacher: root => root.permissions.includes(USER_PERMISSIONS.teacher),
     documents: async (user: IUser) => DocumentModel.find({ user: user._id })
   }
 };

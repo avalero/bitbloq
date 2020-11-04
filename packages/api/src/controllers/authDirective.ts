@@ -45,6 +45,7 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
         } else {
           let passed = false;
           for (const roleReq of requiredRole) {
+            console.log(context, context.user.role, roleReq);
             if (roleReq === "USER" && context.user.role.indexOf("usr-") > -1) {
               passed = true;
               return resolve.apply(this, args);

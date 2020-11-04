@@ -13,10 +13,9 @@ import { promisifyAll } from "bluebird";
 import exSchema from "./schemas/allSchemas";
 import { contextController } from "./controllers/context";
 import { IUserInToken } from "./models/interfaces";
-import AuthService from "./auth-service/authService";
-import { UserModel, IUser } from "./models/user";
-import { SESSION } from "./config";
-import { USER_SESSION_EXPIRES } from "./resolvers/user";
+import { startMongoConnection } from "./controllers/mongoose-connection";
+import * as fs from "fs";
+import userResolver from "./resolvers/user";
 
 config();
 
@@ -77,9 +76,6 @@ if (USE_REDIS === "true") {
 }
 
 const app = new koa();
-const httpServer = app.listen(PORT, () =>
-  console.log(`🚀 Server ready at http://localhost:${PORT}`)
-);
 
 const server = new ApolloServer({
   context: async ({ ctx, payload, req, connection }) => {
@@ -96,51 +92,43 @@ const server = new ApolloServer({
   schema: exSchema
 });
 
-const bitbloqAuthService = new AuthService(
-  redisClient,
-  SESSION.DURATION_MINUTES,
-  SESSION.SHOW_WARNING_SECONDS,
-  true,
-  async email => {
-    const user: IUser | null = await UserModel.findOne({ email: email });
-    return user
-      ? {
-          active: user.active,
-          email: user.email,
-          finishedSignUp: user.finishedSignUp || false,
-          id: user._id,
-          password: user.password
-        }
-      : null;
-  },
-  async (
-    key: string,
-    secondsRemaining: number,
-    expiredSession: boolean,
-    userId: string
-  ) => {
-    console.log(
-      { userId },
+const main = async () => {
+  try {
+    await startMongoConnection(mongoUrl);
+    const httpServer = app.listen(PORT, () => {
+      console.log(`🚀 Server ready at http://localhost:${PORT}`);
+      // set readiness file
+      fs.writeFile("/tmp/ready", "ready", function(err) {
+        if (err) throw err;
+        console.info("/tmp/ready file created");
+      });
+    });
 
-      {
-        userSessionExpires: {
-          key: userId,
-          secondsRemaining,
-          expiredSession,
-          showSessionWarningSecs: SESSION.SHOW_WARNING_SECONDS
+    server.applyMiddleware({
+      app,
+      onHealthCheck: async () => {
+        // Replace the `true` in this conditional with more specific checks!
+        // Log does not appear
+        if (await userResolver.Mutation.login) {
+          console.log("everything ok");
+          return Promise.resolve();
+        } else {
+          console.log("Hello out there! API is dead");
+          // Health does not fail
+          return Promise.reject();
         }
-      }
-    );
-    await pubsub.publish(USER_SESSION_EXPIRES, {
-      userSessionExpires: {
-        key: userId,
-        secondsRemaining,
-        expiredSession,
-        showSessionWarningSecs: SESSION.SHOW_WARNING_SECONDS
       }
     });
+    server.installSubscriptionHandlers(httpServer);
+  } catch (e) {
+    // if there is any unhandled error delete /tmp/ready if it exists
+    fs.unlink("/tmp/ready", function(err) {
+      if (err) console.error(err);
+      console.error("File deleted!");
+    });
   }
-);
-export { pubsub, redisClient, bitbloqAuthService };
-server.applyMiddleware({ app });
-server.installSubscriptionHandlers(httpServer);
+};
+
+main();
+
+export { pubsub, redisClient };

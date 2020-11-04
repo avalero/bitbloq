@@ -62,11 +62,8 @@ type User {
   id: ObjectID
   email: EmailAddress
   password: String
-  admin: Boolean
   publisher: Boolean
   teacher: Boolean
-  teacherPro: Boolean
-  family: Boolean
   name: String
   surnames: String
   avatar: String

@@ -4,7 +4,7 @@ import { IUserInToken, IDataInRedis } from "../models/interfaces";
 import { sign as jwtSign, verify as jwtVerify } from "jsonwebtoken";
 import { compare as bcryptCompare } from "bcrypt";
 
-import { redisClient, pubsub, bitbloqAuthService } from "../server";
+import { redisClient, pubsub } from "../server";
 import { IUser, ISubmission } from "../api-types";
 
 import { USER_SESSION_EXPIRES } from "../resolvers/user";
@@ -15,6 +15,8 @@ import {
 
 import { SESSION } from "../config";
 import { SubmissionModel } from "../models/submission";
+import { userAuthService } from "../authServices";
+import { authService } from "../auth-service";
 
 const checkOtherSessionOpen = async (user: IUserInToken, justToken: string) => {
   let reply: string | undefined;
@@ -182,35 +184,41 @@ const checksSessionExpires = async () => {
 
 const contextController = {
   getMyUser: async authorization => {
-    let type: string;
-    let justToken: string;
+    let type: string | undefined;
+    let justToken: string | undefined;
     if (authorization) {
       type = authorization.split(" ")[0];
-      justToken = authorization.split(" ")[1];
-    } else {
-      type = "";
-      justToken = "";
+      justToken = authorization.split(" ")[1] || undefined;
     }
-    bitbloqAuthService.userActivity(justToken);
-    // comprobar si el token que recibe es el que está guardado en la base de datos
-    // -> sesión única simultánea
-    if (type === "Bearer") {
-      if (justToken) {
-        let user: IUserInToken;
-        try {
-          user = ((await jwtVerify(
-            justToken,
-            process.env.JWT_SECRET || ""
-          )) as unknown) as IUserInToken;
-        } catch (e) {
-          return undefined;
-        }
-        // check if there is another open session
-        // if (user.role.indexOf("usr-") > -1 || user.role.indexOf("stu-") > -1) {
-        //   return checkOtherSessionOpen(user, justToken);
-        // }
-        return user;
+    if (type === "Bearer" && justToken && justToken !== "null") {
+      console.log("entra");
+      const data = await userAuthService.checkToken(justToken);
+
+      if (data) {
+        await userAuthService.userActivity(justToken);
       }
+      console.log({ data });
+      return data;
+
+      // comprobar si el token que recibe es el que está guardado en la base de datos
+      // -> sesión única simultánea
+      // if (type === "Bearer") {
+      //   if (justToken) {
+      //     let user: IUserInToken;
+      //     try {
+      //       user = ((await jwtVerify(
+      //         justToken,
+      //         process.env.JWT_SECRET || ""
+      //       )) as unknown) as IUserInToken;
+      //     } catch (e) {
+      //       return undefined;
+      //     }
+      //     // check if there is another open session
+      //     // if (user.role.indexOf("usr-") > -1 || user.role.indexOf("stu-") > -1) {
+      //     //   return checkOtherSessionOpen(user, justToken);
+      //     // }
+      //     return user;
+      //   }
     } else if (type === "Basic") {
       const data:
         | string
@@ -236,7 +244,8 @@ const contextController = {
         return userBas;
       }
     }
-    return;
+    // }
+    // return;
   },
   getDataInToken: async inToken => {
     if (inToken) {

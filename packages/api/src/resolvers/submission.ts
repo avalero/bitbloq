@@ -26,6 +26,7 @@ import {
   contextController
 } from "../controllers/context";
 import { CONTENT_VERSION } from "../config";
+import { studentAuthService } from "../authServices";
 
 const saltRounds = 7;
 
@@ -205,56 +206,16 @@ const submissionResolver = {
         );
       }
       // check if there is a submission with this nickname and password. If true, return it.
-      const existSubmission: ISubmission | null = await SubmissionModel.findOne(
-        {
-          studentNick: args.studentNick.toLowerCase(),
-          exercise: exFather._id
-        }
-      );
-      if (!existSubmission) {
-        throw new ApolloError(
-          "Can't found submission for that studentNick",
-          "SUBMISSION_NOT_FOUND"
-        );
-      }
-
-      // si existe la submission, compruebo la contraseña y la devuelvo
-      const valid: boolean = await bcryptCompare(
-        args.password,
-        existSubmission.password
-      );
-      if (valid) {
-        const token: string = jwtSign(
-          {
-            exerciseID: exFather._id,
-            submissionID: existSubmission.id,
-            role: "stu-"
-          },
-          process.env.JWT_SECRET || ""
-          // { expiresIn: "3h" }
-        );
-        await SubmissionModel.findOneAndUpdate(
-          { _id: existSubmission.id },
-          { $set: { submissionToken: token, active: true } },
-          { new: true }
-        );
-        pubsub.publish(SUBMISSION_UPDATED, {
-          submissionUpdated: existSubmission
-        });
-        if (process.env.USE_REDIS === "true") {
-          await storeTokenInRedis(existSubmission.id, token, true);
-        }
-        return {
-          token,
-          exerciseID: exFather._id,
-          type: existSubmission.type
-        };
-      } else {
-        throw new ApolloError(
-          "comparing passwords valid=false",
-          "PASSWORD_ERROR"
-        );
-      }
+      const token = await studentAuthService.login({
+        studentNick: args.studentNick,
+        exerciseCode: exFather._id,
+        password: args.password
+      });
+      return {
+        token,
+        exerciseID: exFather._id,
+        type: exFather.type
+      };
     },
 
     /**

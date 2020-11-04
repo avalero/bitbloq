@@ -1,16 +1,13 @@
 import { Document, Model, model, Schema } from "mongoose";
 // import {timestamps} from "mongoose-timestamp";
 import timestamps from "mongoose-timestamp";
+import { USER_PERMISSIONS } from "../config";
 
 export interface IUser extends Document {
   _id: string;
   email: string;
   password: string;
-  admin?: boolean;
-  publisher?: boolean;
-  teacher?: boolean;
-  teacherPro?: boolean;
-  family?: boolean;
+  permissions: string;
   name?: string;
   avatar?: string;
   surnames?: string;
@@ -49,29 +46,9 @@ export const contactSchema: Schema = new Schema({
     required: true
   },
 
-  admin: {
-    type: Boolean,
-    default: false
-  },
-
-  publisher: {
-    type: Boolean,
-    default: false
-  },
-
-  teacher: {
-    type: Boolean,
-    default: false
-  },
-
-  teacherPro: {
-    type: Boolean,
-    default: false
-  },
-
-  family: {
-    type: Boolean,
-    default: false
+  permissions: {
+    type: String,
+    default: USER_PERMISSIONS.basic
   },
 
   name: {

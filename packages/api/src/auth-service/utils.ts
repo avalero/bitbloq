@@ -1,33 +1,20 @@
 import { sign as jwtSign } from "jsonwebtoken";
+import { randomBytes } from "crypto";
 
 const generateLoginToken = async (
   user
 ): Promise<{ token: string; role: string }> => {
-  let rolePerm = "usr-";
-  if (user.admin) {
-    rolePerm = rolePerm.concat("admin-");
-  }
-  if (user.publisher) {
-    rolePerm = rolePerm.concat("pub-");
-  }
-  if (user.teacher) {
-    rolePerm = rolePerm.concat("tchr-");
-  }
-  if (user.teacherPro) {
-    rolePerm = rolePerm.concat("tchrPro-");
-  }
-  if (user.family) {
-    rolePerm = rolePerm.concat("fam-");
-  }
-  const token: string = await jwtSign(
+  const token1: string = await jwtSign(
     {
       email: user.email,
       userID: user.id,
-      role: rolePerm
+      role: user.permissions
     },
     process.env.JWT_SECRET || ""
   );
-  return { token, role: rolePerm };
+  const token = await randomBytes(67);
+  const strToken = token.toString("hex");
+  return { token: strToken, role: user.permissions };
 };
 
 export interface IDataInRedis {
@@ -42,7 +29,7 @@ const storeTokenInRedis = async (
   id: string,
   token: string,
   sessionDudation: number,
-  subToken?: boolean
+  permissions: string
 ) => {
   if (id === undefined) {
     return undefined;
@@ -50,21 +37,14 @@ const storeTokenInRedis = async (
   let date: Date = new Date();
   date = new Date(date.setMinutes(date.getMinutes() + sessionDudation));
   try {
-    if (subToken) {
-      return redisClient.hmset(
-        String(token),
-        "submissionId",
-        String(id),
-        "expiresAt",
-        date
-      );
-    }
     return redisClient.hmset(
       String(token),
       "userId",
       String(id),
       "expiresAt",
-      date
+      date,
+      "permissions",
+      permissions
     );
   } catch (e) {
     return undefined;

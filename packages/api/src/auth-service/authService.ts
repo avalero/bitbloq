@@ -10,9 +10,10 @@ import checksSessionExpires from "./sessionExpires";
 interface IUser {
   active: boolean;
   email: string;
-  finishedSignUp: boolean;
+  finishedSignUp?: boolean;
   id: string;
-  password: string;
+  password?: string;
+  permissions: string;
 }
 
 export interface ISocialData {
@@ -27,7 +28,7 @@ class AuthService {
   sessionDuration: number;
   sessionWarning: number;
   singleSession: boolean;
-  getUserData: (email: string) => Promise<IUser | null>;
+  getUserData: (credentials) => Promise<IUser | null>;
   onSessionExpires:
     | ((
         key: string,
@@ -42,7 +43,7 @@ class AuthService {
     sessionDuration: number,
     sessionWarning: number,
     singleSession: boolean,
-    getUserData: (email: string) => Promise<IUser | null>,
+    getUserData: (credentials) => Promise<IUser | null>,
     onSessionExpires?: (
       key: string,
       secondsRemaining: number,
@@ -50,6 +51,7 @@ class AuthService {
       userId: string
     ) => Promise<void>
   ) {
+    console.log(typeof redisClient);
     this.redisClient = redisClient;
     this.sessionDuration = sessionDuration;
     this.sessionWarning = sessionWarning;
@@ -57,34 +59,41 @@ class AuthService {
     this.getUserData = getUserData;
     this.onSessionExpires = onSessionExpires;
 
-    onSessionExpires &&
+    redisClient &&
+      onSessionExpires &&
       setInterval(
         checksSessionExpires,
-        5000,
+        10000,
         this.redisClient,
         this.onSessionExpires,
         this.sessionWarning
       );
   }
 
-  async login(email: string, password: string) {
-    console.log(email);
-    const user = await this.getUserData(email);
-    console.log(user);
-    if (!user || !user.active) {
+  async login(credentials) {
+    console.log(credentials);
+    const userData = await this.getUserData(credentials);
+    console.log({ userData });
+    if (!userData || !userData.active) {
+      console.log("error");
       // send errors?
       return null;
     }
-    const valid: boolean = await bcryptCompare(password, user.password);
+    console.log(credentials.password, userData.password);
+    const valid: boolean = await bcryptCompare(
+      credentials.password,
+      userData.password
+    );
     if (!valid) {
       return null;
     }
-    const { token } = await generateLoginToken(user);
+    const { token } = await generateLoginToken(userData);
     await storeTokenInRedis(
       this.redisClient,
-      user.id,
+      userData.id,
       token,
-      this.sessionDuration
+      this.sessionDuration,
+      userData.permissions
     );
     console.log(token);
     return token;
@@ -95,7 +104,7 @@ class AuthService {
     if (!googleData) {
       return { error: "GOOGLE_ERROR" };
     }
-    const user = await this.getUserData(googleData.email);
+    const user = await this.getUserData({ user: googleData.email });
     if (!user) {
       return { error: "NOT_FOUND", googleData };
     }
@@ -104,7 +113,8 @@ class AuthService {
       this.redisClient,
       user.id,
       loginToken,
-      this.sessionDuration
+      this.sessionDuration,
+      user.permissions
     );
     return { loginToken, finishedSignUp: user.finishedSignUp, googleData };
   }
@@ -115,7 +125,7 @@ class AuthService {
     if (!microsoftData) {
       return { error: "MICROSOFT_ERROR" };
     }
-    const user = await this.getUserData(microsoftData.email);
+    const user = await this.getUserData({ user: microsoftData.email });
     console.log(user);
     if (!user) {
       return { error: "NOT_FOUND", microsoftData };
@@ -125,30 +135,44 @@ class AuthService {
       this.redisClient,
       user.id,
       loginToken,
-      this.sessionDuration
+      this.sessionDuration,
+      user.permissions
     );
     return { loginToken, finishedSignUp: user.finishedSignUp, microsoftData };
   }
 
   async userActivity(token: string) {
     // Function that registers user activity in platform and updates expiresAt
+    if (!token || !this.redisClient) {
+      return null;
+    }
     const result = await this.redisClient.hgetallAsync(token);
     return result
       ? await storeTokenInRedis(
           this.redisClient,
-          result.userID,
+          result.userId,
           token,
-          this.sessionDuration
+          this.sessionDuration,
+          result.permissions
         )
       : null;
   }
 
   async checkToken(token: string) {
-    //TODO: function that checks if token is valid or not
+    console.log("1", token);
+    if (!token || !this.redisClient) {
+      console.log("err");
+      return null;
+    }
+    let result;
+    try {
+      result = await this.redisClient.hgetallAsync(token);
+      console.log("2", result);
+    } catch (e) {
+      console.log(e);
+    }
+    return result;
   }
-
-  // onSessionExpireWarning(callback: (user: User, secondsRemaining: number) => void)
-  // onSessionExpired(callback: (user: User) => void)
 }
 
 export default AuthService;

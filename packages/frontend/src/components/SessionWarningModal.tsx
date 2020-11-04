@@ -26,6 +26,7 @@ const SessionWarningModal: FC<ISessionWarningModalProps> = ({
             subscriptionData.data.submissionSessionExpires)) ||
         {};
       if (sessionExpires.expiredSession && onExpired) {
+        console.log("entra expired");
         onExpired();
       }
       if (
@@ -56,6 +57,7 @@ const SessionWarningModal: FC<ISessionWarningModalProps> = ({
 
   const onContinue = async () => {
     await renewSession();
+    setIsOpen(false);
   };
 
   return (

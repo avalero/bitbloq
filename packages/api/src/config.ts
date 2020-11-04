@@ -10,3 +10,10 @@ export const LIMIT_SIZE = {
 };
 
 export const CONTENT_VERSION = 0;
+
+export const USER_PERMISSIONS = {
+  basic: "usr-",
+  publisher: "pub-",
+  student: "stu-",
+  teacher: "tch-"
+};
