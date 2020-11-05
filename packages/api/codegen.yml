@@ -2,10 +2,12 @@ overwrite: true
 schema: "http://localhost:8000/graphql"
 documents: null
 generates:
-  src/api-types.ts:
+  src/types.ts:
     plugins:
-      - "typescript"
-      - "typescript-resolvers"
+      - typescript
+      - typescript-operations
+      - typescript-resolvers
+      - typescript-mongodb     
     config:
       typesPrefix: I
       declarationKind: 'interface'

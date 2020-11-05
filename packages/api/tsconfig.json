@@ -19,5 +19,5 @@
     "suppressImplicitAnyIndexErrors": true,
     "noUnusedLocals": false
   },
-  "exclude": ["node_modules", "./src/api-types.ts"]
+  "exclude": ["node_modules", "./src/types.ts"]
 }

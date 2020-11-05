@@ -1,9 +1,10 @@
-import AuthService from "./auth-service/authService";
-import { UserModel, IUser } from "./models/user";
-import { SESSION, USER_PERMISSIONS } from "./config";
-import { USER_SESSION_EXPIRES } from "./resolvers/user";
-import { SubmissionModel } from "./models/submission";
-import { SUBMISSION_SESSION_EXPIRES } from "./resolvers/submission";
+import AuthService from "../auth-service/authService";
+import { UserModel, IUser } from "../models/user";
+import { SESSION, USER_PERMISSIONS } from "../config";
+import { USER_SESSION_EXPIRES } from "../resolvers/user";
+import { SubmissionModel } from "../models/submission";
+import { SUBMISSION_SESSION_EXPIRES } from "../resolvers/submission";
+import { ApolloError } from "apollo-server";
 
 const initAuthService = (redisClient, pubsub) => {
   const userAuthService = new AuthService(
@@ -36,6 +37,7 @@ const initAuthService = (redisClient, pubsub) => {
       key: string,
       secondsRemaining: number,
       expiredSession: boolean,
+      reason: string,
       userId: string
     ) => {
       await pubsub.publish(USER_SESSION_EXPIRES, {
@@ -43,7 +45,8 @@ const initAuthService = (redisClient, pubsub) => {
           key: userId,
           secondsRemaining,
           expiredSession,
-          showSessionWarningSecs: SESSION.SHOW_WARNING_SECONDS
+          showSessionWarningSecs: SESSION.SHOW_WARNING_SECONDS,
+          reason: reason
         }
       });
     }
@@ -76,6 +79,7 @@ const initAuthService = (redisClient, pubsub) => {
       key: string,
       secondsRemaining: number,
       expiredSession: boolean,
+      reason: string,
       userId: string
     ) => {
       pubsub.publish(SUBMISSION_SESSION_EXPIRES, {
@@ -83,7 +87,8 @@ const initAuthService = (redisClient, pubsub) => {
           key: userId,
           secondsRemaining,
           expiredSession,
-          showSessionWarningSecs: SESSION.SHOW_WARNING_SECONDS
+          showSessionWarningSecs: SESSION.SHOW_WARNING_SECONDS,
+          reason: reason
         }
       });
     }

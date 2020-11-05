@@ -2,9 +2,6 @@ import { compare as bcryptCompare } from "bcrypt";
 import { generateLoginToken, storeTokenInRedis } from "./utils";
 import { getGoogleUser } from "./getGoogleData";
 import { getMicrosoftUser } from "./getMicrosoftData";
-import { IUserInToken } from "../models/interfaces";
-
-import { sign as jwtSign, verify as jwtVerify } from "jsonwebtoken";
 import checksSessionExpires from "./sessionExpires";
 
 interface IUser {
@@ -34,6 +31,7 @@ class AuthService {
         key: string,
         secondsRemaining: number,
         expiredSession: boolean,
+        reason: string,
         userId: string
       ) => Promise<void>)
     | undefined;
@@ -48,6 +46,7 @@ class AuthService {
       key: string,
       secondsRemaining: number,
       expiredSession: boolean,
+      reason: string,
       userId: string
     ) => Promise<void>
   ) {

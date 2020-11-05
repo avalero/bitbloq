@@ -16,10 +16,22 @@ const checksSessionExpires = async (
         if (expiresAt > now) {
           secondsRemaining = (expiresAt.getTime() - now.getTime()) / 1000;
           if (secondsRemaining < sessionWarning) {
-            onSessionExpires(key, secondsRemaining, false, result.userId);
+            onSessionExpires(
+              key,
+              secondsRemaining,
+              false,
+              "SESSION_EXPIRES",
+              result.userId
+            );
           }
         } else {
-          onSessionExpires(key, secondsRemaining, true, result.userId);
+          onSessionExpires(
+            key,
+            secondsRemaining,
+            true,
+            "SESSION_EXPIRED",
+            result.userId
+          );
           await Promise.all([
             redisClient.del(key),
             redisClient.del(String(result.userId))
@@ -27,6 +39,7 @@ const checksSessionExpires = async (
         }
       }
     } catch (e) {
+      console.error(e);
       await redisClient.del(key);
     }
   });

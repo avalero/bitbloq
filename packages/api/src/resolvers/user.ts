@@ -18,7 +18,7 @@ import {
   IMutationSaveBirthDateArgs,
   IMutationDeleteMyUserArgs,
   IMutationResendWelcomeEmailArgs
-} from "../api-types";
+} from "../types";
 import { USER_PERMISSIONS } from "../config";
 import { contextController, storeTokenInRedis } from "../controllers/context";
 import { mailerController } from "../controllers/mailer";

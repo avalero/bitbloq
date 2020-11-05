@@ -25,7 +25,7 @@ import {
   IQueryDocumentsAndFoldersArgs,
   IQueryHasExercisesArgs,
   IResult
-} from "../api-types";
+} from "../types";
 
 export const DOCUMENT_UPDATED = "DOCUMENT_UPDATED";
 

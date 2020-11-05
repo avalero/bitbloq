@@ -12,7 +12,7 @@ import {
   IMutationDeleteFolderArgs,
   IMutationUpdateFolderArgs,
   IQueryFolderArgs
-} from "../api-types";
+} from "../types";
 
 const FOLDER_UPDATED = "FOLDER_UPDATED";
 

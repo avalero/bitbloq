@@ -5,7 +5,7 @@ import { sign as jwtSign, verify as jwtVerify } from "jsonwebtoken";
 import { compare as bcryptCompare } from "bcrypt";
 
 import { redisClient, userAuthService } from "../server";
-import { IUser } from "../api-types";
+import { IUser } from "../types";
 
 import { SESSION } from "../config";
 

@@ -15,7 +15,7 @@ import {
   IQueryExerciseArgs,
   IQueryExerciseByCodeArgs,
   IQueryExercisesByDocumentArgs
-} from "../api-types";
+} from "../types";
 import { CONTENT_VERSION } from "../config";
 import { createExerciseImage, deleteExerciseImage } from "./upload";
 

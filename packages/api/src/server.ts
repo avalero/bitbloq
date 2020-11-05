@@ -8,7 +8,7 @@ import { IUserInToken } from "./models/interfaces";
 import { startMongoConnection } from "./controllers/mongoose-connection";
 import * as fs from "fs";
 import userResolver from "./resolvers/user";
-import initAuthService from "./authServices";
+import initAuthService from "./controllers/authServices";
 import initRedis from "./controllers/init-redis";
 
 config();

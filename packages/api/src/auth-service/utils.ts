@@ -12,7 +12,7 @@ const generateLoginToken = async (
       redisClient.del(String(user.id))
     ]);
     // TODO: add reason to sessionExpires
-    onSessionExpires(loggedUser.token, 0, true, user.id);
+    onSessionExpires(loggedUser.token, 0, true, "OTHER_SESSION_OPEN", user.id);
   }
   const token = await randomBytes(67);
   const strToken = token.toString("hex");

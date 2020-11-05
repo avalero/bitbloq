@@ -8,7 +8,7 @@ import {
   IMutationAddResourceToDocumentArgs,
   IMutationMoveToTrashArgs,
   IMutationRestoreResourceArgs
-} from "../api-types";
+} from "../types";
 
 import * as fs from "fs";
 import { Storage, Bucket } from "@google-cloud/storage";

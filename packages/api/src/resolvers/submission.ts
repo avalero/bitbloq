@@ -18,7 +18,7 @@ import {
   IQuerySubmissionArgs,
   IQuerySubmissionsByExerciseArgs,
   ISessionExpires
-} from "../api-types";
+} from "../types";
 import { IUserInToken } from "../models/interfaces";
 import {
   storeTokenInRedis,
