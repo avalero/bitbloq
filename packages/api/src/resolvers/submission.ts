@@ -42,11 +42,13 @@ const submissionResolver = {
           variables: ISubscriptionSubmissionUpdatedArgs,
           context: { user: IUserInToken }
         ) => {
+          console.log({ context, payload, variables });
           if (
             String(context.user.userId) ===
               String(payload.submissionUpdated.user) ||
-            String(context.user.permissions).indexOf("stu") >= 0
+            String(context.user.permissions).includes(USER_PERMISSIONS.student)
           ) {
+            console.log("ENTRA");
             return (
               String(payload.submissionUpdated.exercise) ===
               String(variables.exercise)
@@ -173,15 +175,9 @@ const submissionResolver = {
           "NOT_NICKNAME_PROVIDED"
         );
       }
-      const [exFather, existSub] = await Promise.all([
-        ExerciseModel.findOne({
-          code: args.exerciseCode
-        }),
-        SubmissionModel.findOne({
-          studentNick: args.studentNick.toLowerCase(),
-          exerciseCode: args.exerciseCode
-        })
-      ]);
+      const exFather = await ExerciseModel.findOne({
+        code: args.exerciseCode
+      });
       if (!exFather) {
         throw new ApolloError(
           "Error creating submission, check your exercise code",
@@ -201,6 +197,12 @@ const submissionResolver = {
         exerciseId: exFather._id,
         password: args.password
       });
+
+      const existSub = await SubmissionModel.findOne({
+        studentNick: args.studentNick.toLowerCase(),
+        exercise: exFather._id
+      });
+      console.log(existSub);
       pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: existSub });
       return {
         token,

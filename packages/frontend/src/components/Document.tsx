@@ -209,7 +209,8 @@ class Document extends React.Component<any, DocumentState> {
           subscription={SUBMISSION_UPDATED_SUBSCRIPTION}
           variables={{ exercise: exercise.id }}
           shouldResubscribe={true}
-          onSubscriptionData={() => {
+          onSubscriptionData={data => {
+            console.log(data);
             refetch();
           }}
         />
