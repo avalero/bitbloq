@@ -25,7 +25,7 @@ import {
   updateExpireDateInRedis,
   contextController
 } from "../controllers/context";
-import { CONTENT_VERSION } from "../config";
+import { CONTENT_VERSION, USER_PERMISSIONS } from "../config";
 
 const saltRounds = 7;
 
@@ -63,8 +63,7 @@ const submissionResolver = {
         () => pubsub.asyncIterator([SUBMISSION_ACTIVE]),
         (payload, variables, context) => {
           return (
-            String(payload.submissionActive.id) ===
-            String(context.user.submissionID)
+            String(payload.submissionActive.id) === String(context.user.userId)
           );
         }
       )
@@ -79,7 +78,7 @@ const submissionResolver = {
           context: { user: IUserInToken }
         ) => {
           return (
-            String(context.user.submissionID) ===
+            String(context.user.userId) ===
             String(payload.submissionSessionExpires.key)
           );
         }
@@ -229,8 +228,7 @@ const submissionResolver = {
     ) => {
       const existSubmission: ISubmission | null = await SubmissionModel.findOne(
         {
-          _id: context.user.submissionID,
-          exercise: context.user.exerciseID
+          _id: context.user.userId
         }
       );
       if (!existSubmission) {
@@ -312,8 +310,7 @@ const submissionResolver = {
     ) => {
       const existSubmission: ISubmission | null = await SubmissionModel.findOne(
         {
-          _id: context.user.submissionID,
-          exercise: context.user.exerciseID
+          _id: context.user.userId
         }
       );
       if (!existSubmission) {
@@ -371,8 +368,7 @@ const submissionResolver = {
     cancelSubmission: async (_, __, context: { user: IUserInToken }) => {
       const existSubmission: ISubmission | null = await SubmissionModel.findOne(
         {
-          _id: context.user.submissionID,
-          exercise: context.user.exerciseID
+          _id: context.user.userId
         }
       );
       if (!existSubmission) {
@@ -522,22 +518,11 @@ const submissionResolver = {
       args: IQuerySubmissionArgs,
       context: { user: IUserInToken }
     ) => {
-      if (context.user.submissionID) {
-        // Token de alumno
-        const existSubmission: ISubmission | null = await SubmissionModel.findOne(
-          {
-            _id: context.user.submissionID
-          }
-        );
-        if (!existSubmission) {
-          throw new ApolloError(
-            "Submission does not exist",
-            "SUBMISSION_NOT_FOUND"
-          );
-        }
-        return existSubmission;
-      } else if (context.user.userId) {
-        // token de profesor
+      if (
+        args.id &&
+        context.user.permissions.includes(USER_PERMISSIONS.teacher)
+      ) {
+        //Token de profesor
         const existSubmission: ISubmission | null = await SubmissionModel.findOne(
           {
             _id: args.id,
@@ -551,8 +536,21 @@ const submissionResolver = {
           );
         }
         return existSubmission;
+      } else {
+        // Token de alumno
+        const existSubmission: ISubmission | null = await SubmissionModel.findOne(
+          {
+            _id: context.user.userId
+          }
+        );
+        if (!existSubmission) {
+          throw new ApolloError(
+            "Submission does not exist",
+            "SUBMISSION_NOT_FOUND"
+          );
+        }
+        return existSubmission;
       }
-      return;
     },
 
     /**

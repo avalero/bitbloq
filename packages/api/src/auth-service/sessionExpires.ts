@@ -21,7 +21,10 @@ const checksSessionExpires = async (
           }
         } else {
           onSessionExpires(key, secondsRemaining, true, result.userId);
-          await redisClient.del(key);
+          await Promise.all([
+            redisClient.del(key),
+            redisClient.del(String(result.userId))
+          ]);
         }
       }
     } catch (e) {

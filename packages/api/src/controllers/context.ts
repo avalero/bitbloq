@@ -116,68 +116,6 @@ export const updateExpireDateInRedis = async (
   }
 };
 
-const checksSessionExpires = async () => {
-  if (String(process.env.USE_REDIS) === "true") {
-    const allKeys: string[] = await redisClient.keysAsync("*");
-    const now: Date = new Date();
-    allKeys.map(async key => {
-      try {
-        const result: IDataInRedis = await redisClient.hgetallAsync(key);
-        if (result && result.expiresAt) {
-          const expiresAt: Date = new Date(result.expiresAt);
-          let secondsRemaining = 0;
-          let topic = "";
-          let type = "";
-          if (result.authToken) {
-            topic = USER_SESSION_EXPIRES;
-            type = "userSessionExpires";
-          } else if (result.subToken) {
-            topic = SUBMISSION_SESSION_EXPIRES;
-            type = "submissionSessionExpires";
-          }
-          if (expiresAt > now) {
-            secondsRemaining = (expiresAt.getTime() - now.getTime()) / 1000;
-            if (secondsRemaining < SESSION.SHOW_WARNING_SECONDS) {
-              await pubsub.publish(topic, {
-                [type]: {
-                  ...result,
-                  key,
-                  secondsRemaining,
-                  expiredSession: false,
-                  showSessionWarningSecs: SESSION.SHOW_WARNING_SECONDS
-                }
-              });
-            }
-          } else {
-            await pubsub.publish(topic, {
-              [type]: {
-                ...result,
-                key,
-                secondsRemaining,
-                expiredSession: true,
-                showSessionWarningSecs: SESSION.SHOW_WARNING_SECONDS
-              }
-            });
-            if (type === "submissionSessionExpires") {
-              const updatedSubmission: ISubmission | null = await SubmissionModel.findByIdAndUpdate(
-                { _id: key },
-                { $set: { active: false } },
-                { new: true }
-              );
-              await pubsub.publish(SUBMISSION_ACTIVE, {
-                submissionActive: updatedSubmission
-              });
-            }
-            await redisClient.del(key);
-          }
-        }
-      } catch (e) {
-        await redisClient.del(key);
-      }
-    });
-  }
-};
-
 // setInterval(checksSessionExpires, 5000);
 
 const contextController = {

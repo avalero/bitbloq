@@ -82,7 +82,11 @@ class AuthService {
     if (!valid) {
       return null;
     }
-    const { token } = await generateLoginToken(userData);
+    const { token } = await generateLoginToken(
+      this.redisClient,
+      userData,
+      this.onSessionExpires
+    );
     await storeTokenInRedis(
       this.redisClient,
       userData.id,
@@ -102,7 +106,11 @@ class AuthService {
     if (!user) {
       return { error: "NOT_FOUND", googleData };
     }
-    const { token: loginToken } = await generateLoginToken(user);
+    const { token: loginToken } = await generateLoginToken(
+      this.redisClient,
+      user,
+      this.onSessionExpires
+    );
     await storeTokenInRedis(
       this.redisClient,
       user.id,
@@ -122,7 +130,11 @@ class AuthService {
     if (!user) {
       return { error: "NOT_FOUND", microsoftData };
     }
-    const { token: loginToken } = await generateLoginToken(user);
+    const { token: loginToken } = await generateLoginToken(
+      this.redisClient,
+      user,
+      this.onSessionExpires
+    );
     await storeTokenInRedis(
       this.redisClient,
       user.id,

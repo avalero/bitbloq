@@ -432,51 +432,6 @@ const userResolver = {
       const justToken: string = token1.split(" ")[1];
       await userAuthService.userActivity(justToken);
       return "OK";
-      // const data:
-      //   | IUserInToken
-      //   | undefined = ((await contextController.getDataInToken(
-      //   justToken
-      // )) as unknown) as IUserInToken;
-
-      // if (data && String(process.env.USE_REDIS) === "true") {
-      //   const now: Date = new Date();
-      //   let secondsRemaining = 0;
-      //   if (data.userID) {
-      //     await updateExpireDateInRedis(data.userID, false);
-      //     const result: IDataInRedis = await redisClient.hgetallAsync(
-      //       data.userID
-      //     );
-      //     const expiresAt: Date = new Date(result.expiresAt);
-      //     secondsRemaining = (expiresAt.getTime() - now.getTime()) / 1000;
-      //     pubsub.publish(USER_SESSION_EXPIRES, {
-      //       userSessionExpires: {
-      //         ...result,
-      //         key: data.userID,
-      //         secondsRemaining,
-      //         expiredSession: false,
-      //         showSessionWarningSecs: SESSION.SHOW_WARNING_SECONDS
-      //       }
-      //     });
-      //   } else if (data.submissionID) {
-      //     await updateExpireDateInRedis(data.submissionID, true);
-      //     const result: IDataInRedis = await redisClient.hgetallAsync(
-      //       data.submissionID
-      //     );
-      //     const expiresAt: Date = new Date(result.expiresAt);
-      //     secondsRemaining = (expiresAt.getTime() - now.getTime()) / 1000;
-      //     pubsub.publish(SUBMISSION_SESSION_EXPIRES, {
-      //       submissionSessionExpires: {
-      //         ...result,
-      //         key: data.submissionID,
-      //         secondsRemaining,
-      //         expiredSession: false,
-      //         showSessionWarningSecs: SESSION.SHOW_WARNING_SECONDS
-      //       }
-      //     });
-      //   }
-      //   return "OK";
-      // }
-      // throw new ApolloError("Not data in token", "TOKEN_NOT_VALID");
     },
 
     /**

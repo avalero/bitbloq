@@ -2,18 +2,22 @@ import { sign as jwtSign } from "jsonwebtoken";
 import { randomBytes } from "crypto";
 
 const generateLoginToken = async (
-  user
+  redisClient,
+  user,
+  onSessionExpires
 ): Promise<{ token: string; role: string }> => {
-  const token1: string = await jwtSign(
-    {
-      email: user.email,
-      userID: user.id,
-      role: user.permissions
-    },
-    process.env.JWT_SECRET || ""
-  );
+  const loggedUser = await redisClient.hgetallAsync(String(user.id));
+  if (loggedUser) {
+    await Promise.all([
+      redisClient.del(loggedUser.token),
+      redisClient.del(String(user.id))
+    ]);
+    // TODO: add reason to sessionExpires
+    onSessionExpires(loggedUser.token, 0, true, user.id);
+  }
   const token = await randomBytes(67);
   const strToken = token.toString("hex");
+  await redisClient.hmset(String(user.id), "token", strToken);
   return { token: strToken, role: user.permissions };
 };
 

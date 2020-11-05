@@ -45,7 +45,6 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
         } else {
           let passed = false;
           for (const roleReq of requiredRole) {
-            console.log(context, context.user.permissions, roleReq);
             if (
               roleReq === "USER" &&
               context.user.permissions.includes("usr-")
@@ -64,11 +63,6 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
               roleReq === "STUDENT" &&
               context.user.permissions.includes("stu-")
             ) {
-              if (!context.user.exerciseID) {
-                throw new AuthenticationError(
-                  "You need to login with exercise code 1"
-                );
-              }
               passed = true;
               return resolve.apply(this, args);
             }
