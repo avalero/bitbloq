@@ -22,8 +22,7 @@ import {
 import { IUserInToken } from "../models/interfaces";
 import {
   storeTokenInRedis,
-  updateExpireDateInRedis,
-  contextController
+  updateExpireDateInRedis
 } from "../controllers/context";
 import { CONTENT_VERSION, USER_PERMISSIONS } from "../config";
 
@@ -149,23 +148,11 @@ const submissionResolver = {
         contentVersion: exFather.contentVersion || CONTENT_VERSION
       });
       const newSub: ISubmission = await SubmissionModel.create(submissionNew);
-      const token: string = jwtSign(
-        {
-          exerciseID: exFather._id,
-          submissionID: newSub.id,
-          role: "stu-"
-        },
-        process.env.JWT_SECRET || ""
-        // { expiresIn: "3h" }
-      );
-      await SubmissionModel.findOneAndUpdate(
-        { _id: newSub.id },
-        { $set: { submissionToken: token } },
-        { new: true }
-      );
-      if (process.env.USE_REDIS === "true") {
-        await storeTokenInRedis(newSub.id, token, true);
-      }
+      const token = await studentAuthService.login({
+        studentNick: args.studentNick.toLowerCase(),
+        exerciseId: exFather._id,
+        password: args.password
+      });
       pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: newSub });
       return {
         token,
@@ -186,9 +173,15 @@ const submissionResolver = {
           "NOT_NICKNAME_PROVIDED"
         );
       }
-      const exFather: IExercise | null = await ExerciseModel.findOne({
-        code: args.exerciseCode
-      });
+      const [exFather, existSub] = await Promise.all([
+        ExerciseModel.findOne({
+          code: args.exerciseCode
+        }),
+        SubmissionModel.findOne({
+          studentNick: args.studentNick.toLowerCase(),
+          exerciseCode: args.exerciseCode
+        })
+      ]);
       if (!exFather) {
         throw new ApolloError(
           "Error creating submission, check your exercise code",
@@ -203,12 +196,12 @@ const submissionResolver = {
           "NOT_ACCEPT_SUBMISSIONS"
         );
       }
-      // check if there is a submission with this nickname and password. If true, return it.
       const token = await studentAuthService.login({
-        studentNick: args.studentNick,
-        exerciseCode: exFather._id,
+        studentNick: args.studentNick.toLowerCase(),
+        exerciseId: exFather._id,
         password: args.password
       });
+      pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: existSub });
       return {
         token,
         exerciseID: exFather._id,
@@ -253,9 +246,6 @@ const submissionResolver = {
         pubsub.publish(SUBMISSION_UPDATED, {
           submissionUpdated: updatedSubmission
         });
-        if (process.env.USE_REDIS === "true") {
-          await updateExpireDateInRedis(existSubmission.id, true);
-        }
         return updatedSubmission;
       }
       return;
@@ -271,29 +261,25 @@ const submissionResolver = {
       args: IMutationSetActiveSubmissionArgs,
       context: { user: IUserInToken }
     ) => {
-      const existSubmission: ISubmission | null = await SubmissionModel.findOne(
+      const updatedSubmission: ISubmission | null = await SubmissionModel.findOneAndUpdate(
         {
           _id: args.submissionID,
           user: context.user.userId
-        }
+        },
+        {
+          $set: {
+            active: args.active
+          }
+        },
+        { new: true }
       );
-      if (existSubmission) {
-        const updatedSubmission: ISubmission | null = await SubmissionModel.findOneAndUpdate(
-          { _id: existSubmission.id },
-          {
-            $set: {
-              active: args.active
-            }
-          },
-          { new: true }
-        );
-        pubsub.publish(SUBMISSION_ACTIVE, {
-          submissionActive: updatedSubmission
-        });
-        return updatedSubmission;
-      } else {
+      if (!updatedSubmission) {
         return new ApolloError("Exercise does not exist", "EXERCISE_NOT_FOUND");
       }
+      pubsub.publish(SUBMISSION_ACTIVE, {
+        submissionActive: updatedSubmission
+      });
+      return updatedSubmission;
     },
 
     /**

@@ -10,7 +10,6 @@ const checksSessionExpires = async (
   allKeys.map(async key => {
     try {
       const result: IDataInRedis = await redisClient.hgetallAsync(key);
-      console.log({ key, result });
       if (result && result.expiresAt) {
         const expiresAt: Date = new Date(result.expiresAt);
         let secondsRemaining = 0;

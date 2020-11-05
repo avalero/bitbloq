@@ -55,10 +55,10 @@ const initAuthService = (redisClient, pubsub) => {
     SESSION.SHOW_WARNING_SECONDS,
     true,
     async credentials => {
-      if (credentials.studentNick && credentials.exerciseCode) {
+      if (credentials.studentNick && credentials.exerciseId) {
         const submission = await SubmissionModel.findOne({
           studentNick: credentials.studentNick.toLowerCase(),
-          exercise: credentials.exerciseCode
+          exercise: credentials.exerciseId
         });
         return submission
           ? {

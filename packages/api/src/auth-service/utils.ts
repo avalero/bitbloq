@@ -1,4 +1,3 @@
-import { sign as jwtSign } from "jsonwebtoken";
 import { randomBytes } from "crypto";
 
 const generateLoginToken = async (

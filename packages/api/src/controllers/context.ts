@@ -4,17 +4,10 @@ import { IUserInToken, IDataInRedis } from "../models/interfaces";
 import { sign as jwtSign, verify as jwtVerify } from "jsonwebtoken";
 import { compare as bcryptCompare } from "bcrypt";
 
-import { redisClient, pubsub, userAuthService } from "../server";
-import { IUser, ISubmission } from "../api-types";
-
-import { USER_SESSION_EXPIRES } from "../resolvers/user";
-import {
-  SUBMISSION_SESSION_EXPIRES,
-  SUBMISSION_ACTIVE
-} from "../resolvers/submission";
+import { redisClient, userAuthService } from "../server";
+import { IUser } from "../api-types";
 
 import { SESSION } from "../config";
-import { SubmissionModel } from "../models/submission";
 
 const checkOtherSessionOpen = async (user: IUserInToken, justToken: string) => {
   let reply: string | undefined;
@@ -156,8 +149,6 @@ const contextController = {
         return userBas;
       }
     }
-    // }
-    // return;
   },
   getDataInToken: async inToken => {
     if (inToken) {
