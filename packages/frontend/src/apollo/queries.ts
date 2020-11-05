@@ -671,6 +671,7 @@ export const USER_SESSION_EXPIRES_SUBSCRIPTION = gql`
       authToken
       expiredSession
       showSessionWarningSecs
+      reason
     }
   }
 `;

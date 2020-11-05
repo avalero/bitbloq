@@ -24,11 +24,7 @@ module.exports = {
       version: "detect"
     }
   },
-  ignorePatterns: [
-    "**/lib3d/*",
-    "**/api/src/api-types.ts",
-    "**/api/migrations/*"
-  ],
+  ignorePatterns: ["**/lib3d/*", "**/api/src/types.ts", "**/api/migrations/*"],
   overrides: [
     {
       parser: "@typescript-eslint/parser",
