@@ -74,7 +74,7 @@
   "exercise-details-code": "Exercise access code",
   "exercises-remove-nosubmission": "Are you sure you want to delete this exercise?",
   "exercise-details-nosubmissions": "Nobody has accessed this exercise yet",
-  "exercise-details-submissions": "Allow more submissions:",
+  "exercise-details-submissions": "It supports more submissions:",
   "document-body-title": " Untitled document",
   "submission-table-team": "Team",
   "document-body-description": " No description",
@@ -267,7 +267,8 @@
     },
     "instanceName": {
       "button": "button",
-      "joystick": "joystick"
+      "joystick": "joystick",
+      "7segment": "hardware.instanceName.7segment"
     }
   },
   "submission-error-submission-not-found": "There is no team with this name",
@@ -477,7 +478,7 @@
     "go-back": "Go back",
     "welcome-to-exercise": "Welcome",
     "team-name": "Team name",
-    "leave-exercise": "Abandon the exercise",
+    "leave-exercise": "Abandom the exercise",
     "what-do-you-want-to-do": "What do you want to do?",
     "resume-submission": "Resume an exercise",
     "start": "Start",
@@ -519,7 +520,7 @@
     "name-a-z": "A-Z",
     "created-at": "Creation",
     "name-z-a": "Z-A",
-    "go-to-example": "Go to example",
+    "go-to-example": "Go to the example",
     "my-documents": "My documents",
     "new-folder": "New folder",
     "no-results": "No search results",
@@ -773,6 +774,31 @@
       "zumjunior": "ZumJunior",
       "zumcore2": "ZumCore 2",
       "mega": "Arduino® Mega 2560"
+    },
+    "compiling-alert": {
+      "compile-error": "code.compiling-alert.compile-error",
+      "compile-success": "code.compiling-alert.compile-success",
+      "compiling": "code.compiling-alert.compiling",
+      "upload-error": "code.compiling-alert.upload-error",
+      "upload-success": "code.compiling-alert.upload-success",
+      "uploading": "code.compiling-alert.uploading"
+    },
+    "no-board-wizard": {
+      "check-text": "code.no-board-wizard.check-text",
+      "check-ok": "code.no-board-wizard.check-ok",
+      "check-title": "code.no-board-wizard.check-title",
+      "drivers-text": "code.no-board-wizard.drivers-text",
+      "drivers-title": "code.no-board-wizard.drivers-title",
+      "drivers-ok": "code.no-board-wizard.drivers-ok",
+      "no-board-connected-title": "code.no-board-wizard.no-board-connected-title",
+      "no-board-connected-text": "code.no-board-wizard.no-board-connected-text",
+      "drivers-cancel": "code.no-board-wizard.drivers-cancel",
+      "no-board-connected-ok": "code.no-board-wizard.no-board-connected-ok",
+      "no-board-connected-cancel": "code.no-board-wizard.no-board-connected-cancel",
+      "no-board-selected-title": "code.no-board-wizard.no-board-selected-title",
+      "no-board-selected-text": "code.no-board-wizard.no-board-selected-text",
+      "no-board-selected-ok": "code.no-board-wizard.no-board-selected-ok",
+      "no-board-selected-cancel": "code.no-board-wizard.no-board-selected-cancel"
     }
   },
   "music": {
@@ -795,12 +821,6 @@
     "NOTE_C5": "C5",
     "NOTE_D5": "D5"
   },
-  "publish-bar": {
-    "example": "Example",
-    "private": "Private",
-    "public": "Public",
-    "url-to-share": "URL to share"
-  },
   "robotics": {
     "bloqs": "Blocks",
     "boards": "Boards",
@@ -808,7 +828,59 @@
     "drag-board-here": "Drag and drop a board or a robot",
     "diagram": "Diagram",
     "hardware": "Hardware",
-    "robots": "Robots"
+    "robots": "Robots",
+    "bloq-categories": {
+      "con": "robotics.bloq-categories.con",
+      "components": "robotics.bloq-categories.components",
+      "control": "robotics.bloq-categories.control",
+      "fun": "robotics.bloq-categories.fun",
+      "mat": "robotics.bloq-categories.mat",
+      "functions": "robotics.bloq-categories.functions",
+      "math": "robotics.bloq-categories.math"
+    },
+    "blue": "robotics.blue",
+    "code-preview": "robotics.code-preview",
+    "drop-bloq-here": "robotics.drop-bloq-here",
+    "during": "robotics.during",
+    "execute": "robotics.execute",
+    "global-variables-and-functions": "robotics.global-variables-and-functions",
+    "green": "robotics.green",
+    "main-loop": "robotics.main-loop",
+    "is": "robotics.is",
+    "if": "robotics.if",
+    "play-buzzer-with-note": "robotics.play-buzzer-with-note",
+    "pink": "robotics.pink",
+    "not-pressed": "robotics.not-pressed",
+    "milliseconds": "robotics.milliseconds",
+    "pin": "robotics.pin",
+    "pressed": "robotics.pressed",
+    "red": "robotics.red",
+    "read-digital-pin": "robotics.read-digital-pin",
+    "setup-instructions": "robotics.setup-instructions",
+    "read": "robotics.read",
+    "tab-header": {
+      "component": "robotics.tab-header.component",
+      "control": "robotics.tab-header.control",
+      "math": "robotics.tab-header.math",
+      "functions": "robotics.tab-header.functions"
+    },
+    "tabs": {
+      "basic": "robotics.tabs.basic",
+      "junior": "robotics.tabs.junior",
+      "advanced": "robotics.tabs.advanced"
+    },
+    "the-led": "robotics.the-led",
+    "turn-on": "robotics.turn-on",
+    "to-display": "robotics.to-display",
+    "turn-off": "robotics.turn-off",
+    "turn-off-zumjunior-rgb-led": "robotics.turn-off-zumjunior-rgb-led",
+    "turn-zumjunior-rgb-led-with-values": "robotics.turn-zumjunior-rgb-led-with-values",
+    "turn-zumjunior-rgb-led": "robotics.turn-zumjunior-rgb-led",
+    "variable-components": "robotics.variable-components",
+    "view-code": "robotics.view-code",
+    "write": "robotics.write",
+    "white": "robotics.white",
+    "yellow": "robotics.yellow"
   },
   "home": {
     "sign-up": "Sign up",
@@ -854,7 +926,13 @@
   },
   "general-download-button": "Download",
   "3d": {
-    "download-single-object": "Download everything in a single STL object",
-    "download-multi-object": "Download each object in its own STL file"
+    "download-single-object": "Download everything in a single STL file",
+    "download-multi-object": "Download each object on its own STL file"
+  },
+  "publish-bar": {
+    "url-to-share": "publish-bar.url-to-share",
+    "public": "publish-bar.public",
+    "example": "publish-bar.example",
+    "private": "publish-bar.private"
   }
 }
