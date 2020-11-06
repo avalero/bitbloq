@@ -74,6 +74,7 @@ class AuthService {
 
   async login(credentials) {
     const userData = await this.getUserData(credentials);
+    console.log({ userData });
     if (!userData || !userData.active) {
       if (userData && credentials.socialId) {
         // First login with google / MS
@@ -116,7 +117,7 @@ class AuthService {
       this.sessionDuration,
       userData.permissions
     );
-    return token;
+    return { token };
   }
 
   async loginWithGoogle(token: string) {

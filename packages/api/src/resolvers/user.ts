@@ -25,12 +25,6 @@ import {
   getDataInToken,
   createUserWithSocialLogin
 } from "../controllers/context";
-import { mailerController } from "../controllers/mailer";
-import {
-  generateChangeEmailEmail,
-  generateResetPasswordEmail,
-  generateWelcomeEmail
-} from "../email/generateEmails";
 import { DocumentModel } from "../models/document";
 import { ExerciseModel } from "../models/exercise";
 import { FolderModel, IFolder } from "../models/folder";
@@ -43,6 +37,7 @@ import { SubmissionModel } from "../models/submission";
 import { IUpload } from "../models/upload";
 import { IUser, UserModel } from "../models/user";
 import { redisClient, pubsub, userAuthService } from "../server";
+import sendEmail from "../email/generateEmails";
 
 const saltRounds = 7;
 
@@ -174,28 +169,20 @@ const userResolver = {
       let logOrSignToken = "";
       if (user.microsoftID || user.googleID) {
         activeUser = true;
-        logOrSignToken = await userAuthService.login({
-          user: user.email,
-          password: user.password,
-          socialId: user.microsoftID || user.googleID
-        });
+        logOrSignToken = (
+          await userAuthService.login({
+            user: user.email,
+            password: user.password,
+            socialId: user.microsoftID || user.googleID
+          })
+        ).token;
       } else {
         logOrSignToken = await generateTokenWithData({
           signUpUserID: user._id
         });
-        // Generate the email with the activation link and send it
-        const emailContent: string = await generateWelcomeEmail({
-          data: {
-            url: `${process.env.FRONTEND_URL}/signup/activate?token=${logOrSignToken}`
-          }
+        await sendEmail(user.email, "Bitbloq cuenta creada", "welcome", {
+          url: `${process.env.FRONTEND_URL}`
         });
-        if (emailContent) {
-          await mailerController.sendEmail(
-            user.email!,
-            "Bitbloq cuenta creada",
-            emailContent
-          );
-        }
       }
 
       // Update the user information in the database
@@ -244,22 +231,10 @@ const userResolver = {
         },
         { new: true }
       );
-
-      // Generate the email with the activation link and send it
-      const emailContent: string = await generateWelcomeEmail({
-        data: {
-          url: `${process.env.FRONTEND_URL}/signup/activate?token=${logOrSignToken}`
-        }
+      await sendEmail(user.email, "Bitbloq cuenta creada", "welcome", {
+        url: `${process.env.FRONTEND_URL}`
       });
-      if (emailContent) {
-        await mailerController.sendEmail(
-          user.email!,
-          "Bitbloq cuenta creada",
-          emailContent
-        );
-        return true;
-      }
-      return false;
+      return true;
     },
 
     /**
@@ -315,7 +290,7 @@ const userResolver = {
       args: email and password.
     */
     login: async (_, { email, password }) => {
-      const token = await userAuthService.login({ user: email, password });
+      const { token } = await userAuthService.login({ user: email, password });
       if (!token) {
         throw new ApolloError("Email or password incorrect", "LOGIN_ERROR");
       }
@@ -424,20 +399,14 @@ const userResolver = {
       });
       const index = `resPass-${contactFound._id}`;
       await storeTokenInRedis(index, token);
-
-      // Generate the email with the activation link and send it
-      const emailContent: string = await generateResetPasswordEmail({
-        data: {
+      await sendEmail(
+        contactFound.email,
+        "Cambiar contraseña Bitbloq",
+        "resetPassword",
+        {
           url: `${process.env.FRONTEND_URL}/reset-password?token=${token}`
         }
-      });
-      if (emailContent) {
-        await mailerController.sendEmail(
-          contactFound.email!,
-          "Cambiar contraseña Bitbloq",
-          emailContent
-        );
-      }
+      );
       return "OK";
     },
 
@@ -474,10 +443,11 @@ const userResolver = {
           "USER_NOT_FOUND"
         );
       }
-      const authToken = await userAuthService.login({
+      const { token: authToken, error } = await userAuthService.login({
         user: contactFound.email,
         password: contactFound.password
       });
+      console.log({ authToken, error });
       try {
         redisClient.del(`resPass-${contactFound._id}`);
       } catch (e) {
@@ -521,11 +491,13 @@ const userResolver = {
             }
           }
         );
-        return userAuthService.login({
-          user: contactFound.email,
-          password: contactFound.password,
-          socialId: contactFound.googleID || contactFound.microsoftID
-        });
+        return (
+          await userAuthService.login({
+            user: contactFound.email,
+            password: contactFound.password,
+            socialId: contactFound.googleID || contactFound.microsoftID
+          })
+        ).token;
       }
       return new ApolloError(
         "Error with sign up token, try again",
@@ -706,19 +678,14 @@ const userResolver = {
         changeEmailNewEmail: args.newEmail
       });
       await storeTokenInRedis(`changeEmail-${contactFound._id}`, token);
-      // Generate the email with the activation link and send it
-      const emailContent: string = await generateChangeEmailEmail({
-        data: {
+      await sendEmail(
+        contactFound.email,
+        "Bitbloq cambiar correo electrónico",
+        "resetPassword",
+        {
           url: `${process.env.FRONTEND_URL}/app/account/change-email?token=${token}`
         }
-      });
-      if (emailContent) {
-        await mailerController.sendEmail(
-          args.newEmail!,
-          "Bitbloq cambiar correo electrónico",
-          emailContent
-        );
-      }
+      );
       return "OK";
     },
 
@@ -762,11 +729,13 @@ const userResolver = {
         } catch (e) {
           throw new ApolloError("Email already exists", "EMAIL_EXISTS");
         }
-        return userAuthService.login({
-          user: user!.email,
-          password: user!.password,
-          socialId: user!.googleID || user!.microsoftID
-        });
+        return (
+          await userAuthService.login({
+            user: user!.email,
+            password: user!.password,
+            socialId: user!.googleID || user!.microsoftID
+          })
+        ).token;
       }
       throw new ApolloError("Token not valid", "TOKEN_NOT_VALID");
     }
