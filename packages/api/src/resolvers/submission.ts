@@ -42,13 +42,11 @@ const submissionResolver = {
           variables: ISubscriptionSubmissionUpdatedArgs,
           context: { user: IUserInToken }
         ) => {
-          console.log({ context, payload, variables });
           if (
             String(context.user.userId) ===
               String(payload.submissionUpdated.user) ||
             String(context.user.permissions).includes(USER_PERMISSIONS.student)
           ) {
-            console.log("ENTRA");
             return (
               String(payload.submissionUpdated.exercise) ===
               String(variables.exercise)
@@ -202,7 +200,6 @@ const submissionResolver = {
         studentNick: args.studentNick.toLowerCase(),
         exercise: exFather._id
       });
-      console.log(existSub);
       pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: existSub });
       return {
         token,

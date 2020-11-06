@@ -70,7 +70,6 @@ class AuthService {
 
   async login(credentials) {
     const userData = await this.getUserData(credentials);
-    console.log({ userData });
     if (!userData || !userData.active) {
       // TODO: send errors?
       return null;

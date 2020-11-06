@@ -4,6 +4,7 @@ import {
   SchemaDirectiveVisitor
 } from "apollo-server-koa";
 import { defaultFieldResolver } from "graphql";
+import { USER_PERMISSIONS } from "../config";
 
 class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
   public visitObject(type) {
@@ -47,28 +48,28 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
           for (const roleReq of requiredRole) {
             if (
               roleReq === "USER" &&
-              context.user.permissions.includes("usr-")
+              context.user.permissions.includes(USER_PERMISSIONS.basic)
             ) {
               passed = true;
               return resolve.apply(this, args);
             }
             if (
               roleReq === "PUBLISHER" &&
-              context.user.permissions.includes("pub-")
-            ) {
-              passed = true;
-              return resolve.apply(this, args);
-            }
-            if (
-              roleReq === "STUDENT" &&
-              context.user.permissions.includes("stu-")
+              context.user.permissions.includes(USER_PERMISSIONS.publisher)
             ) {
               passed = true;
               return resolve.apply(this, args);
             }
             if (
               roleReq === "TEACHER" &&
-              context.user.permissions.includes("tchr-")
+              context.user.permissions.includes(USER_PERMISSIONS.teacher)
+            ) {
+              passed = true;
+              return resolve.apply(this, args);
+            }
+            if (
+              roleReq === "STUDENT" &&
+              context.user.permissions.includes(USER_PERMISSIONS.student)
             ) {
               passed = true;
               return resolve.apply(this, args);

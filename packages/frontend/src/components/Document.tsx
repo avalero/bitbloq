@@ -210,7 +210,6 @@ class Document extends React.Component<any, DocumentState> {
           variables={{ exercise: exercise.id }}
           shouldResubscribe={true}
           onSubscriptionData={data => {
-            console.log(data);
             refetch();
           }}
         />
