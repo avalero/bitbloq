@@ -1,5 +1,9 @@
 import { compare as bcryptCompare } from "bcrypt";
-import { generateLoginToken, storeTokenInRedis } from "./utils";
+import {
+  generateLoginToken,
+  storeTokenInRedis,
+  generateLoginTokenWithSingleSession
+} from "./utils";
 import { getGoogleUser } from "./getGoogleData";
 import { getMicrosoftUser } from "./getMicrosoftData";
 import checksSessionExpires from "./sessionExpires";
@@ -81,11 +85,13 @@ class AuthService {
     if (!valid) {
       return null;
     }
-    const { token } = await generateLoginToken(
-      this.redisClient,
-      userData,
-      this.onSessionExpires
-    );
+    const token = this.singleSession
+      ? await generateLoginTokenWithSingleSession(
+          this.redisClient,
+          userData,
+          this.onSessionExpires
+        )
+      : await generateLoginToken(this.redisClient, userData);
     await storeTokenInRedis(
       this.redisClient,
       userData.id,
@@ -105,11 +111,13 @@ class AuthService {
     if (!user) {
       return { error: "NOT_FOUND", googleData };
     }
-    const { token: loginToken } = await generateLoginToken(
-      this.redisClient,
-      user,
-      this.onSessionExpires
-    );
+    const loginToken = this.singleSession
+      ? await generateLoginTokenWithSingleSession(
+          this.redisClient,
+          user,
+          this.onSessionExpires
+        )
+      : await generateLoginToken(this.redisClient, user);
     await storeTokenInRedis(
       this.redisClient,
       user.id,
@@ -129,11 +137,13 @@ class AuthService {
     if (!user) {
       return { error: "NOT_FOUND", microsoftData };
     }
-    const { token: loginToken } = await generateLoginToken(
-      this.redisClient,
-      user,
-      this.onSessionExpires
-    );
+    const loginToken = this.singleSession
+      ? await generateLoginTokenWithSingleSession(
+          this.redisClient,
+          user,
+          this.onSessionExpires
+        )
+      : await generateLoginToken(this.redisClient, user);
     await storeTokenInRedis(
       this.redisClient,
       user.id,

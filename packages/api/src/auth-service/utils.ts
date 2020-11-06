@@ -1,23 +1,27 @@
 import { randomBytes } from "crypto";
 
-const generateLoginToken = async (
+const generateLoginToken = async (redisClient, user): Promise<string> => {
+  const token = await randomBytes(67);
+  const strToken = token.toString("hex");
+  await redisClient.hmset(String(user.id), "token", strToken);
+  return strToken;
+};
+
+const generateLoginTokenWithSingleSession = async (
   redisClient,
   user,
   onSessionExpires
-): Promise<{ token: string; role: string }> => {
+): Promise<string> => {
   const loggedUser = await redisClient.hgetallAsync(String(user.id));
   if (loggedUser) {
     await Promise.all([
       redisClient.del(loggedUser.token),
       redisClient.del(String(user.id))
     ]);
-    // TODO: add reason to sessionExpires
     onSessionExpires(loggedUser.token, 0, true, "OTHER_SESSION_OPEN", user.id);
   }
-  const token = await randomBytes(67);
-  const strToken = token.toString("hex");
-  await redisClient.hmset(String(user.id), "token", strToken);
-  return { token: strToken, role: user.permissions };
+  const token = await generateLoginToken(redisClient, user);
+  return token;
 };
 
 export interface IDataInRedis {
@@ -54,4 +58,8 @@ const storeTokenInRedis = async (
   }
 };
 
-export { generateLoginToken, storeTokenInRedis };
+export {
+  generateLoginToken,
+  generateLoginTokenWithSingleSession,
+  storeTokenInRedis
+};
