@@ -75,8 +75,25 @@ class AuthService {
   async login(credentials) {
     const userData = await this.getUserData(credentials);
     if (!userData || !userData.active) {
-      // TODO: send errors?
-      return null;
+      if (userData && credentials.socialId) {
+        // First login with google / MS
+        const token = this.singleSession
+          ? await generateLoginTokenWithSingleSession(
+              this.redisClient,
+              userData,
+              this.onSessionExpires
+            )
+          : await generateLoginToken(this.redisClient, userData);
+        await storeTokenInRedis(
+          this.redisClient,
+          userData.id,
+          token,
+          this.sessionDuration,
+          userData.permissions
+        );
+        return token;
+      }
+      return { error: "NOT_FOUND" };
     }
     const valid: boolean = await bcryptCompare(
       credentials.password,

@@ -1,6 +1,5 @@
 import { ApolloError, withFilter } from "apollo-server-koa";
 import { hash as bcryptHash, compare as bcryptCompare } from "bcrypt";
-import { sign as jwtSign, verify as jwtVerify } from "jsonwebtoken";
 
 import { uploadDocumentUserImage } from "./upload";
 import {
@@ -20,7 +19,12 @@ import {
   IMutationResendWelcomeEmailArgs
 } from "../types";
 import { USER_PERMISSIONS } from "../config";
-import { contextController, storeTokenInRedis } from "../controllers/context";
+import {
+  storeTokenInRedis,
+  generateTokenWithData,
+  getDataInToken,
+  createUserWithSocialLogin
+} from "../controllers/context";
 import { mailerController } from "../controllers/mailer";
 import {
   generateChangeEmailEmail,
@@ -31,7 +35,6 @@ import { DocumentModel } from "../models/document";
 import { ExerciseModel } from "../models/exercise";
 import { FolderModel, IFolder } from "../models/folder";
 import {
-  IEmailData,
   IResetPasswordToken,
   ISignUpToken,
   IUserInToken
@@ -105,7 +108,6 @@ const userResolver = {
           Number(birthDate[0])
         ),
         active: false,
-        authToken: " ",
         notifications: args.input.notifications,
         imTeacherCheck: args.input.imTeacherCheck,
         centerName: args.input.centerName,
@@ -117,13 +119,9 @@ const userResolver = {
         finishedSignUp: false
       });
       const newUser: IUser = await UserModel.create(userNew);
-      const idToken: string = await jwtSign(
-        {
-          saveUserData: newUser._id
-        },
-        process.env.JWT_SECRET || "",
-        { expiresIn: "15m" }
-      );
+      const idToken: string = await generateTokenWithData({
+        saveUserData: newUser._id
+      });
       return { id: idToken, email: newUser.email };
     },
 
@@ -134,10 +132,9 @@ const userResolver = {
      * args: userID and plan selected("member" or "teacher").
      */
     finishSignUp: async (_, args: IMutationFinishSignUpArgs) => {
-      const idInfo = ((await jwtVerify(
-        args.id,
-        process.env.JWT_SECRET || ""
-      )) as unknown) as { saveUserData: string };
+      const idInfo = ((await getDataInToken(args.id)) as unknown) as {
+        saveUserData: string;
+      };
       if (!idInfo.saveUserData) {
         throw new ApolloError("User ID not valid", "ID_NOT_VALID");
       }
@@ -177,23 +174,21 @@ const userResolver = {
       let logOrSignToken = "";
       if (user.microsoftID || user.googleID) {
         activeUser = true;
-        const { token, role } = await contextController.generateLoginToken(
-          user
-        );
-        logOrSignToken = token;
-        await storeTokenInRedis(user._id, token);
+        logOrSignToken = await userAuthService.login({
+          user: user.email,
+          password: user.password,
+          socialId: user.microsoftID || user.googleID
+        });
       } else {
-        logOrSignToken = jwtSign(
-          {
-            signUpUserID: user._id
-          },
-          process.env.JWT_SECRET || ""
-        );
+        logOrSignToken = await generateTokenWithData({
+          signUpUserID: user._id
+        });
         // Generate the email with the activation link and send it
-        const data: IEmailData = {
-          url: `${process.env.FRONTEND_URL}/signup/activate?token=${logOrSignToken}`
-        };
-        const emailContent: string = await generateWelcomeEmail(data);
+        const emailContent: string = await generateWelcomeEmail({
+          data: {
+            url: `${process.env.FRONTEND_URL}/signup/activate?token=${logOrSignToken}`
+          }
+        });
         if (emailContent) {
           await mailerController.sendEmail(
             user.email!,
@@ -210,7 +205,6 @@ const userResolver = {
           $set: {
             signUpToken:
               user.microsoftID || user.googleID ? "" : logOrSignToken,
-            authToken: user.microsoftID || user.googleID ? logOrSignToken : "",
             teacher,
             finishedSignUp: true,
             rootFolder: userFolder._id,
@@ -236,31 +230,27 @@ const userResolver = {
         throw new ApolloError("Email or password incorrect", "LOGIN_ERROR");
       }
 
-      const logOrSignToken = jwtSign(
-        {
-          signUpUserID: user._id
-        },
-        process.env.JWT_SECRET || ""
-      );
+      const logOrSignToken = await generateTokenWithData({
+        signUpUserID: user._id
+      });
 
       // Update the user information in the database
       await UserModel.findOneAndUpdate(
         { _id: user._id },
         {
           $set: {
-            signUpToken: logOrSignToken,
-            authToken: logOrSignToken
+            signUpToken: logOrSignToken
           }
         },
         { new: true }
       );
 
       // Generate the email with the activation link and send it
-      const data: IEmailData = {
-        url: `${process.env.FRONTEND_URL}/signup/activate?token=${logOrSignToken}`
-      };
-
-      const emailContent: string = await generateWelcomeEmail(data);
+      const emailContent: string = await generateWelcomeEmail({
+        data: {
+          url: `${process.env.FRONTEND_URL}/signup/activate?token=${logOrSignToken}`
+        }
+      });
       if (emailContent) {
         await mailerController.sendEmail(
           user.email!,
@@ -278,10 +268,9 @@ const userResolver = {
      */
 
     saveBirthDate: async (_, args: IMutationSaveBirthDateArgs) => {
-      const idInfo = ((await jwtVerify(
-        args.id,
-        process.env.JWT_SECRET || ""
-      )) as unknown) as { saveUserData: string };
+      const idInfo = ((await getDataInToken(args.id)) as unknown) as {
+        saveUserData: string;
+      };
       if (!idInfo || !idInfo.saveUserData) {
         throw new ApolloError("User ID not valid", "ID_NOT_VALID");
       }
@@ -298,8 +287,6 @@ const userResolver = {
       }
       const birthDate: string[] = String(args.birthDate).split("/");
       try {
-        const { token } = await contextController.generateLoginToken(user);
-        await storeTokenInRedis(user._id, token);
         await UserModel.findOneAndUpdate(
           { _id: idInfo.saveUserData, finishedSignUp: false, active: false },
           {
@@ -356,7 +343,7 @@ const userResolver = {
       }
       if (error === "NOT_FOUND" && googleData) {
         // guardar datos de usuario
-        const newUser = await UserModel.create({
+        idToken = await createUserWithSocialLogin({
           password: "google",
           googleID: googleData.id,
           name: googleData.name,
@@ -364,13 +351,6 @@ const userResolver = {
           email: googleData.email,
           socialLogin: true
         } as IUser);
-        idToken = await jwtSign(
-          {
-            saveUserData: newUser._id
-          },
-          process.env.JWT_SECRET || "",
-          { expiresIn: "15m" }
-        );
       }
       return {
         id: idToken,
@@ -400,7 +380,7 @@ const userResolver = {
       }
       if (error === "NOT_FOUND" && microsoftData) {
         // guardar datos de usuario
-        const newUser = await UserModel.create({
+        idToken = await createUserWithSocialLogin({
           password: "microsoft",
           microsoftID: microsoftData.id,
           name: microsoftData.name,
@@ -408,13 +388,6 @@ const userResolver = {
           email: microsoftData.email,
           socialLogin: true
         } as IUser);
-        idToken = await jwtSign(
-          {
-            saveUserData: newUser._id
-          },
-          process.env.JWT_SECRET || "",
-          { expiresIn: "15m" }
-        );
       }
       return {
         id: idToken,
@@ -446,21 +419,18 @@ const userResolver = {
       if (!contactFound) {
         throw new ApolloError("Email or password incorrect", "LOGIN_ERROR");
       }
-      const token: string = jwtSign(
-        {
-          resetPassUserID: contactFound._id
-        },
-        process.env.JWT_SECRET || "",
-        { expiresIn: "30m" }
-      );
+      const token: string = await generateTokenWithData({
+        resetPassUserID: contactFound._id
+      });
       const index = `resPass-${contactFound._id}`;
       await storeTokenInRedis(index, token);
 
       // Generate the email with the activation link and send it
-      const data: IEmailData = {
-        url: `${process.env.FRONTEND_URL}/reset-password?token=${token}`
-      };
-      const emailContent: string = await generateResetPasswordEmail(data);
+      const emailContent: string = await generateResetPasswordEmail({
+        data: {
+          url: `${process.env.FRONTEND_URL}/reset-password?token=${token}`
+        }
+      });
       if (emailContent) {
         await mailerController.sendEmail(
           contactFound.email!,
@@ -485,39 +455,34 @@ const userResolver = {
       const dataInToken = ((await getResetPasswordData(
         token
       )) as unknown) as IResetPasswordToken;
-
-      const contactFound: IUser | null = await UserModel.findOne({
-        _id: (dataInToken.resetPassUserID as unknown) as string,
-        finishedSignUp: true
-      });
-
+      const hash: string = await bcryptHash(newPassword, saltRounds);
+      const contactFound: IUser | null = await UserModel.findOneAndUpdate(
+        {
+          _id: (dataInToken.resetPassUserID as unknown) as string,
+          finishedSignUp: true
+        },
+        {
+          $set: {
+            password: hash
+          }
+        },
+        { new: true }
+      );
       if (!contactFound) {
         throw new ApolloError(
           "Error with reset password token",
           "USER_NOT_FOUND"
         );
       }
-      // Store the password with a hash
-      const hash: string = await bcryptHash(newPassword, saltRounds);
-      const { token: authToken } = await contextController.generateLoginToken(
-        contactFound
-      );
-
-      await UserModel.findOneAndUpdate(
-        { _id: contactFound._id },
-        {
-          $set: {
-            password: hash,
-            authToken
-          }
-        }
-      );
-
-      if (String(process.env.USE_REDIS) === "true") {
+      const authToken = await userAuthService.login({
+        user: contactFound.email,
+        password: contactFound.password
+      });
+      try {
         redisClient.del(`resPass-${contactFound._id}`);
+      } catch (e) {
+        console.error(e);
       }
-
-      await storeTokenInRedis(contactFound._id, authToken);
       return authToken;
     },
 
@@ -533,40 +498,34 @@ const userResolver = {
           "NOT_TOKEN_PROVIDED"
         );
       }
-      const userInToken = ((await contextController.getDataInToken(
+      const userInToken = ((await getDataInToken(
         args.token
       )) as unknown) as ISignUpToken;
-
       const contactFound: IUser | null = await UserModel.findOne({
         _id: (userInToken.signUpUserID as unknown) as string,
         active: false,
         finishedSignUp: true
       });
-
       if (!contactFound) {
         throw new ApolloError("User not found", "USER_NOT_FOUND");
       }
-
       if (contactFound.signUpToken !== args.token) {
         throw new ApolloError("Token not valid", "TOKEN_NOT_VALID");
       }
-
       if (userInToken.signUpUserID && !contactFound.active) {
-        const { token } = await contextController.generateLoginToken(
-          contactFound
-        );
         await UserModel.findOneAndUpdate(
           { _id: contactFound._id },
           {
             $set: {
-              active: true,
-              authToken: token,
-              signUpToken: " "
+              active: true
             }
           }
         );
-        await storeTokenInRedis(contactFound._id, token);
-        return token;
+        return userAuthService.login({
+          user: contactFound.email,
+          password: contactFound.password,
+          socialId: contactFound.googleID || contactFound.microsoftID
+        });
       }
       return new ApolloError(
         "Error with sign up token, try again",
@@ -712,14 +671,11 @@ const userResolver = {
       if (!user) {
         throw new ApolloError("User not found", "USER_NOT_FOUND");
       }
-      const { token } = await contextController.generateLoginToken(user);
-      await UserModel.updateOne(
-        { _id: user!._id },
-        { $set: { authToken: token, lastLogin: new Date() } },
-        { new: true }
-      );
-      await storeTokenInRedis(user!._id, token);
-      return token;
+      return userAuthService.login({
+        user: user.email,
+        password: user.password,
+        socialId: user.googleID || user.microsoftID
+      });
     },
 
     /**
@@ -745,20 +701,17 @@ const userResolver = {
       if (existsNewMail) {
         throw new ApolloError("Email already exists", "EMAIL_EXISTS");
       }
-      const token: string = jwtSign(
-        {
-          changeEmailUserID: contactFound._id,
-          changeEmailNewEmail: args.newEmail
-        },
-        process.env.JWT_SECRET || "",
-        { expiresIn: "30m" }
-      );
+      const token: string = await generateTokenWithData({
+        changeEmailUserID: contactFound._id,
+        changeEmailNewEmail: args.newEmail
+      });
       await storeTokenInRedis(`changeEmail-${contactFound._id}`, token);
       // Generate the email with the activation link and send it
-      const data: IEmailData = {
-        url: `${process.env.FRONTEND_URL}/app/account/change-email?token=${token}`
-      };
-      const emailContent: string = await generateChangeEmailEmail(data);
+      const emailContent: string = await generateChangeEmailEmail({
+        data: {
+          url: `${process.env.FRONTEND_URL}/app/account/change-email?token=${token}`
+        }
+      });
       if (emailContent) {
         await mailerController.sendEmail(
           args.newEmail!,
@@ -773,31 +726,8 @@ const userResolver = {
      * checkTokenChangeEmail: checks token before show change email page
      */
     checkTokenChangeEmail: async (_, { token }) => {
-      let userInToken: {
-        changeEmailUserID: string;
-        changeEmailNewEmail: string;
-      };
-      let redisToken = "";
-      try {
-        userInToken = ((await jwtVerify(
-          token,
-          process.env.JWT_SECRET || ""
-        )) as unknown) as {
-          changeEmailUserID: string;
-          changeEmailNewEmail: string;
-        };
-        if (String(process.env.USE_REDIS) === "true") {
-          redisToken = (
-            await redisClient.hgetallAsync(
-              `changeEmail-${userInToken.changeEmailUserID}`
-            )
-          ).authToken;
-          return redisToken === token;
-        }
-        return false;
-      } catch (e) {
-        throw new ApolloError("Token not valid", "TOKEN_NOT_VALID");
-      }
+      const { redisToken } = await getChangeEmailData(token);
+      return redisToken === token;
     },
 
     /**
@@ -810,31 +740,10 @@ const userResolver = {
       args: IMutationConfirmChangeEmailArgs,
       __
     ) => {
-      let userInToken: {
-        changeEmailUserID: string;
-        changeEmailNewEmail: string;
-      };
-      let redisToken = "";
-      try {
-        userInToken = ((await jwtVerify(
-          args.token,
-          process.env.JWT_SECRET || ""
-        )) as unknown) as {
-          changeEmailUserID: string;
-          changeEmailNewEmail: string;
-        };
-        if (String(process.env.USE_REDIS) === "true") {
-          redisToken = (
-            await redisClient.hgetallAsync(
-              `changeEmail-${userInToken.changeEmailUserID}`
-            )
-          ).authToken;
-        }
-      } catch (e) {
-        throw new ApolloError("Token not valid", "TOKEN_NOT_VALID");
-      }
-      let user: IUser | null;
-      user = await UserModel.findOne({ _id: userInToken.changeEmailUserID });
+      const { redisToken, userInToken } = await getChangeEmailData(args.token);
+      let user: IUser | null = await UserModel.findOne({
+        _id: userInToken.changeEmailUserID
+      });
       if (!user) {
         throw new ApolloError("User not found", "USER_NOT_FOUND");
       }
@@ -849,18 +758,15 @@ const userResolver = {
             { $set: { email: userInToken.changeEmailNewEmail } },
             { new: true }
           );
+          await redisClient.del(`changeEmail-${userInToken.changeEmailUserID}`);
         } catch (e) {
           throw new ApolloError("Email already exists", "EMAIL_EXISTS");
         }
-        await redisClient.del(`changeEmail-${userInToken.changeEmailUserID}`);
-        const { token } = await contextController.generateLoginToken(user);
-        await UserModel.updateOne(
-          { _id: user!._id },
-          { $set: { authToken: token, lastLogin: new Date() } },
-          { new: true }
-        );
-        await storeTokenInRedis(user!._id, token);
-        return token;
+        return userAuthService.login({
+          user: user!.email,
+          password: user!.password,
+          socialId: user!.googleID || user!.microsoftID
+        });
       }
       throw new ApolloError("Token not valid", "TOKEN_NOT_VALID");
     }
@@ -907,7 +813,7 @@ const getResetPasswordData = async (token: string) => {
   let dataInToken: IResetPasswordToken;
 
   try {
-    dataInToken = ((await contextController.getDataInToken(
+    dataInToken = ((await getDataInToken(
       token
     )) as unknown) as IResetPasswordToken;
   } catch (e) {
@@ -916,20 +822,33 @@ const getResetPasswordData = async (token: string) => {
       "INVALID_TOKEN"
     );
   }
-
-  if (String(process.env.USE_REDIS) === "true") {
-    const storedToken = await redisClient.hgetallAsync(
-      `resPass-${dataInToken.resetPassUserID}`
+  const storedToken = await redisClient.hgetallAsync(
+    `resPass-${dataInToken.resetPassUserID}`
+  );
+  if (storedToken.authToken !== token) {
+    throw new ApolloError(
+      "The provided token is not the latest one",
+      "INVALID_TOKEN"
     );
-    if (storedToken.authToken !== token) {
-      throw new ApolloError(
-        "The provided token is not the latest one",
-        "INVALID_TOKEN"
-      );
-    }
   }
-
   return dataInToken;
+};
+
+const getChangeEmailData = async (token: string) => {
+  try {
+    const userInToken = ((await getDataInToken(token)) as unknown) as {
+      changeEmailUserID: string;
+      changeEmailNewEmail: string;
+    };
+    const redisToken = (
+      await redisClient.hgetallAsync(
+        `changeEmail-${userInToken.changeEmailUserID}`
+      )
+    ).authToken;
+    return { redisToken, userInToken };
+  } catch (e) {
+    throw new ApolloError("Token not valid", "TOKEN_NOT_VALID");
+  }
 };
 
 export default userResolver;

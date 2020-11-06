@@ -1,10 +1,9 @@
 import { ApolloError, withFilter } from "apollo-server-koa";
 import { ExerciseModel, IExercise } from "../models/exercise";
 import { ISubmission, SubmissionModel } from "../models/submission";
-import { pubsub, redisClient, studentAuthService } from "../server";
+import { pubsub, studentAuthService } from "../server";
 
-import { sign as jwtSign } from "jsonwebtoken";
-import { hash as bcryptHash, compare as bcryptCompare } from "bcrypt";
+import { hash as bcryptHash } from "bcrypt";
 import {
   ISubscriptionSubmissionUpdatedArgs,
   IMutationStartSubmissionArgs,
@@ -20,10 +19,6 @@ import {
   ISessionExpires
 } from "../types";
 import { IUserInToken } from "../models/interfaces";
-import {
-  storeTokenInRedis,
-  updateExpireDateInRedis
-} from "../controllers/context";
 import { CONTENT_VERSION, USER_PERMISSIONS } from "../config";
 
 const saltRounds = 7;

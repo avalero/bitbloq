@@ -1,15 +1,15 @@
 import { config } from "dotenv";
-import koa from "koa";
-import { ApolloServer, ApolloError } from "apollo-server-koa";
-
-import exSchema from "./schemas/allSchemas";
-import { contextController } from "./controllers/context";
-import { IUserInToken } from "./models/interfaces";
-import { startMongoConnection } from "./controllers/mongoose-connection";
 import * as fs from "fs";
-import userResolver from "./resolvers/user";
+import koa from "koa";
+import { ApolloServer } from "apollo-server-koa";
+
 import initAuthService from "./controllers/authServices";
+import { getMyUser } from "./controllers/context";
+import { startMongoConnection } from "./controllers/mongoose-connection";
 import initRedis from "./controllers/init-redis";
+import exSchema from "./schemas/allSchemas";
+import { IUserInToken } from "./models/interfaces";
+import userResolver from "./resolvers/user";
 
 config();
 
@@ -24,9 +24,7 @@ const server = new ApolloServer({
       (payload && payload.authorization) ||
       "";
 
-    const user: IUserInToken | undefined = await contextController.getMyUser(
-      authorization
-    );
+    const user: IUserInToken | undefined = await getMyUser(authorization);
     return { user, headers: ctx && ctx.headers }; //  add the user to the ctx
   },
   schema: exSchema
