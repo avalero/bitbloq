@@ -91,7 +91,7 @@ class AuthService {
           this.sessionDuration,
           userData.permissions
         );
-        return token;
+        return { token };
       }
       return { error: "NOT_FOUND" };
     }
