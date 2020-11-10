@@ -1,10 +1,9 @@
-import AuthService from "../auth-service/authService";
+import AuthService from "../../auth-service/authService";
 import { UserModel, IUser } from "../models/user";
 import { SESSION, USER_PERMISSIONS } from "../config";
 import { USER_SESSION_EXPIRES } from "../resolvers/user";
 import { SubmissionModel } from "../models/submission";
 import { SUBMISSION_SESSION_EXPIRES } from "../resolvers/submission";
-import { ApolloError } from "apollo-server";
 
 const initAuthService = (redisClient, pubsub) => {
   const userAuthService = new AuthService(
