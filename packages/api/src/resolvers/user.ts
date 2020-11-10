@@ -445,9 +445,8 @@ const userResolver = {
       }
       const { token: authToken, error } = await userAuthService.login({
         user: contactFound.email,
-        password: contactFound.password
+        password: newPassword
       });
-      console.log({ authToken, error });
       try {
         redisClient.del(`resPass-${contactFound._id}`);
       } catch (e) {
@@ -732,7 +731,7 @@ const userResolver = {
         return (
           await userAuthService.login({
             user: user!.email,
-            password: user!.password,
+            password: args.password,
             socialId: user!.googleID || user!.microsoftID
           })
         ).token;

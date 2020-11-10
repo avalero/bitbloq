@@ -15,7 +15,7 @@ const sendEmail = async (
   const transporter = nodemailer.createTransport({
     host: process.env.MAILER_HOST,
     port: process.env.MAILER_PORT,
-    secure: true,
+    secure: false,
     requireTLS: true,
     auth: {
       user: process.env.MAILER_USER,
@@ -23,7 +23,6 @@ const sendEmail = async (
     }
   });
   let htmlMessage;
-  console.log(data);
   try {
     const email = fs.readFileSync(
       path.join(__dirname, `./mjml/${mjmlFileName}.mjml`),
@@ -42,12 +41,12 @@ const sendEmail = async (
     from: process.env.MAILER_FROM,
     to: emailAddress,
     subject: topic,
-    html: htmlMessage
+    html: htmlMessage.html
   };
   try {
     await await transporter.sendMail(mailOptions, err => {
       if (err) {
-        console.log("1", err);
+        console.error("Error sending email", err);
         return new ApolloError(
           "Error sending message",
           "SENDING_MESSAGE_ERROR"
@@ -57,7 +56,7 @@ const sendEmail = async (
       return;
     });
   } catch (e) {
-    console.log("2", e);
+    console.error(e);
     return new ApolloError("Error sending email", "ERROR_SENDING_EMAIL");
   }
   return "OK";
