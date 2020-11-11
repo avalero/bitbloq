@@ -126,6 +126,7 @@
   label: Zum Core 2.0
   image:
     url: https://storage.googleapis.com/bitbloq-prod/images/hardware/board/zumcore2.svg
+  integrated: []
   ports:
   - name: '23'
     connectorTypes:
