@@ -3,6 +3,7 @@ import { compare as bcryptCompare } from "bcrypt";
 import { randomBytes } from "crypto";
 import { stringify } from "querystring";
 import { request } from "http";
+import { RedisClient } from "redis";
 
 interface IUser {
   active?: boolean;
@@ -28,7 +29,7 @@ interface IDataInRedis {
 }
 
 class AuthService {
-  redisClient;
+  redisClient: RedisClient;
   sessionDuration: number;
   sessionWarning: number;
   singleSession: boolean;
@@ -44,7 +45,7 @@ class AuthService {
     | undefined;
 
   constructor(args: {
-    redisClient;
+    redisClient: RedisClient;
     sessionDuration: number;
     sessionWarning: number;
     singleSession: boolean;
@@ -65,7 +66,9 @@ class AuthService {
     this.onSessionExpires = args.onSessionExpires;
 
     // checks open sessions every 10 seconds
-    setInterval(this.checksSessionExpires, 10000);
+    if (this.redisClient) {
+      setInterval(this.checksSessionExpires.bind(this), 10000);
+    }
   }
 
   /**
@@ -113,6 +116,7 @@ class AuthService {
         user.permissions
       );
     } catch (e) {
+      console.log({ e });
       return undefined;
     }
     return token;
@@ -122,38 +126,40 @@ class AuthService {
    * checksSessionExpires: gets all keys stored in redis and checks expiresAt date. Sends warning if seconds remaining are less than especs and expires session if time is passed.
    */
   async checksSessionExpires() {
-    const allKeys: string[] = await this.redisClient.keysAsync("*");
+    let allKeys: string[] = [];
+    try {
+      allKeys = await this.redisClient.keysAsync("*");
+    } catch (e) {
+      console.log(e);
+    }
     const now: Date = new Date();
     allKeys.map(async key => {
       try {
         const result: IDataInRedis = await this.redisClient.hgetallAsync(key);
-        if (
-          result &&
-          result.expiresAt &&
-          result.userId &&
-          this.onSessionExpires
-        ) {
+        if (result && result.expiresAt && result.userId) {
           const expiresAt: Date = new Date(result.expiresAt);
           let secondsRemaining = 0;
           if (expiresAt > now) {
             secondsRemaining = (expiresAt.getTime() - now.getTime()) / 1000;
             if (secondsRemaining < this.sessionWarning) {
+              this.onSessionExpires &&
+                this.onSessionExpires(
+                  key,
+                  secondsRemaining,
+                  false,
+                  "SESSION_EXPIRES",
+                  result.userId
+                );
+            }
+          } else {
+            this.onSessionExpires &&
               this.onSessionExpires(
                 key,
                 secondsRemaining,
-                false,
-                "SESSION_EXPIRES",
+                true,
+                "SESSION_EXPIRED",
                 result.userId
               );
-            }
-          } else {
-            this.onSessionExpires(
-              key,
-              secondsRemaining,
-              true,
-              "SESSION_EXPIRED",
-              result.userId
-            );
             await Promise.all([
               this.redisClient.del(key),
               this.redisClient.del(String(result.userId))

@@ -1,6 +1,6 @@
 export const SESSION = {
   DURATION_MINUTES: 60,
-  SHOW_WARNING_SECONDS: 300
+  SHOW_WARNING_SECONDS: 60
 };
 
 export const LIMIT_SIZE = {

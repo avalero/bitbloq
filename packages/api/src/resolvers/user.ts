@@ -1,5 +1,10 @@
-import { ApolloError, withFilter } from "apollo-server-koa";
+import {
+  ApolloError,
+  withFilter,
+  AuthenticationError
+} from "apollo-server-koa";
 import { hash as bcryptHash, compare as bcryptCompare } from "bcrypt";
+import { sign as jwtSign, verify as jwtVerify } from "jsonwebtoken";
 
 import { uploadDocumentUserImage } from "./upload";
 import {
@@ -21,8 +26,6 @@ import {
 import { USER_PERMISSIONS } from "../config";
 import {
   storeTokenInRedis,
-  generateTokenWithData,
-  getDataInToken,
   createUserWithSocialLogin
 } from "../controllers/context";
 import { DocumentModel } from "../models/document";
@@ -114,9 +117,15 @@ const userResolver = {
         finishedSignUp: false
       });
       const newUser: IUser = await UserModel.create(userNew);
-      const idToken: string = await generateTokenWithData({
-        saveUserData: newUser._id
-      });
+      const idToken: string = await jwtSign(
+        {
+          saveUserData: newUser._id
+        },
+        process.env.JWT_SECRET || "",
+        {
+          expiresIn: "1h"
+        }
+      );
       return { id: idToken, email: newUser.email };
     },
 
@@ -127,9 +136,18 @@ const userResolver = {
      * args: userID and plan selected("member" or "teacher").
      */
     finishSignUp: async (_, args: IMutationFinishSignUpArgs) => {
-      const idInfo = ((await getDataInToken(args.id)) as unknown) as {
-        saveUserData: string;
-      };
+      let idInfo;
+      try {
+        idInfo = ((await jwtVerify(
+          args.id,
+          process.env.JWT_SECRET || ""
+        )) as unknown) as {
+          saveUserData: string;
+        };
+      } catch (e) {
+        console.error(e);
+        throw new AuthenticationError("Token not valid.");
+      }
       if (!idInfo.saveUserData) {
         throw new ApolloError("User ID not valid", "ID_NOT_VALID");
       }
@@ -169,17 +187,18 @@ const userResolver = {
       let logOrSignToken = "";
       if (user.microsoftID || user.googleID) {
         activeUser = true;
-        logOrSignToken = (
-          await userAuthService.login({
-            user: user.email,
-            password: user.password,
-            socialId: user.microsoftID || user.googleID
-          })
-        ).token;
-      } else {
-        logOrSignToken = await generateTokenWithData({
-          signUpUserID: user._id
+        logOrSignToken = await userAuthService.storeTokenInRedis({
+          id: user.id,
+          permissions: user.permissions
         });
+      } else {
+        logOrSignToken = await jwtSign(
+          { signUpUserID: user._id },
+          process.env.JWT_SECRET || "",
+          {
+            expiresIn: "1h"
+          }
+        );
         await sendEmail(user.email, "Bitbloq cuenta creada", "welcome", {
           url: `${process.env.FRONTEND_URL}`
         });
@@ -217,9 +236,13 @@ const userResolver = {
         throw new ApolloError("Email or password incorrect", "LOGIN_ERROR");
       }
 
-      const logOrSignToken = await generateTokenWithData({
-        signUpUserID: user._id
-      });
+      const logOrSignToken = await jwtSign(
+        { signUpUserID: user._id },
+        process.env.JWT_SECRET || "",
+        {
+          expiresIn: "1h"
+        }
+      );
 
       // Update the user information in the database
       await UserModel.findOneAndUpdate(
@@ -243,9 +266,18 @@ const userResolver = {
      */
 
     saveBirthDate: async (_, args: IMutationSaveBirthDateArgs) => {
-      const idInfo = ((await getDataInToken(args.id)) as unknown) as {
-        saveUserData: string;
-      };
+      let idInfo;
+      try {
+        idInfo = ((await jwtVerify(
+          args.id,
+          process.env.JWT_SECRET || ""
+        )) as unknown) as {
+          saveUserData: string;
+        };
+      } catch (e) {
+        console.error(e);
+        throw new AuthenticationError("Token not valid.");
+      }
       if (!idInfo || !idInfo.saveUserData) {
         throw new ApolloError("User ID not valid", "ID_NOT_VALID");
       }
@@ -394,9 +426,15 @@ const userResolver = {
       if (!contactFound) {
         throw new ApolloError("Email or password incorrect", "LOGIN_ERROR");
       }
-      const token: string = await generateTokenWithData({
-        resetPassUserID: contactFound._id
-      });
+      const token: string = await jwtSign(
+        {
+          resetPassUserID: contactFound._id
+        },
+        process.env.JWT_SECRET || "",
+        {
+          expiresIn: "1h"
+        }
+      );
       const index = `resPass-${contactFound._id}`;
       await storeTokenInRedis(index, token);
       await sendEmail(
@@ -467,9 +505,16 @@ const userResolver = {
           "NOT_TOKEN_PROVIDED"
         );
       }
-      const userInToken = ((await getDataInToken(
-        args.token
-      )) as unknown) as ISignUpToken;
+      let userInToken;
+      try {
+        userInToken = ((await jwtVerify(
+          args.token,
+          process.env.JWT_SECRET || ""
+        )) as unknown) as ISignUpToken;
+      } catch (e) {
+        console.error(e);
+        throw new AuthenticationError("Token not valid.");
+      }
       const contactFound: IUser | null = await UserModel.findOne({
         _id: (userInToken.signUpUserID as unknown) as string,
         active: false,
@@ -490,13 +535,10 @@ const userResolver = {
             }
           }
         );
-        return (
-          await userAuthService.login({
-            user: contactFound.email,
-            password: contactFound.password,
-            socialId: contactFound.googleID || contactFound.microsoftID
-          })
-        ).token;
+        return userAuthService.storeTokenInRedis({
+          id: contactFound.id,
+          permissions: contactFound.permissions
+        });
       }
       return new ApolloError(
         "Error with sign up token, try again",
@@ -642,10 +684,9 @@ const userResolver = {
       if (!user) {
         throw new ApolloError("User not found", "USER_NOT_FOUND");
       }
-      return userAuthService.login({
-        user: user.email,
-        password: user.password,
-        socialId: user.googleID || user.microsoftID
+      return userAuthService.storeTokenInRedis({
+        id: user.id,
+        permissions: user.permissions
       });
     },
 
@@ -672,10 +713,16 @@ const userResolver = {
       if (existsNewMail) {
         throw new ApolloError("Email already exists", "EMAIL_EXISTS");
       }
-      const token: string = await generateTokenWithData({
-        changeEmailUserID: contactFound._id,
-        changeEmailNewEmail: args.newEmail
-      });
+      const token: string = await jwtSign(
+        {
+          changeEmailUserID: contactFound._id,
+          changeEmailNewEmail: args.newEmail
+        },
+        process.env.JWT_SECRET || "",
+        {
+          expiresIn: "1h"
+        }
+      );
       await storeTokenInRedis(`changeEmail-${contactFound._id}`, token);
       await sendEmail(
         contactFound.email,
@@ -728,13 +775,10 @@ const userResolver = {
         } catch (e) {
           throw new ApolloError("Email already exists", "EMAIL_EXISTS");
         }
-        return (
-          await userAuthService.login({
-            user: user!.email,
-            password: args.password,
-            socialId: user!.googleID || user!.microsoftID
-          })
-        ).token;
+        return userAuthService.storeTokenInRedis({
+          id: user!.id,
+          permissions: user!.permissions
+        });
       }
       throw new ApolloError("Token not valid", "TOKEN_NOT_VALID");
     }
@@ -781,8 +825,9 @@ const getResetPasswordData = async (token: string) => {
   let dataInToken: IResetPasswordToken;
 
   try {
-    dataInToken = ((await getDataInToken(
-      token
+    dataInToken = ((await jwtVerify(
+      token,
+      process.env.JWT_SECRET || ""
     )) as unknown) as IResetPasswordToken;
   } catch (e) {
     throw new ApolloError(
@@ -804,7 +849,10 @@ const getResetPasswordData = async (token: string) => {
 
 const getChangeEmailData = async (token: string) => {
   try {
-    const userInToken = ((await getDataInToken(token)) as unknown) as {
+    const userInToken = ((await jwtVerify(
+      token,
+      process.env.JWT_SECRET || ""
+    )) as unknown) as {
       changeEmailUserID: string;
       changeEmailNewEmail: string;
     };

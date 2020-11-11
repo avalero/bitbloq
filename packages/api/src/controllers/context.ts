@@ -88,33 +88,18 @@ const getMyUser = async authorization => {
   }
 };
 
-const generateTokenWithData = async data => {
-  const token: string = await jwtSign(data, process.env.JWT_SECRET || "", {
-    expiresIn: "1h"
-  });
-  return token;
-};
-
-const getDataInToken = async (token: string) => {
-  try {
-    return jwtVerify(token, process.env.JWT_SECRET || "");
-  } catch (e) {
-    console.error(e);
-    throw new AuthenticationError("Token not valid.");
-  }
-};
-
 const createUserWithSocialLogin = async (userData: IUser) => {
   // guardar datos de usuario
   const newUser = await UserModel.create(userData);
-  return await generateTokenWithData({
-    saveUserData: newUser._id
-  });
+  return jwtSign(
+    {
+      saveUserData: newUser._id
+    },
+    process.env.JWT_SECRET || "",
+    {
+      expiresIn: "1h"
+    }
+  );
 };
-export {
-  storeTokenInRedis,
-  getMyUser,
-  generateTokenWithData,
-  getDataInToken,
-  createUserWithSocialLogin
-};
+
+export { storeTokenInRedis, getMyUser, createUserWithSocialLogin };
