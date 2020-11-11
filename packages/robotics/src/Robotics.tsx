@@ -81,7 +81,7 @@ const Robotics: FC<IRoboticsProps> = ({
                 <Bloqs borndateFilesRoot={borndateFilesRoot} />
               ) : null;
             },
-            diagram: <Diagram />
+            diagram: <Diagram borndateFilesRoot={borndateFilesRoot} />
           })}
         </BloqsDefinitionProvider>
       </HardwareDefinitionProvider>

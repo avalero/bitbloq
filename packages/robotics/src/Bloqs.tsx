@@ -1,28 +1,11 @@
 import React, { FC, useState } from "react";
 import styled from "@emotion/styled";
-import CompilingAlert from "@bitbloq/code/src/CompilingAlert";
-import { useCodeUpload } from "@bitbloq/code/src/useCodeUpload";
-import NoBoardWizard from "@bitbloq/code/src/NoBoardWizard";
-import {
-  breakpoints,
-  colors,
-  DragAndDropProvider,
-  Droppable,
-  Icon,
-  useTranslate
-} from "@bitbloq/ui";
+import { DragAndDropProvider, Droppable, useTranslate } from "@bitbloq/ui";
 import { InstructionType } from "./types";
-import {
-  useRecoilState,
-  useResetRecoilState,
-  useSetRecoilState,
-  useRecoilValue
-} from "recoil";
+import { useRecoilState, useResetRecoilState, useSetRecoilState } from "recoil";
 import {
   bloqsState,
   BloqSection,
-  boardState,
-  compilingState,
   detachedBloqsState,
   draggingBloqsState,
   isDraggingParameterState,
@@ -36,9 +19,8 @@ import BloqsTabs from "./BloqsTabs";
 import CodeViewer from "./CodeViewer";
 import DraggingBloq from "./DraggingBloq";
 import ExpandablePanel from "./ExpandablePanel";
-import useCodeGeneration from "./useCodeGeneration";
+import Toolbar from "./Toolbar";
 import useBloqsDefinition from "./useBloqsDefinition";
-import useHardwareDefinition from "./useHardwareDefinition";
 import useUpdateContent from "./useUpdateContent";
 
 export interface IBloqsProps {
@@ -49,22 +31,12 @@ const Bloqs: FC<IBloqsProps> = ({ borndateFilesRoot }) => {
   const t = useTranslate();
   const updateContent = useUpdateContent();
   const { getBloqType } = useBloqsDefinition();
-  const { getBoard } = useHardwareDefinition();
 
-  const [compiling, setCompiling] = useRecoilState(compilingState);
   const setDraggingBloq = useSetRecoilState(draggingBloqsState);
   const setIsDraggingParameter = useSetRecoilState(isDraggingParameterState);
   const resetDraggingBloq = useResetRecoilState(draggingBloqsState);
-  const board = useRecoilValue(boardState);
-  const boardObject = board && getBoard(board.name);
 
   const [viewCode, setViewCode] = useState(false);
-
-  const generateCode = useCodeGeneration();
-  const { compile, upload, cancel } = useCodeUpload({
-    filesRoot: borndateFilesRoot
-  });
-  const [showNoBoardWizard, setShowNoBoardWizard] = useState(false);
 
   const [bloqs, setBloqs] = useRecoilState(bloqsState);
   const [detachedBloqs, setDetachedBloqs] = useRecoilState(detachedBloqsState);
@@ -187,44 +159,6 @@ const Bloqs: FC<IBloqsProps> = ({ borndateFilesRoot }) => {
     }
   };
 
-  const onCompileClick = async () => {
-    if (!boardObject) return;
-    const { code, libraries } = await generateCode();
-    try {
-      setCompiling({ compiling: true, visible: true });
-      await compile(
-        [{ name: "main.ino", content: code }],
-        libraries,
-        boardObject.borndateBoard || ""
-      );
-      setCompiling({ compileSuccess: true, visible: false });
-    } catch (e) {
-      setCompiling({ compileError: true, visible: false });
-      console.log(e, e.data);
-    }
-  };
-
-  const onUploadClick = async () => {
-    if (!boardObject) return;
-    const { code, libraries } = await generateCode();
-    try {
-      setCompiling({ uploading: true, visible: true });
-      await upload(
-        [{ name: "main.ino", content: code }],
-        libraries,
-        boardObject.borndateBoard || ""
-      );
-      setCompiling({ uploadSuccess: true, visible: false });
-    } catch (e) {
-      setCompiling({ visible: false });
-      if (e.type === "board-not-found") {
-        setShowNoBoardWizard(true);
-      } else if (e.type === "compile-error") {
-      }
-      console.log(e, e.data);
-    }
-  };
-
   return (
     <DragAndDropProvider
       onDragStart={onDragStart}
@@ -234,24 +168,7 @@ const Bloqs: FC<IBloqsProps> = ({ borndateFilesRoot }) => {
     >
       <Container>
         <Main>
-          <Toolbar>
-            <ToolbarLeft>
-              <ToolbarButton>
-                <Icon name="undo" />
-              </ToolbarButton>
-              <ToolbarButton>
-                <Icon name="redo" />
-              </ToolbarButton>
-            </ToolbarLeft>
-            <ToolbarRight>
-              <ToolbarGreenButton onClick={onCompileClick}>
-                <Icon name="tick" />
-              </ToolbarGreenButton>
-              <ToolbarGreenButton onClick={onUploadClick}>
-                <UploadIcon name="arrow" />
-              </ToolbarGreenButton>
-            </ToolbarRight>
-          </Toolbar>
+          <Toolbar borndateFilesRoot={borndateFilesRoot} />
           <BloqsContent data={{ type: "main" }} priority={-1}>
             <ExpandablePanel
               title={t("robotics.global-variables-and-functions")}
@@ -286,12 +203,6 @@ const Bloqs: FC<IBloqsProps> = ({ borndateFilesRoot }) => {
         {viewCode && <CodeViewer onClose={() => setViewCode(false)} />}
         <DraggingBloq />
       </Container>
-      <CompilingAlert {...compiling} onCancel={cancel} />
-      <NoBoardWizard
-        driversUrl={(boardObject && boardObject.driversUrl) || ""}
-        isOpen={showNoBoardWizard}
-        onClose={() => setShowNoBoardWizard(false)}
-      />
     </DragAndDropProvider>
   );
 };
@@ -309,57 +220,6 @@ const Main = styled.div`
   display: flex;
   flex-direction: column;
   min-width: 0;
-`;
-
-const Toolbar = styled.div`
-  display: flex;
-  border-bottom: 1px solid ${colors.gray3};
-  height: 40px;
-  padding: 0 20px;
-  @media screen and (min-width: ${breakpoints.desktop}px) {
-    height: 50px;
-  }
-`;
-
-const ToolbarLeft = styled.div`
-  display: flex;
-  flex: 1;
-`;
-
-const ToolbarRight = styled.div`
-  display: flex;
-`;
-
-const ToolbarButton = styled.div`
-  width: 40px;
-  background-color: #ebebeb;
-  border-width: 0px 1px;
-  border-style: solid;
-  border-color: #cfcfcf;
-  margin-right: -1px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-
-  svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  @media screen and (min-width: ${breakpoints.desktop}px) {
-    width: 60px;
-  }
-`;
-
-const ToolbarGreenButton = styled(ToolbarButton)`
-  background-color: ${colors.green};
-  color: white;
-  border-color: white;
-`;
-
-const UploadIcon = styled(Icon)`
-  transform: rotate(90deg);
 `;
 
 const BloqsContent = styled(Droppable)`
