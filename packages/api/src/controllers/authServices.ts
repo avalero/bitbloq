@@ -6,12 +6,12 @@ import { SubmissionModel } from "../models/submission";
 import { SUBMISSION_SESSION_EXPIRES } from "../resolvers/submission";
 
 const initAuthService = (redisClient, pubsub) => {
-  const userAuthService = new AuthService(
-    redisClient,
-    SESSION.DURATION_MINUTES,
-    SESSION.SHOW_WARNING_SECONDS,
-    true,
-    async credentials => {
+  const userAuthService = new AuthService({
+    redisClient: redisClient,
+    sessionDuration: SESSION.DURATION_MINUTES,
+    sessionWarning: SESSION.SHOW_WARNING_SECONDS,
+    singleSession: true,
+    getUserData: async credentials => {
       if (credentials.user) {
         let user;
         try {
@@ -32,7 +32,7 @@ const initAuthService = (redisClient, pubsub) => {
       }
       return null;
     },
-    async (
+    onSessionExpires: async (
       key: string,
       secondsRemaining: number,
       expiredSession: boolean,
@@ -49,14 +49,14 @@ const initAuthService = (redisClient, pubsub) => {
         }
       });
     }
-  );
+  });
 
-  const studentAuthService = new AuthService(
-    redisClient,
-    SESSION.DURATION_MINUTES,
-    SESSION.SHOW_WARNING_SECONDS,
-    true,
-    async credentials => {
+  const studentAuthService = new AuthService({
+    redisClient: redisClient,
+    sessionDuration: SESSION.DURATION_MINUTES,
+    sessionWarning: SESSION.SHOW_WARNING_SECONDS,
+    singleSession: true,
+    getUserData: async credentials => {
       if (credentials.studentNick && credentials.exerciseId) {
         const submission = await SubmissionModel.findOne({
           studentNick: credentials.studentNick.toLowerCase(),
@@ -74,7 +74,7 @@ const initAuthService = (redisClient, pubsub) => {
       }
       return null;
     },
-    async (
+    onSessionExpires: async (
       key: string,
       secondsRemaining: number,
       expiredSession: boolean,
@@ -91,7 +91,7 @@ const initAuthService = (redisClient, pubsub) => {
         }
       });
     }
-  );
+  });
   return { studentAuthService, userAuthService };
 };
 

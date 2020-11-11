@@ -13,14 +13,14 @@ interface IUser {
   permissions: string;
 }
 
-export interface ISocialData {
+interface ISocialData {
   name: string;
   surname: string;
   id: string;
   email: string;
 }
 
-export interface IDataInRedis {
+interface IDataInRedis {
   token: string;
   userId: string;
   expiresAt: Date;
@@ -43,30 +43,37 @@ class AuthService {
       ) => Promise<void>)
     | undefined;
 
-  constructor(
-    redisClient,
-    sessionDuration: number,
-    sessionWarning: number,
-    singleSession: boolean,
-    getUserData: (credentials) => Promise<IUser | null>,
+  constructor(args: {
+    redisClient;
+    sessionDuration: number;
+    sessionWarning: number;
+    singleSession: boolean;
+    getUserData: (credentials) => Promise<IUser | null>;
     onSessionExpires?: (
       key: string,
       secondsRemaining: number,
       expiredSession: boolean,
       reason: string,
       userId: string
-    ) => Promise<void>
-  ) {
-    this.redisClient = redisClient;
-    this.sessionDuration = sessionDuration;
-    this.sessionWarning = sessionWarning;
-    this.singleSession = singleSession;
-    this.getUserData = getUserData;
-    this.onSessionExpires = onSessionExpires;
+    ) => Promise<void>;
+  }) {
+    this.redisClient = args.redisClient;
+    this.sessionDuration = args.sessionDuration;
+    this.sessionWarning = args.sessionWarning;
+    this.singleSession = args.singleSession;
+    this.getUserData = args.getUserData;
+    this.onSessionExpires = args.onSessionExpires;
 
+    // checks open sessions every 10 seconds
     setInterval(this.checksSessionExpires, 10000);
   }
 
+  /**
+   * storeTokenInRedis: generates token if first login. Checks if there is other session open and closes it. Stores token in redis with updated expires date.
+   * @param user user data
+   * @param loggedToken logged token
+   * @returns sotred token
+   */
   async storeTokenInRedis(user: IUser, loggedToken?: string) {
     if (user.id === undefined) {
       return undefined;
@@ -111,6 +118,9 @@ class AuthService {
     return token;
   }
 
+  /**
+   * checksSessionExpires: gets all keys stored in redis and checks expiresAt date. Sends warning if seconds remaining are less than especs and expires session if time is passed.
+   */
   async checksSessionExpires() {
     const allKeys: string[] = await this.redisClient.keysAsync("*");
     const now: Date = new Date();
@@ -156,7 +166,13 @@ class AuthService {
       }
     });
   }
-  async login(credentials) {
+
+  /**
+   * login: login user, geting data and comparing password. Generates login token.
+   * @param credentials function args credentials. Must have password field
+   * @returns login token or error
+   */
+  async login(credentials): Promise<{ token?: string; error?: string }> {
     const user = await this.getUserData(credentials);
     if (!user || !user.active) {
       return { error: "NOT_FOUND" };
@@ -166,13 +182,25 @@ class AuthService {
       user.password
     );
     if (!valid) {
-      return null;
+      return { error: "PASSWORD_INCORRECT" };
     }
     const token = await this.storeTokenInRedis(user);
     return { token };
   }
 
-  async loginWithGoogle(token: string) {
+  /**
+   * loginWithGoogle: login user with google account. Gets data from google and generates login token.
+   * @param token login with google token from google api.
+   * @returns login token, finishedSignUp field and googleData or error
+   */
+  async loginWithGoogle(
+    token: string
+  ): Promise<{
+    loginToken?: string;
+    finishedSignUp?: boolean;
+    googleData?: ISocialData;
+    error?: string;
+  }> {
     const googleData = await getGoogleUser(token);
     if (!googleData) {
       return { error: "GOOGLE_ERROR" };
@@ -185,7 +213,19 @@ class AuthService {
     return { loginToken, finishedSignUp: user.finishedSignUp, googleData };
   }
 
-  async loginWithMicrosoft(token: string) {
+  /**
+   * loginWithMicrosoft: login user with microsoft account. Gets data from microsoft and generates login token.
+   * @param token login with microsoft token from microsoft api.
+   * @returns login token, finishedSignUp field and microsoftData or error
+   */
+  async loginWithMicrosoft(
+    token: string
+  ): Promise<{
+    loginToken?: string;
+    finishedSignUp?: boolean;
+    microsoftData?: ISocialData;
+    error?: string;
+  }> {
     const microsoftData = await getMicrosoftUser(token);
     if (!microsoftData) {
       return { error: "MICROSOFT_ERROR" };
@@ -198,7 +238,12 @@ class AuthService {
     return { loginToken, finishedSignUp: user.finishedSignUp, microsoftData };
   }
 
-  async userActivity(token: string) {
+  /**
+   * userActivity: updates token expiresAt date.
+   * @param token user logged token
+   * @returns token or null
+   */
+  async userActivity(token: string): Promise<string | null | undefined> {
     // Function that registers user activity in platform and updates expiresAt
     if (!token || !this.redisClient) {
       return null;
@@ -212,7 +257,12 @@ class AuthService {
       : null;
   }
 
-  async checkToken(token: string) {
+  /**
+   * checkToken: checks if token is stored in redis and session is active
+   * @param token user logged token
+   * @returns data in redis or null
+   */
+  async checkToken(token: string): Promise<IDataInRedis | null> {
     if (!token || !this.redisClient) {
       return null;
     }
