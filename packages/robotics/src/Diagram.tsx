@@ -22,6 +22,8 @@ const Diagram: FC<IDiagramProps> = ({ borndateFilesRoot }) => {
 
   const [viewCode, setViewCode] = useState(false);
 
+  throw new Error();
+
   const onDrag = ({ draggableData, x, y }) => {
     return null;
   };
