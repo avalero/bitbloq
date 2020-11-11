@@ -162,6 +162,8 @@
     main: |-
       zumJunior.play(BQ::ZUMJunior::{{parameters.note}}, {{parameters.duration}});
       delay({{parameters.duration}});
+  diagram:
+    symbolText: robotics.play-buzzer
   uiElements:
     - type: label
       text: robotics.play-buzzer-with-note

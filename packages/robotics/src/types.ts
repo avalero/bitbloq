@@ -67,6 +67,10 @@ export interface IBloqCode {
   main?: string;
 }
 
+export interface IBloqDiagramOptions {
+  symbolText?: string;
+}
+
 export interface IBloqType {
   name: string;
   instructionType: InstructionType;
@@ -75,6 +79,7 @@ export interface IBloqType {
   uiElements: IBloqUIElement[];
   forComponents?: string[];
   code?: IBloqCode;
+  diagram?: IBloqDiagramOptions;
 }
 
 export interface IBloq {
@@ -98,3 +103,29 @@ export interface IRoboticsContent {
   hardware: Partial<IHardware>;
   bloqs: BloqState;
 }
+
+export interface IDiagramSymbol {
+  type: "symbol";
+  bloq: IBloq;
+}
+
+export interface IDiagramCondition {
+  type: "condition";
+  bloq: IBloq;
+  leftItems: IDiagramItem[];
+  rightItems: IDiagramItem[];
+  feedback?: boolean;
+}
+
+export interface IDiagramSwitchCase {
+  bloq: IBloq;
+  items: IDiagramItem[];
+}
+
+export interface IDiagramSwitch {
+  type: "switch";
+  cases: IDiagramSwitchCase[];
+  default: IDiagramSwitchCase;
+}
+
+export type IDiagramItem = IDiagramSymbol | IDiagramCondition | IDiagramSwitch;

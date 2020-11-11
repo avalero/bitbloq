@@ -13,17 +13,28 @@ import {
 import { bloqCategories, bloqSubCategories } from "./config";
 import Bloq from "./Bloq";
 import DeleteDroppable from "./DeleteDroppable";
+import Symbol from "./Symbol";
 import useBloqsDefinition from "./useBloqsDefinition";
 import { draggingBloqsState, componentsState, boardState } from "./state";
-import { BloqCategory, BloqSubCategory, IBloqType } from "./types";
+import {
+  BloqCategory,
+  BloqSubCategory,
+  IBloqType,
+  InstructionType
+} from "./types";
 import useHardwareDefinition from "./useHardwareDefinition";
 
 interface IBloqsTabsProps {
   onViewCode: () => void;
   viewingCode: boolean;
+  symbol?: boolean;
 }
 
-const BloqsTabs: FC<IBloqsTabsProps> = ({ onViewCode, viewingCode }) => {
+const BloqsTabs: FC<IBloqsTabsProps> = ({
+  onViewCode,
+  viewingCode,
+  symbol
+}) => {
   const t = useTranslate();
   const { getCategoryBloqs } = useBloqsDefinition();
   const { isInstanceOf, getBoard } = useHardwareDefinition();
@@ -74,10 +85,12 @@ const BloqsTabs: FC<IBloqsTabsProps> = ({ onViewCode, viewingCode }) => {
         )
     );
     const subCategoryBloqs = bloqs.reduce((acc, bloq) => {
-      if (!acc[bloq.subCategory]) {
-        acc[bloq.subCategory] = [];
+      if (!symbol || bloq.instructionType !== InstructionType.Parameter) {
+        if (!acc[bloq.subCategory]) {
+          acc[bloq.subCategory] = [];
+        }
+        acc[bloq.subCategory].push(bloq);
       }
-      acc[bloq.subCategory].push(bloq);
       return acc;
     }, {} as Record<BloqSubCategory, IBloqType[]>);
 
@@ -95,7 +108,21 @@ const BloqsTabs: FC<IBloqsTabsProps> = ({ onViewCode, viewingCode }) => {
                     parameters: getDefaultParameters(bloqType)
                   };
 
-                  return (
+                  return symbol ? (
+                    <div key={bloqType.name}>
+                      <Draggable
+                        data={{ symbol: [bloq] }}
+                        draggableHeight={0}
+                        draggableWidth={0}
+                      >
+                        {props => (
+                          <SymbolWrap {...props}>
+                            <Symbol bloq={bloq} />
+                          </SymbolWrap>
+                        )}
+                      </Draggable>
+                    </div>
+                  ) : (
                     <Draggable
                       data={{ bloqs: [bloq] }}
                       draggableHeight={0}
@@ -200,6 +227,12 @@ const TabHeader = styled.div`
 const BloqWrap = styled.div`
   display: inline-block;
   margin-bottom: 10px;
+`;
+
+const SymbolWrap = styled.div`
+  display: inline-block;
+  margin-bottom: 10px;
+  break-after: always;
 `;
 
 const SubTab = styled.div`
