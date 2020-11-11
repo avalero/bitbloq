@@ -36,6 +36,8 @@ services:
       - REDIS_DOMAIN_NAME=redis
       - REDIS_PORT_NUMBER=6379
       - USE_REDIS=true
+      - INFLUX_HOST=influxdb
+      - INFLUX_DB=bitbloq_api_local
     depends_on:
       - mongodb
       - redis
@@ -65,3 +67,22 @@ services:
     ports:
       - 8001:27017
     command: mongod --logpath=/dev/null
+
+  influxdb:
+    image: influxdb
+    environment:
+      - INFLUXDB_HTTP_LOG_ENABLED=false
+    volumes:
+      - ./data/influxdb:/var/lib/influxdb
+    ports:
+      - 8003:8086
+
+  chronograf:
+    image: chronograf
+    volumes:
+      - ./data/chronograf:/var/lib/chronograf
+    ports:
+      - 8004:8888
+    links:
+      - influxdb
+

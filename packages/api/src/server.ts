@@ -14,6 +14,9 @@ import Redis from "ioredis";
 import { RedisClient, createClient } from "redis";
 import { promisifyAll } from "bluebird";
 import { IUserInToken } from "./models/interfaces";
+import log, { apolloLogPlugin } from "./log";
+
+log.info("Starting api", process.env);
 
 const REDIS_DOMAIN_NAME = process.env.REDIS_DOMAIN_NAME;
 const REDIS_PORT_NUMBER = process.env.REDIS_PORT_NUMBER;
@@ -30,9 +33,10 @@ mongooseConnect(
   { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true },
   (err: any) => {
     if (err) {
+      log.error("Error connecting to Mongo", err);
       throw err;
     }
-    console.log("Successfully connected to Mongo");
+    log.info("Successfully connected to Mongo");
   }
 );
 
@@ -66,7 +70,7 @@ if (USE_REDIS === "true") {
   promisifyAll(RedisClient.prototype);
   redisClient = createClient(REDIS_PORT_NUMBER, REDIS_DOMAIN_NAME);
   redisClient.on("connect", () => {
-    console.log("Redis client connected.");
+    log.info("Redis client connected.");
   });
 } else {
   pubsub = new PubSub();
@@ -74,7 +78,7 @@ if (USE_REDIS === "true") {
 
 const app = new koa();
 const httpServer = app.listen(PORT, () =>
-  console.log(`🚀 Server ready at http://localhost:${PORT}`)
+  log.info(`🚀 Server ready at http://localhost:${PORT}`)
 );
 
 const server = new ApolloServer({
@@ -89,7 +93,8 @@ const server = new ApolloServer({
     );
     return { user, headers: ctx && ctx.headers }; //  add the user to the ctx
   },
-  schema: exSchema
+  schema: exSchema,
+  plugins: [apolloLogPlugin]
 });
 
 export { pubsub, redisClient };
