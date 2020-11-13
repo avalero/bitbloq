@@ -35,3 +35,5 @@ export const bloqSubCategories = [
 
 export const selectedCodeStartToken = "___SELECTED_CODE";
 export const selectedCodeEndToken = "SELECTED_CODE___";
+
+export const DIAGRAM_LINE_WIDTH = 218;

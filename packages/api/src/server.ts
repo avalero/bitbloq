@@ -7,6 +7,7 @@ import initAuthService from "./controllers/authServices";
 import { getMyUser } from "./controllers/context";
 import { startMongoConnection } from "./controllers/mongoose-connection";
 import initRedis from "./controllers/init-redis";
+import log, { apolloLogPlugin } from "./log";
 import exSchema from "./schemas/allSchemas";
 import { IUserInToken } from "./models/interfaces";
 import userResolver from "./resolvers/user";
@@ -16,6 +17,8 @@ config();
 const { REDIS_DOMAIN_NAME, REDIS_PORT_NUMBER, PORT, MONGO_URL } = process.env;
 
 const app = new koa();
+
+log.info("Starting api", process.env);
 
 const server = new ApolloServer({
   context: async ({ ctx, payload, req, connection }) => {
@@ -27,7 +30,8 @@ const server = new ApolloServer({
     const user: IUserInToken | undefined = await getMyUser(authorization);
     return { user, headers: ctx && ctx.headers }; //  add the user to the ctx
   },
-  schema: exSchema
+  schema: exSchema,
+  plugins: [apolloLogPlugin]
 });
 
 let pubsub;
@@ -35,7 +39,7 @@ let redisClient;
 let studentAuthService, userAuthService;
 const main = async () => {
   if (!REDIS_DOMAIN_NAME || !REDIS_PORT_NUMBER || !PORT || !MONGO_URL) {
-    console.error("ERROR WITH ENV");
+    log.error("ERROR WITH ENV");
     return;
   }
   try {
@@ -50,11 +54,11 @@ const main = async () => {
     userAuthService = authService.userAuthService;
     await startMongoConnection(String(MONGO_URL));
     const httpServer = app.listen(PORT, () => {
-      console.info(`🚀 Server ready at http://localhost:${PORT}`);
+      log.info(`🚀 Server ready at http://localhost:${PORT}`);
       // set readiness file
       fs.writeFile("/tmp/ready", "ready", function(err) {
         if (err) throw err;
-        console.info("/tmp/ready file created");
+        log.info("/tmp/ready file created");
       });
     });
 
@@ -64,10 +68,10 @@ const main = async () => {
         // Replace the `true` in this conditional with more specific checks!
         // Log does not appear
         if (await userResolver.Mutation.login) {
-          console.info("everything ok");
+          log.info("everything ok");
           return Promise.resolve();
         } else {
-          console.error("Hello out there! API is dead");
+          log.error("Hello out there! API is dead");
           // Health does not fail
           return Promise.reject();
         }
@@ -75,11 +79,11 @@ const main = async () => {
     });
     server.installSubscriptionHandlers(httpServer);
   } catch (e) {
-    console.error("Server creation error", e);
+    log.error("Server creation error", e);
     // if there is any unhandled error delete /tmp/ready if it exists
     fs.unlink("/tmp/ready", function(err) {
-      if (err) console.error(err);
-      console.error("File deleted!");
+      if (err) log.error("Delete ready file error", e);
+      log.error("File deleted!");
     });
   }
 };
