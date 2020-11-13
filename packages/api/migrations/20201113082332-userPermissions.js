@@ -1,7 +1,7 @@
 const USER_PERMISSIONS = {
-  basic: "usr-",
-  publisher: "pub-",
-  teacher: "tch-"
+  basic: "user",
+  publisher: "publisher",
+  teacher: "teacher"
 };
 
 module.exports = {
@@ -10,12 +10,12 @@ module.exports = {
       .collection("usermodels")
       .find({})
       .forEach(user => {
-        let userPerm = USER_PERMISSIONS.basic;
+        const userPerm = [USER_PERMISSIONS.basic];
         if (user.teacher) {
-          userPerm = userPerm.concat(USER_PERMISSIONS.teacher);
+          userPerm.push(USER_PERMISSIONS.teacher);
         }
         if (user.publisher) {
-          userPerm = userPerm.concat(USER_PERMISSIONS.publisher);
+          userPerm.push(USER_PERMISSIONS.publisher);
         }
         db.collection("usermodels").findOneAndUpdate(
           { _id: user._id },
@@ -45,10 +45,10 @@ module.exports = {
           family: false,
           publisher: false
         };
-        if (user.userPermissions.includes(USER_PERMISSIONS.teacher)) {
+        if (user.permissions.includes(USER_PERMISSIONS.teacher)) {
           oldPerm.teacher = true;
         }
-        if (user.userPermissions.includes(USER_PERMISSIONS.publisher)) {
+        if (user.permissions.includes(USER_PERMISSIONS.publisher)) {
           oldPerm.publisher = true;
         }
         db.collection("usermodels").findOneAndUpdate(

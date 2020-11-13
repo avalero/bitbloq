@@ -1,6 +1,7 @@
 import AuthService from "../../auth-service/authService";
 import { UserModel, IUser } from "../models/user";
 import { SESSION, USER_PERMISSIONS } from "../config";
+import log from "../log";
 import { USER_SESSION_EXPIRES } from "../resolvers/user";
 import { SubmissionModel } from "../models/submission";
 import { SUBMISSION_SESSION_EXPIRES } from "../resolvers/submission";
@@ -17,7 +18,7 @@ const initAuthService = (redisClient, pubsub) => {
         try {
           user = await UserModel.findOne({ email: credentials.user });
         } catch (e) {
-          console.error(e);
+          log.error("error getting user data", e);
         }
         return user
           ? {

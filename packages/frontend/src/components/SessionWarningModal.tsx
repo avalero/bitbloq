@@ -33,7 +33,6 @@ const SessionWarningModal: FC<ISessionWarningModalProps> = ({
         setOtherSessionOpened(true);
       } else {
         if (sessionExpires.expiredSession && onExpired) {
-          console.log("entra expired");
           onExpired();
         }
         if (

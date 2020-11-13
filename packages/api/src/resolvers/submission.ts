@@ -143,11 +143,13 @@ const submissionResolver = {
         contentVersion: exFather.contentVersion || CONTENT_VERSION
       });
       const newSub: ISubmission = await SubmissionModel.create(submissionNew);
-      const token = await studentAuthService.login({
-        studentNick: args.studentNick.toLowerCase(),
-        exerciseId: exFather._id,
-        password: args.password
-      });
+      const token = (
+        await studentAuthService.login({
+          studentNick: args.studentNick.toLowerCase(),
+          exerciseId: exFather._id,
+          password: args.password
+        })
+      ).token;
       pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: newSub });
       return {
         token,
@@ -185,11 +187,13 @@ const submissionResolver = {
           "NOT_ACCEPT_SUBMISSIONS"
         );
       }
-      const token = await studentAuthService.login({
-        studentNick: args.studentNick.toLowerCase(),
-        exerciseId: exFather._id,
-        password: args.password
-      });
+      const token = (
+        await studentAuthService.login({
+          studentNick: args.studentNick.toLowerCase(),
+          exerciseId: exFather._id,
+          password: args.password
+        })
+      ).token;
 
       const existSub = await SubmissionModel.findOne({
         studentNick: args.studentNick.toLowerCase(),

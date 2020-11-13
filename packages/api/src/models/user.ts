@@ -7,7 +7,7 @@ export interface IUser extends Document {
   _id: string;
   email: string;
   password: string;
-  permissions: string;
+  permissions: string[];
   name?: string;
   avatar?: string;
   surnames?: string;
@@ -47,8 +47,8 @@ export const contactSchema: Schema = new Schema({
   },
 
   permissions: {
-    type: String,
-    default: USER_PERMISSIONS.basic
+    type: [String],
+    default: [USER_PERMISSIONS.basic]
   },
 
   name: {

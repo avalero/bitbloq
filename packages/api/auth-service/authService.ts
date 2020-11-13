@@ -113,7 +113,7 @@ class AuthService {
         "expiresAt",
         date,
         "permissions",
-        user.permissions
+        user.permissions.toString()
       );
     } catch (e) {
       console.log({ e });

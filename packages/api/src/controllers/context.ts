@@ -6,7 +6,7 @@ import { compare as bcryptCompare } from "bcrypt";
 
 import { redisClient, userAuthService } from "../server";
 
-import { SESSION } from "../config";
+import { SESSION, USER_PERMISSIONS } from "../config";
 
 const storeTokenInRedis = async (
   id: string,
@@ -80,7 +80,7 @@ const getMyUser = async authorization => {
     if (valid) {
       const userBas: IUserInToken = {
         userId: contactFound.id as string,
-        permissions: "usr-",
+        permissions: [USER_PERMISSIONS.basic],
         submissionID: ""
       };
       return userBas;

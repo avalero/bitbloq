@@ -167,10 +167,10 @@ const userResolver = {
           "USER_NOT_BIRTHDATE"
         );
       }
-      let teacher = false;
+      const permissions = [USER_PERMISSIONS.basic];
       switch (args.userPlan) {
         case "teacher":
-          teacher = true;
+          permissions.push(USER_PERMISSIONS.teacher);
           break;
         case "member":
           break;
@@ -211,7 +211,7 @@ const userResolver = {
           $set: {
             signUpToken:
               user.microsoftID || user.googleID ? "" : logOrSignToken,
-            teacher,
+            permissions,
             finishedSignUp: true,
             rootFolder: userFolder._id,
             active: activeUser
@@ -666,10 +666,10 @@ const userResolver = {
       args: IMutationUpdateMyPlanArgs,
       context: { user: IUserInToken }
     ) => {
-      let teacher = false;
+      const permissions = [USER_PERMISSIONS.basic];
       switch (args.userPlan) {
         case "teacher":
-          teacher = true;
+          permissions.push(USER_PERMISSIONS.teacher);
           break;
         case "member":
           break;
@@ -678,7 +678,7 @@ const userResolver = {
       }
       const user: IUser | null = await UserModel.findOneAndUpdate(
         { _id: context.user.userId, finishedSignUp: true },
-        { $set: { teacher } },
+        { $set: { permissions: permissions } },
         { new: true }
       );
       if (!user) {

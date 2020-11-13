@@ -4,6 +4,7 @@ import {
   set as mongooseSet
 } from "mongoose";
 import { up as migrateUp } from "migrate-mongo";
+import log from "../log";
 
 const connectWithRetry = (mongoUrl: string) => {
   return mongooseConnect(mongoUrl, {
@@ -11,9 +12,9 @@ const connectWithRetry = (mongoUrl: string) => {
     useCreateIndex: true,
     useUnifiedTopology: true
   })
-    .then(() => console.info("Successfully connected to Mongo"))
+    .then(() => log.info("Successfully connected to Mongo"))
     .catch(e => {
-      console.error("error with mongo", e);
+      log.error("error with mongo", e);
       setTimeout(connectWithRetry, 5000);
     });
 };
@@ -26,10 +27,10 @@ export const startMongoConnection = async (mongoUrl: string) => {
     const db = await mongooseConnection;
     const migrated = await migrateUp(db);
     migrated.length > 0
-      ? migrated.forEach(fileName => console.info("Migrated:", fileName))
-      : console.info("Nothing to migrate");
+      ? migrated.forEach(fileName => log.info("Migrated:", fileName))
+      : log.info("Nothing to migrate");
   } catch (e) {
-    console.error("Error executing migration");
+    log.error("Error executing migration");
     // if migration fails we must propagate error, because ready file is not created and pod will not work
     // if the server should work even if migration fails we should create ready file elsewhere
     throw e;

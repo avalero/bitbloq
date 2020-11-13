@@ -2,6 +2,7 @@ import { RedisPubSub } from "graphql-redis-subscriptions";
 import Redis from "ioredis";
 import { RedisClient, createClient } from "redis";
 import { promisifyAll } from "bluebird";
+import log from "../log";
 
 const initRedis = async (domainName: string, portNumber) => {
   // Redis configuration
@@ -30,7 +31,7 @@ const initRedis = async (domainName: string, portNumber) => {
   promisifyAll(RedisClient.prototype);
   const redisClient = createClient(portNumber, domainName);
   redisClient.on("connect", () => {
-    console.info("Redis client connected.");
+    log.info("Redis client connected.");
   });
   return { pubsub, redisClient };
 };
