@@ -7,4 +7,5 @@ WORKDIR /usr/src/app
 COPY .env package.json package-lock.json tsconfig.json docker-entrypoint.sh migrate-mongo-config.js ./
 COPY src ./src
 COPY migrations ./migrations
+COPY auth-service ./auth-service
 
