@@ -7,6 +7,7 @@ WORKDIR /usr/src/app
 COPY package.json package-lock.json tsconfig.json docker-entrypoint.sh migrate-mongo-config.js ./
 COPY src ./src
 COPY migrations ./migrations
+COPY auth-service ./auth-service
 
 RUN npm install --yes
 RUN chmod +x /usr/src/app/docker-entrypoint.sh
