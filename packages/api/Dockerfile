@@ -4,7 +4,7 @@ RUN mkdir -p /usr/src/app
 RUN mkdir -p /usr/src/app/src
 WORKDIR /usr/src/app
 
-COPY package.json package-lock.json tsconfig.json docker-entrypoint.sh migrate-mongo-config.js ./
+COPY liveness.sh package.json package-lock.json tsconfig.json docker-entrypoint.sh migrate-mongo-config.js ./
 COPY src ./src
 COPY migrations ./migrations
 COPY auth-service ./auth-service
