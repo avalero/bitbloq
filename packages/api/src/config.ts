@@ -1,6 +1,6 @@
 export const SESSION = {
   DURATION_MINUTES: 60,
-  SHOW_WARNING_SECONDS: 300
+  SHOW_WARNING_SECONDS: 500
 };
 
 export const LIMIT_SIZE = {
@@ -10,3 +10,10 @@ export const LIMIT_SIZE = {
 };
 
 export const CONTENT_VERSION = 0;
+
+export const USER_PERMISSIONS = {
+  basic: "user",
+  publisher: "publisher",
+  student: "student",
+  teacher: "teacher"
+};

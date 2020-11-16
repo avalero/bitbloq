@@ -3,7 +3,6 @@ import gql from "graphql-tag";
 export const ME_QUERY = gql`
   query Me {
     me {
-      admin
       avatar
       birthDate
       email
@@ -672,6 +671,7 @@ export const USER_SESSION_EXPIRES_SUBSCRIPTION = gql`
       authToken
       expiredSession
       showSessionWarningSecs
+      reason
     }
   }
 `;

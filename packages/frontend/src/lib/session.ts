@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import cookie from "cookie";
 import { NextApiRequest } from "next";
+import Router from "next/router";
 
 interface ISession {
   token: string;
@@ -57,6 +58,7 @@ export const setToken = (token: string, tempSession?: string) => {
 export const logout = () => {
   setToken("");
   triggerEvent({ event: "logout" });
+  Router.push("/");
 };
 
 export interface ISessionEvent {

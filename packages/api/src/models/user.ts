@@ -1,21 +1,18 @@
 import { Document, Model, model, Schema } from "mongoose";
 // import {timestamps} from "mongoose-timestamp";
 import timestamps from "mongoose-timestamp";
+import { USER_PERMISSIONS } from "../config";
 
 export interface IUser extends Document {
   _id: string;
-  email?: string;
-  password?: string;
-  admin?: boolean;
-  publisher?: boolean;
-  teacher?: boolean;
-  teacherPro?: boolean;
-  family?: boolean;
+  email: string;
+  password: string;
+  permissions: string[];
   name?: string;
   avatar?: string;
   surnames?: string;
   birthDate?: Date;
-  active?: boolean;
+  active: boolean;
   signUpToken?: string;
   authToken?: string;
   notifications?: boolean;
@@ -49,29 +46,9 @@ export const contactSchema: Schema = new Schema({
     required: true
   },
 
-  admin: {
-    type: Boolean,
-    default: false
-  },
-
-  publisher: {
-    type: Boolean,
-    default: false
-  },
-
-  teacher: {
-    type: Boolean,
-    default: false
-  },
-
-  teacherPro: {
-    type: Boolean,
-    default: false
-  },
-
-  family: {
-    type: Boolean,
-    default: false
+  permissions: {
+    type: [String],
+    default: [USER_PERMISSIONS.basic]
   },
 
   name: {
@@ -88,7 +65,8 @@ export const contactSchema: Schema = new Schema({
   },
 
   active: {
-    type: Boolean
+    type: Boolean,
+    default: false
   },
 
   signUpToken: {
@@ -102,7 +80,8 @@ export const contactSchema: Schema = new Schema({
   },
 
   notifications: {
-    type: Boolean
+    type: Boolean,
+    default: false
   },
 
   imTeacherCheck: { type: Boolean, default: false },
@@ -113,7 +92,8 @@ export const contactSchema: Schema = new Schema({
   country: { type: String },
 
   lastLogin: {
-    type: Date
+    type: Date,
+    default: new Date()
   },
 
   finishedSignUp: {

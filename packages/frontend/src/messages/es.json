@@ -630,6 +630,18 @@
       "select-account": "Añadir copia a mis documentos"
     }
   },
+  "session-warning-modal":{
+    "expires":{
+      "title": "¿Sigues ahí?",
+      "text-1":" Parece que te has ido, si no quieres seguir trabajando saldrás de tu cuenta en",
+      "text-2": "%v% segundos",
+      "ok-text": "Si, quiero seguir trabajando"
+    },
+    "other-opened":{
+    "title": "Has iniciado sesión en otro dispositivo",
+    "text": "Solo se puede tener una sesión abierta al mismo tiempo"}
+
+  },
   "signup": {
     "activate-modal": {
       "title": "Cuenta validada",

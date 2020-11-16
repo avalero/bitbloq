@@ -36,6 +36,7 @@ type Mutation {
     @authRequired(requires: [USER])
   setDocumentImage(id: ObjectID, image: Upload, isSnapshot: Boolean): Document
     @authRequired(requires: [USER])
+    
   publishDocument(id: ObjectID!, public: Boolean, example: Boolean): Document
     @authRequired(requires: [PUBLISHER])
 }

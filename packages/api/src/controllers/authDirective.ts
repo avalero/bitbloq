@@ -4,6 +4,7 @@ import {
   SchemaDirectiveVisitor
 } from "apollo-server-koa";
 import { defaultFieldResolver } from "graphql";
+import { USER_PERMISSIONS } from "../config";
 
 class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
   public visitObject(type) {
@@ -45,53 +46,30 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
         } else {
           let passed = false;
           for (const roleReq of requiredRole) {
-            if (roleReq === "USER" && context.user.role.indexOf("usr-") > -1) {
-              passed = true;
-              return resolve.apply(this, args);
-            }
             if (
-              roleReq === "ADMIN" &&
-              context.user.role.indexOf("admin-") > -1
+              roleReq === "USER" &&
+              context.user.permissions.includes(USER_PERMISSIONS.basic)
             ) {
               passed = true;
               return resolve.apply(this, args);
             }
             if (
               roleReq === "PUBLISHER" &&
-              context.user.role.indexOf("pub-") > -1
+              context.user.permissions.includes(USER_PERMISSIONS.publisher)
+            ) {
+              passed = true;
+              return resolve.apply(this, args);
+            }
+            if (
+              roleReq === "TEACHER" &&
+              context.user.permissions.includes(USER_PERMISSIONS.teacher)
             ) {
               passed = true;
               return resolve.apply(this, args);
             }
             if (
               roleReq === "STUDENT" &&
-              context.user.role.indexOf("stu-") > -1
-            ) {
-              if (!context.user.exerciseID) {
-                throw new AuthenticationError(
-                  "You need to login with exercise code 1"
-                );
-              }
-              passed = true;
-              return resolve.apply(this, args);
-            }
-            if (
-              roleReq === "TEACHER" &&
-              context.user.role.indexOf("tchr-") > -1
-            ) {
-              passed = true;
-              return resolve.apply(this, args);
-            }
-            if (
-              roleReq === "TEACHER_PRO" &&
-              context.user.role.indexOf("tchrPro-") > -1
-            ) {
-              passed = true;
-              return resolve.apply(this, args);
-            }
-            if (
-              roleReq === "FAMILY" &&
-              context.user.role.indexOf("fam-") > -1
+              context.user.permissions.includes(USER_PERMISSIONS.student)
             ) {
               passed = true;
               return resolve.apply(this, args);

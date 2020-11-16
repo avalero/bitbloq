@@ -13,10 +13,9 @@ export interface ICommonProps {
 }
 // User in token user interface
 export interface IUserInToken {
-  email: string;
-  userID: string;
-  submissionID: string;
-  role: string;
+  userId: string;
+  permissions: string[];
+  submissionID?: string;
   exerciseID?: string;
 }
 

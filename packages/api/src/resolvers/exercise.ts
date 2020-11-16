@@ -15,7 +15,7 @@ import {
   IQueryExerciseArgs,
   IQueryExerciseByCodeArgs,
   IQueryExercisesByDocumentArgs
-} from "../api-types";
+} from "../types";
 import { CONTENT_VERSION } from "../config";
 import { createExerciseImage, deleteExerciseImage } from "./upload";
 
@@ -33,7 +33,7 @@ const exerciseResolver = {
     ) => {
       const docFather: IDocument | null = await DocumentModel.findOne({
         _id: args.input.document,
-        user: context.user.userID
+        user: context.user.userId
       });
       if (!docFather) {
         throw new ApolloError(
@@ -41,7 +41,7 @@ const exerciseResolver = {
           "DOCUMENT_NOT_FOUND"
         );
       }
-      const user: IUser | null = await UserModel.findById(context.user.userID);
+      const user: IUser | null = await UserModel.findById(context.user.userId);
       if (!user) {
         throw new ApolloError(" User not found", "USER_NOT_FOUND");
       }
@@ -56,10 +56,10 @@ const exerciseResolver = {
       const exerciseImg: string = await createExerciseImage(
         docFather.image!.image,
         newCode,
-        context.user.userID
+        context.user.userId
       );
       const exerciseNew: IExercise = new ExerciseModel({
-        user: context.user.userID,
+        user: context.user.userId,
         document: docFather._id,
         name: args.input.name,
         code: newCode,
@@ -90,7 +90,7 @@ const exerciseResolver = {
     ) => {
       const existExercise: IExercise | null = await ExerciseModel.findOne({
         _id: args.id,
-        user: context.user.userID
+        user: context.user.userId
       });
       if (!existExercise) {
         return new ApolloError("Exercise does not exist", "EXERCISE_NOT_FOUND");
@@ -116,11 +116,11 @@ const exerciseResolver = {
     ) => {
       const existExercise: IExercise | null = await ExerciseModel.findOne({
         _id: args.id,
-        user: context.user.userID
+        user: context.user.userId
       });
       if (existExercise) {
         if (existExercise.image) {
-          await deleteExerciseImage(existExercise.code, context.user.userID);
+          await deleteExerciseImage(existExercise.code, context.user.userId);
         }
         await SubmissionModel.deleteMany({ exercise: existExercise._id });
         const docFather = await DocumentModel.findOne({
@@ -145,7 +145,7 @@ const exerciseResolver = {
     ) => {
       const existExercise: IExercise | null = await ExerciseModel.findOne({
         _id: args.id,
-        user: context.user.userID
+        user: context.user.userId
       });
       if (existExercise && args.input) {
         return ExerciseModel.findOneAndUpdate(
@@ -165,7 +165,7 @@ const exerciseResolver = {
      * args: nothing.
      */
     exercises: async (_, __, context: { user: IUserInToken }) => {
-      return ExerciseModel.find({ user: context.user.userID });
+      return ExerciseModel.find({ user: context.user.userId });
     },
 
     /**
@@ -212,14 +212,14 @@ const exerciseResolver = {
     ) => {
       const docFather: IDocument | null = await DocumentModel.findOne({
         _id: args.document,
-        user: context.user.userID
+        user: context.user.userId
       });
       if (!docFather) {
         throw new ApolloError("document does not exist", "DOCUMENT_NOT_FOUND");
       }
       return ExerciseModel.find({
         document: docFather._id,
-        user: context.user.userID
+        user: context.user.userId
       });
     }
   },

@@ -21,6 +21,7 @@ type Mutation {
     studentNick: String!
     password: String!
   ): loginOut
+
   updateSubmission(input: SubmissionIn): Submission
     @authRequired(requires: [STUDENT])
   finishSubmission(
@@ -29,6 +30,7 @@ type Mutation {
     studentComment: String
   ): Submission @authRequired(requires: [STUDENT])
   cancelSubmission: Submission @authRequired(requires: [STUDENT])
+  
   deleteSubmission(submissionID: ObjectID!): Submission
     @authRequired(requires: [TEACHER])
   gradeSubmission(

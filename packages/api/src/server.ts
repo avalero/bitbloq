@@ -1,85 +1,24 @@
 import { config } from "dotenv";
-config();
-
-import { set as mongooseSet, connect as mongooseConnect } from "mongoose";
-import { contextController } from "./controllers/context";
-import exSchema from "./schemas/allSchemas";
-
+import * as fs from "fs";
 import koa from "koa";
 import { ApolloServer } from "apollo-server-koa";
-import { PubSub } from "apollo-server";
-import { RedisPubSub } from "graphql-redis-subscriptions";
 
-import Redis from "ioredis";
-import { RedisClient, createClient } from "redis";
-import { promisifyAll } from "bluebird";
-import { IUserInToken } from "./models/interfaces";
+import initAuthService from "./controllers/authServices";
+import { getMyUser } from "./controllers/context";
+import { startMongoConnection } from "./controllers/mongoose-connection";
+import initRedis from "./controllers/init-redis";
 import log, { apolloLogPlugin } from "./log";
+import exSchema from "./schemas/allSchemas";
+import { IUserInToken } from "./models/interfaces";
+import userResolver from "./resolvers/user";
 
-log.info("Starting api", process.env);
+config();
 
-const REDIS_DOMAIN_NAME = process.env.REDIS_DOMAIN_NAME;
-const REDIS_PORT_NUMBER = process.env.REDIS_PORT_NUMBER;
-const USE_REDIS = String(process.env.USE_REDIS);
-
-const PORT = process.env.PORT;
-
-const mongoUrl: string = process.env.MONGO_URL as string;
-
-mongooseSet("debug", true);
-mongooseSet("useFindAndModify", false); // ojo con esto al desplegar
-mongooseConnect(
-  mongoUrl,
-  { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true },
-  (err: any) => {
-    if (err) {
-      log.error("Error connecting to Mongo", err);
-      throw err;
-    }
-    log.info("Successfully connected to Mongo");
-  }
-);
-
-let pubsub;
-let redisClient;
-if (USE_REDIS === "true") {
-  // Redis configuration
-  const redisOptions = {
-    host: REDIS_DOMAIN_NAME,
-    port: REDIS_PORT_NUMBER,
-    retry_strategy: options => {
-      // reconnect after
-      return Math.max(options.attempt * 100, 3000);
-    }
-  };
-  const allReviver = (key, value) => {
-    if (value && value._id) {
-      return { ...value, id: value._id };
-    }
-    return value;
-  };
-  // redis creation for subscriptions
-  pubsub = new RedisPubSub({
-    publisher: new Redis(redisOptions),
-    subscriber: new Redis(redisOptions),
-    reviver: allReviver
-  });
-
-  // Redis client for session tokens
-  // to do async/await
-  promisifyAll(RedisClient.prototype);
-  redisClient = createClient(REDIS_PORT_NUMBER, REDIS_DOMAIN_NAME);
-  redisClient.on("connect", () => {
-    log.info("Redis client connected.");
-  });
-} else {
-  pubsub = new PubSub();
-}
+const { REDIS_DOMAIN_NAME, REDIS_PORT_NUMBER, PORT, MONGO_URL } = process.env;
 
 const app = new koa();
-const httpServer = app.listen(PORT, () =>
-  log.info(`🚀 Server ready at http://localhost:${PORT}`)
-);
+
+log.info("Starting api", process.env);
 
 const server = new ApolloServer({
   context: async ({ ctx, payload, req, connection }) => {
@@ -88,15 +27,67 @@ const server = new ApolloServer({
       (payload && payload.authorization) ||
       "";
 
-    const user: IUserInToken | undefined = await contextController.getMyUser(
-      authorization
-    );
+    const user: IUserInToken | undefined = await getMyUser(authorization);
     return { user, headers: ctx && ctx.headers }; //  add the user to the ctx
   },
   schema: exSchema,
   plugins: [apolloLogPlugin]
 });
 
-export { pubsub, redisClient };
-server.applyMiddleware({ app });
-server.installSubscriptionHandlers(httpServer);
+let pubsub;
+let redisClient;
+let studentAuthService, userAuthService;
+const main = async () => {
+  if (!REDIS_DOMAIN_NAME || !REDIS_PORT_NUMBER || !PORT || !MONGO_URL) {
+    log.error("ERROR WITH ENV");
+    return;
+  }
+  try {
+    const redisService = await initRedis(
+      REDIS_DOMAIN_NAME,
+      Number(REDIS_PORT_NUMBER)
+    );
+    pubsub = redisService.pubsub;
+    redisClient = redisService.redisClient;
+    const authService = initAuthService(redisClient, pubsub);
+    studentAuthService = authService.studentAuthService;
+    userAuthService = authService.userAuthService;
+    await startMongoConnection(String(MONGO_URL));
+    const httpServer = app.listen(PORT, () => {
+      log.info(`🚀 Server ready at http://localhost:${PORT}`);
+      // set readiness file
+      fs.writeFile("/tmp/ready", "ready", function(err) {
+        if (err) throw err;
+        log.info("/tmp/ready file created");
+      });
+    });
+
+    server.applyMiddleware({
+      app,
+      onHealthCheck: async () => {
+        // Replace the `true` in this conditional with more specific checks!
+        // Log does not appear
+        if (await userResolver.Mutation.login) {
+          log.info("everything ok");
+          return Promise.resolve();
+        } else {
+          log.error("Hello out there! API is dead");
+          // Health does not fail
+          return Promise.reject();
+        }
+      }
+    });
+    server.installSubscriptionHandlers(httpServer);
+  } catch (e) {
+    log.error("Server creation error", e);
+    // if there is any unhandled error delete /tmp/ready if it exists
+    fs.unlink("/tmp/ready", function(err) {
+      if (err) log.error("Delete ready file error", e);
+      log.error("File deleted!");
+    });
+  }
+};
+
+main();
+
+export { pubsub, redisClient, studentAuthService, userAuthService };
