@@ -11,6 +11,7 @@ COPY auth-service ./auth-service
 
 RUN npm install --yes
 RUN chmod +x /usr/src/app/docker-entrypoint.sh
+RUN chmod +x /usr/src/app/liveness.sh
 
 EXPOSE 4000
 
